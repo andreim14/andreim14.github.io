@@ -7,3 +7,24 @@
 
 "Vision":
   color: "#009f36"
+
+"ACL":
+  url: https://aclweb.org
+  # gold
+  color:  "#ffa500"
+
+
+"ArXiv":
+  url: https://arxiv.org
+  # red
+  color: "#ff0000"
+
+"EACL":
+  url: https://eacl.org/
+  # dark green
+  color: "#006400"
+
+"NAACL":
+  url: https://naacl.org/
+  # blue
+  color: "#0000ff"
