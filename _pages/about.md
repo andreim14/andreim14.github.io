@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: NLP Researcher @ <a href="https://babelscape.com">Babelscape</a> | Ph.D. in Artificial Intelligence @ <a href="https://babelscape.com">Sapienza University of Rome</a>
+subtitle: NLP Researcher @ <a href="https://babelscape.com">Babelscape</a> | Ph.D. in Artificial Intelligence @ <a href="https://nlp.uniroma1.it/">Sapienza University of Rome</a>
 
 profile:
   align: right
