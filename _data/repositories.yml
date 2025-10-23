@@ -1,10 +1,11 @@
 github_users:
   - andreim14
 
-repo_description_lines_max: 2
+repo_description_lines_max: 3
 
 github_repos:
   - andreim14/beanis
-  - Babelscape/WSL
   - Babelscape/LLM-Oasis
+  - Babelscape/WSL
+  - Babelscape/CroCoAlign
 
