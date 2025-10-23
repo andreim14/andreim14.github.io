@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: NLP Researcher @ <a href="https://babelscape.com">Babelscape</a> | Ph.D. in Artificial Intelligence @ <a href="https://nlp.uniroma1.it/">Sapienza University of Rome</a>
+subtitle: AI Applied Scientist @ <a href="https://www.syllotips.com">SylloTips</a> | Ph.D. in Artificial Intelligence @ <a href="https://nlp.uniroma1.it/">Sapienza University of Rome</a>
 
 profile:
   align: right
@@ -26,7 +26,7 @@ latest_posts:
 
 
 
-Hi, I'm Andrei Stefan Bejgu, an NLP Researcher at Babelscape based in Rome. I transform state-of-the-art insights into robust AI solutions by developing retrieval-augmented systems and fine-tuning multilingual LLMs using scalable, distributed training methods. My work bridges the gap between research and production, turning complex NLP challenges into high-performance, production-grade products.
+Hi, I'm Andrei Stefan Bejgu, an AI Applied Scientist at SylloTips based in Rome. I transform state-of-the-art insights into robust AI solutions by developing human-in-the-loop AI agents, retrieval-augmented systems, and fine-tuning multilingual LLMs using scalable, distributed training methods. My work bridges the gap between research and production, turning complex NLP challenges into high-performance, production-grade products.
 
 I earned my industrial Ph.D. at Sapienza University of Rome, where I deepened my expertise in multilingual NLP and advanced machine learning techniques—an experience that continues to shape my approach to real-world innovations.
 
