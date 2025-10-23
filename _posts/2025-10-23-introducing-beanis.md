@@ -7,6 +7,9 @@ tags: python redis database odm pydantic open-source
 categories: projects
 giscus_comments: true
 related_posts: false
+thumbnail: assets/img/beanis-social.png
+keywords: Redis ODM, Python Redis, Pydantic Redis, Redis object mapper, async Redis Python, Redis database Python, type-safe Redis, Redis serialization, Redis performance, Redis indexing
+author: Andrei Stefan Bejgu
 ---
 
 Picture this: You're building a high-performance API. You need Redis for caching and fast queries, but you're drowning in boilerplate code. Every simple operation requires 15-20 lines of manual serialization, type conversion, and key management. Your codebase is littered with `json.dumps()`, `json.loads()`, and fragile string manipulation.
