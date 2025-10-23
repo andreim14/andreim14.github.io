@@ -50,6 +50,26 @@ product = await Product.get(product_id)
 
 ---
 
+## Why Build Another Redis Library?
+
+I've spent years working with databases in AI/ML projects. I love MongoDB's ODMs like Beanie - the clean API, Pydantic integration, and how they let you focus on business logic instead of CRUD boilerplate. But when you need Redis-level performance, you're stuck with manual serialization and key management.
+
+**The existing Redis libraries weren't cutting it:**
+- **Redis OM** - Excellent, but requires RedisJSON/RediSearch modules (not always available)
+- **Walrus** - No async support, predates Pydantic v2
+- **Raw redis-py** - Fast but verbose, no type safety
+
+I wanted something that combined:
+- ✅ Vanilla Redis compatibility (no modules required)
+- ✅ Pydantic v2 validation and type safety
+- ✅ Beanie-like clean API
+- ✅ Async-first design
+- ✅ Minimal performance overhead
+
+When I couldn't find it, I built it. Beanis is what I wish existed when I started working with Redis.
+
+---
+
 ## Real-World Example: Building a Product Catalog
 
 Let's build something real: a product catalog for an e-commerce platform. You need:
@@ -436,6 +456,369 @@ class Score(Document):
 
 # Top 10 globally
 top_players = await Score.find(score__gte=1000).sort('-score').limit(10)
+```
+
+---
+
+## Migrating from Raw Redis: A Step-by-Step Guide
+
+Already have a Redis codebase? Here's how to migrate incrementally without breaking production.
+
+### Step 1: Identify Your Data Models
+
+Look at your existing Redis keys and group them:
+
+```python
+# Current Redis structure
+# User:1 -> hash {name, email, age}
+# User:2 -> hash {name, email, age}
+# User:idx:email -> sorted set
+# User:all -> set
+
+# This becomes a Beanis document
+class User(Document):
+    name: str
+    email: Indexed[str]
+    age: int
+
+    class Settings:
+        key_prefix = "User"
+```
+
+### Step 2: Add Validation Gradually
+
+Start with basic types, add constraints later:
+
+```python
+# Phase 1: Just types
+class Product(Document):
+    name: str
+    price: float
+    stock: int
+
+# Phase 2: Add validation
+class Product(Document):
+    name: str = Field(min_length=1, max_length=200)
+    price: float = Field(gt=0)  # Must be positive
+    stock: int = Field(ge=0)  # Can't be negative
+```
+
+### Step 3: Dual-Write During Migration
+
+Run both systems in parallel:
+
+```python
+async def create_product_safe(data):
+    # Write to Beanis
+    product = Product(**data)
+    await product.insert()
+
+    # Still write to old Redis (for rollback safety)
+    await redis_client.hset(
+        f"Product:{product.id}",
+        mapping=legacy_serialize(data)
+    )
+
+    return product
+
+# After 1-2 weeks of dual-write, stop reading from old keys
+# After 1 month, stop dual-writing
+```
+
+### Step 4: Verify Data Consistency
+
+```python
+async def verify_migration():
+    """Compare old vs new data"""
+    old_keys = await redis_client.keys("Product:*")
+
+    for key in old_keys:
+        product_id = key.split(":")[1]
+
+        # Get from both systems
+        old_data = await redis_client.hgetall(key)
+        new_product = await Product.get(product_id)
+
+        # Compare
+        assert old_data['name'] == new_product.name
+        assert float(old_data['price']) == new_product.price
+        # ... verify all fields
+```
+
+---
+
+## Advanced Patterns and Best Practices
+
+### Pattern 1: Caching with TTL
+
+Beanis doesn't have built-in TTL yet, but you can implement it:
+
+```python
+class CachedResult(Document):
+    query_hash: Indexed[str]
+    result_data: dict
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        key_prefix = "Cache"
+
+    async def is_expired(self, ttl_seconds: int = 300) -> bool:
+        age = (datetime.now() - self.created_at).total_seconds()
+        return age > ttl_seconds
+
+# Usage
+async def get_with_cache(query: str, ttl: int = 300):
+    query_hash = hashlib.md5(query.encode()).hexdigest()
+
+    # Check cache
+    cached = await CachedResult.find_one(query_hash=query_hash)
+    if cached and not await cached.is_expired(ttl):
+        return cached.result_data
+
+    # Compute and cache
+    result = await expensive_operation(query)
+    await CachedResult(
+        query_hash=query_hash,
+        result_data=result
+    ).insert()
+
+    return result
+```
+
+### Pattern 2: Optimistic Locking
+
+Prevent race conditions with version numbers:
+
+```python
+class BankAccount(Document):
+    account_number: str
+    balance: Decimal
+    version: int = 0
+
+    async def withdraw(self, amount: Decimal):
+        # Read current version
+        original_version = self.version
+
+        # Check balance
+        if self.balance < amount:
+            raise InsufficientFunds()
+
+        # Update
+        self.balance -= amount
+        self.version += 1
+
+        try:
+            await self.save()
+        except Exception:
+            # In a real implementation, check if version changed
+            # and retry or raise ConcurrentModificationError
+            raise
+
+# Better: Use Redis transactions
+async def atomic_withdraw(account_id: str, amount: Decimal):
+    async with redis_client.pipeline(transaction=True) as pipe:
+        account = await BankAccount.get(account_id)
+        if account.balance >= amount:
+            account.balance -= amount
+            await account.save()
+```
+
+### Pattern 3: Batch Operations for Performance
+
+Process thousands of records efficiently:
+
+```python
+# ❌ Slow: One query per item
+products = []
+for product_id in product_ids:
+    product = await Product.get(product_id)
+    products.append(product)
+
+# ✅ Fast: Batch fetch
+products = await Product.find(
+    id__in=product_ids
+).to_list()
+
+# ✅ Even faster: Pipeline for insertions
+async def bulk_insert_products(product_data_list):
+    products = [Product(**data) for data in product_data_list]
+
+    # Validate all first (fails fast)
+    for p in products:
+        p.model_validate(p)
+
+    # Bulk insert (uses Redis pipeline internally)
+    await Product.insert_many(products)
+```
+
+### Pattern 4: Computed Fields and Denormalization
+
+Redis favors denormalization - embrace it:
+
+```python
+class Order(Document):
+    user_id: str
+    items: list[dict]  # [{product_id, quantity, price}]
+
+    # Denormalized fields for fast queries
+    total_amount: Decimal
+    item_count: int
+    user_email: str  # Copied from User
+
+    @classmethod
+    async def create_order(cls, user: User, items: list):
+        total = sum(item['price'] * item['quantity'] for item in items)
+
+        order = cls(
+            user_id=user.id,
+            items=items,
+            total_amount=total,
+            item_count=len(items),
+            user_email=user.email  # Denormalize for queries
+        )
+        await order.insert()
+        return order
+
+# Now you can query orders by email without joining
+expensive_orders = await Order.find(
+    user_email="vip@example.com",
+    total_amount__gte=1000
+)
+```
+
+---
+
+## Common Pitfalls and How to Avoid Them
+
+### Pitfall 1: Over-Indexing
+
+**Problem:** Every indexed field creates a sorted set. Too many = memory bloat.
+
+```python
+# ❌ Bad: 10 indexes = 10 sorted sets per document
+class User(Document):
+    name: Indexed[str]
+    email: Indexed[str]
+    age: Indexed[int]
+    created_at: Indexed[datetime]
+    last_login: Indexed[datetime]
+    status: Indexed[str]
+    role: Indexed[str]
+    department: Indexed[str]
+    manager_id: Indexed[str]
+    salary: Indexed[Decimal]
+
+# ✅ Good: Only index what you query
+class User(Document):
+    name: str
+    email: Indexed[str]  # Frequent lookups
+    age: int
+    created_at: Indexed[datetime]  # Time-range queries
+    last_login: datetime  # Don't need to query this
+    status: Indexed[str]  # Filter by active/inactive
+    role: str  # Can filter client-side
+    department: str
+    manager_id: str
+    salary: Decimal  # Sensitive, don't index
+```
+
+### Pitfall 2: Forgetting Async/Await
+
+```python
+# ❌ This will fail silently or hang
+user = User.get(user_id)  # Missing await!
+
+# ✅ Always await
+user = await User.get(user_id)
+
+# ✅ Use async comprehensions
+users = [await User.get(uid) for uid in user_ids]
+
+# ✅ Even better: batch fetch
+users = await User.find(id__in=user_ids).to_list()
+```
+
+### Pitfall 3: N+1 Query Problem
+
+```python
+# ❌ N+1 queries (slow!)
+orders = await Order.find_all()
+for order in orders:
+    user = await User.get(order.user_id)  # N queries!
+    print(f"{user.name}: ${order.total}")
+
+# ✅ Denormalize (recommended for Redis)
+class Order(Document):
+    user_id: str
+    user_name: str  # Denormalized
+    total: Decimal
+
+orders = await Order.find_all()
+for order in orders:
+    print(f"{order.user_name}: ${order.total}")  # No extra query!
+
+# ✅ Or batch fetch users
+orders = await Order.find_all()
+user_ids = {order.user_id for order in orders}
+users = {u.id: u for u in await User.find(id__in=user_ids)}
+
+for order in orders:
+    user = users[order.user_id]
+    print(f"{user.name}: ${order.total}")
+```
+
+---
+
+## Performance Tuning Tips
+
+### 1. Use Connection Pooling
+
+```python
+import redis.asyncio as redis
+from redis.asyncio.connection import ConnectionPool
+
+# ✅ Reuse connections
+pool = ConnectionPool.from_url(
+    "redis://localhost",
+    max_connections=50,
+    decode_responses=True
+)
+client = redis.Redis(connection_pool=pool)
+
+await init_beanis(database=client, document_models=[Product, User])
+```
+
+### 2. Batch Validation
+
+```python
+# If inserting many documents, validate in bulk
+products_data = [...]  # 1000 products
+
+# ✅ Validate all first (parallel)
+from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor() as executor:
+    validated = list(executor.map(
+        lambda d: Product(**d),
+        products_data
+    ))
+
+# Then insert (uses pipeline automatically)
+await Product.insert_many(validated)
+```
+
+### 3. Query Optimization
+
+```python
+# ❌ Fetching everything then filtering in Python
+all_products = await Product.find_all()
+cheap = [p for p in all_products if p.price < 100]
+
+# ✅ Filter in Redis
+cheap = await Product.find(price__lt=100)
+
+# ✅ Use projections (when implemented)
+# cheap = await Product.find(price__lt=100).project(['name', 'price'])
 ```
 
 ---
