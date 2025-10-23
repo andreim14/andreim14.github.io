@@ -5,7 +5,6 @@ date: 2025-10-23 23:00:00
 description: Beanis is an async Python ODM (Object-Document Mapper) for Redis that gives you Pydantic models, type safety, and a clean API - while staying fast
 tags: python redis database odm pydantic
 categories: projects
-thumbnail: assets/img/beanis-thumbnail.png
 giscus_comments: true
 ---
 
