@@ -90,6 +90,7 @@ blog_name: andrei-stefan-bejgu # blog_name will be displayed in your blog page
 blog_description: "Personal website of Andrei Stefan Bejgu"
 permalink: /blog/:year/:title/
 lsi: false # produce an index for related posts
+future: true # show posts dated today or in the future
 
 # Pagination
 pagination:
