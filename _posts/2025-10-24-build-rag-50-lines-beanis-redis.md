@@ -97,38 +97,38 @@ async def search(query: str):
 
 ## Why This is Better
 
-<div class="alert alert-info mt-4 mb-4" role="alert" style="background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460;">
-    <h5 style="color: #0c5460;">🚀 New: Automatic Index Creation</h5>
-    <p class="mb-0" style="color: #0c5460;">Vector indexes are now created automatically during <code>init_beanis()</code>. No manual <code>redis-cli</code> commands needed! Just define your model with <code>VectorField()</code> and you're ready to search.</p>
+<div class="alert alert-info mt-4 mb-4" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
+    <h5 style="color: #084298 !important; font-weight: bold;">🚀 New: Automatic Index Creation</h5>
+    <p class="mb-0" style="color: #084298 !important;">Vector indexes are now created automatically during <code style="background-color: #e7f1ff; color: #084298; padding: 2px 6px; border-radius: 3px;">init_beanis()</code>. No manual <code style="background-color: #e7f1ff; color: #084298; padding: 2px 6px; border-radius: 3px;">redis-cli</code> commands needed! Just define your model with <code style="background-color: #e7f1ff; color: #084298; padding: 2px 6px; border-radius: 3px;">VectorField()</code> and you're ready to search.</p>
 </div>
 
 ### Compared to Pinecone
 
 <div class="row mt-3 mb-3">
     <div class="col-sm-6">
-        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;">
-            <h5 style="color: #721c24;">❌ Pinecone</h5>
-            <ul style="color: #721c24;">
-                <li>Requires API key + billing</li>
-                <li>100+ lines of setup code</li>
-                <li>Separate service to manage</li>
-                <li>$70+/month for production</li>
-                <li>Rate limits, quotas</li>
-                <li>40ms query latency</li>
+        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da !important; border: 2px solid #842029 !important; color: #842029 !important;">
+            <h5 style="color: #842029 !important; font-weight: bold;">❌ Pinecone</h5>
+            <ul style="color: #842029 !important; margin-bottom: 0;">
+                <li style="color: #842029 !important;">Requires API key + billing</li>
+                <li style="color: #842029 !important;">100+ lines of setup code</li>
+                <li style="color: #842029 !important;">Separate service to manage</li>
+                <li style="color: #842029 !important;">$70+/month for production</li>
+                <li style="color: #842029 !important;">Rate limits, quotas</li>
+                <li style="color: #842029 !important;">40ms query latency</li>
             </ul>
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="alert alert-success" role="alert" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
-            <h5 style="color: #155724;">✅ Beanis + Redis</h5>
-            <ul style="color: #155724;">
-                <li>No API keys needed</li>
-                <li>50 lines total</li>
-                <li>Automatic index creation</li>
-                <li>Use Redis you already have</li>
-                <li>$0 extra cost</li>
-                <li>No limits</li>
-                <li>15ms query latency</li>
+        <div class="alert alert-success" role="alert" style="background-color: #d1e7dd !important; border: 2px solid #0a3622 !important; color: #0a3622 !important;">
+            <h5 style="color: #0a3622 !important; font-weight: bold;">✅ Beanis + Redis</h5>
+            <ul style="color: #0a3622 !important; margin-bottom: 0;">
+                <li style="color: #0a3622 !important;">No API keys needed</li>
+                <li style="color: #0a3622 !important;">50 lines total</li>
+                <li style="color: #0a3622 !important;">Automatic index creation</li>
+                <li style="color: #0a3622 !important;">Use Redis you already have</li>
+                <li style="color: #0a3622 !important;">$0 extra cost</li>
+                <li style="color: #0a3622 !important;">No limits</li>
+                <li style="color: #0a3622 !important;">15ms query latency</li>
             </ul>
         </div>
     </div>
@@ -360,8 +360,8 @@ Most companies already use Redis for:
 **Now add:**
 - ✅ **Vector search** (for RAG/AI)
 
-<div class="alert alert-info" role="alert">
-<strong>One service for everything.</strong> No need to add Pinecone, Weaviate, or pgvector. Lower ops complexity, lower cost.
+<div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
+<strong style="color: #084298 !important;">One service for everything.</strong> No need to add Pinecone, Weaviate, or pgvector. Lower ops complexity, lower cost.
 </div>
 
 ### Architecture Simplification
