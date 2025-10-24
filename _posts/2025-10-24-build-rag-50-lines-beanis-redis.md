@@ -97,6 +97,11 @@ async def search(query: str):
 
 ## Why This is Better
 
+<div class="alert alert-info mt-4 mb-4" role="alert">
+    <h5>🚀 New: Automatic Index Creation</h5>
+    <p class="mb-0">Vector indexes are now created automatically during <code>init_beanis()</code>. No manual <code>redis-cli</code> commands needed! Just define your model with <code>VectorField()</code> and you're ready to search.</p>
+</div>
+
 ### Compared to Pinecone
 
 <div class="row mt-3 mb-3">
@@ -119,6 +124,7 @@ async def search(query: str):
             <ul>
                 <li>No API keys needed</li>
                 <li>50 lines total</li>
+                <li>Automatic index creation</li>
                 <li>Use Redis you already have</li>
                 <li>$0 extra cost</li>
                 <li>No limits</li>
@@ -202,7 +208,7 @@ class KnowledgeBase(Document):
         name = "knowledge"
 ```
 
-**14 lines.** That's your entire data model.
+**14 lines.** That's your entire data model. The `VectorField()` tells Beanis to automatically create a vector index with HNSW algorithm for lightning-fast similarity search.
 
 ### 4. Ingest Documents
 
