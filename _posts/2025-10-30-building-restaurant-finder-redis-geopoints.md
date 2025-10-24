@@ -18,97 +18,7 @@ author: Andrei Stefan Bejgu
     </div>
 </div>
 
-Food delivery apps like Uber Eats need to find nearby restaurants **instantly** - think milliseconds, not seconds. But they also need reliable, persistent data that survives crashes.
-
-The solution? **Use Redis as a cache layer** over PostgreSQL.
-
-<div class="row mt-4 mb-4">
-    <div class="col-sm-12">
-        <div class="card text-center">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">⚡ Performance Comparison</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h1 class="display-4 text-danger">750ms</h1>
-                        <p class="lead">PostgreSQL + PostGIS</p>
-                        <small class="text-muted">Complex geo-spatial calculations</small>
-                    </div>
-                    <div class="col-md-6">
-                        <h1 class="display-4 text-success">12ms</h1>
-                        <p class="lead">Redis Cache (Beanis)</p>
-                        <small class="text-muted">Pre-computed indexes</small>
-                    </div>
-                </div>
-                <hr>
-                <h3 class="text-success">62x Faster! 🚀</h3>
-            </div>
-        </div>
-    </div>
-</div>
-
-**What you'll build:**
-- ⚡ **12ms response times** (vs 750ms from database)
-- 🗺️ **Geo-spatial queries** (find restaurants within radius)
-- 💾 **PostgreSQL as source of truth** (cache can be rebuilt anytime)
-- 🌍 **Real data** from OpenStreetMap
-- 🚀 **Handle 10,000 concurrent users** without breaking a sweat
-
----
-
-## The Architecture
-
-<div class="row mt-3">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        <pre class="highlight">
-┌─────────────┐
-│ OpenStreetMap API │  ← Data source (fetch once)
-└─────────────┘
-        ↓
-┌─────────────────┐
-│   PostgreSQL    │  ← Source of truth (persistent, ACID)
-│   (PostGIS)     │     Response time: 500-1000ms ⏱️
-└─────────────────┘
-        ↓
-┌─────────────────┐
-│  Redis Cache    │  ← Speed layer (in-memory)
-│    (Beanis)     │     Response time: 5-25ms ⚡
-└─────────────────┘
-        ↓
-┌─────────────────┐
-│   User Request   │  ← Gets cached data 99% of the time
-└─────────────────┘
-        </pre>
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Why Cache?</h5>
-                <ul class="list-unstyled">
-                    <li>✅ <strong>20-100x faster</strong></li>
-                    <li>✅ Reduces DB load</li>
-                    <li>✅ Scales to millions</li>
-                    <li>✅ Simple to rebuild</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-**The layers:**
-
-| Layer | Purpose | Speed | Persistent |
-|-------|---------|-------|------------|
-| **OpenStreetMap** | Data source | 500-2000ms | ✅ External |
-| **PostgreSQL + PostGIS** | Source of truth | 500-1000ms | ✅ Yes |
-| **Redis + Beanis** | Speed cache | **5-25ms** | ❌ Volatile |
-
-**Key insight:** Redis isn't your database - it's your **cache layer**. PostgreSQL is the source of truth that can rebuild the cache anytime.
-
----
-
-## The Problem: Finding Nearby Places Fast
+## The Problem: Finding Nearby Restaurants Fast
 
 ### The Scenario
 
@@ -237,6 +147,94 @@ Use **Redis as a cache layer** with Beanis:
 4. **Fallback to PostgreSQL** only for cache misses (rebuild cache)
 
 PostgreSQL stays as your **source of truth**. Redis is your **speed layer**.
+
+---
+
+## The Solution: Redis Cache Architecture
+
+Now that we understand the problem, here's how Redis + Beanis solves it:
+
+<div class="row mt-4 mb-4">
+    <div class="col-sm-12">
+        <div class="card text-center">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">⚡ Performance: Before vs After</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h1 class="display-4 text-danger">750ms</h1>
+                        <p class="lead">PostgreSQL + PostGIS</p>
+                        <small class="text-muted">Complex geo-spatial calculations</small>
+                    </div>
+                    <div class="col-md-6">
+                        <h1 class="display-4 text-success">12ms</h1>
+                        <p class="lead">Redis Cache (Beanis)</p>
+                        <small class="text-muted">Pre-computed indexes</small>
+                    </div>
+                </div>
+                <hr>
+                <h3 class="text-success">62x Faster! 🚀</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+### The Architecture
+
+<div class="row mt-3">
+    <div class="col-sm-8 mt-3 mt-md-0">
+        <pre class="highlight">
+┌─────────────┐
+│ OpenStreetMap API │  ← Data source (import once)
+└─────────────┘
+        ↓
+┌─────────────────┐
+│   PostgreSQL    │  ← Source of truth (persistent, ACID)
+│   (PostGIS)     │     Response time: 750ms ⏱️
+└─────────────────┘
+        ↓
+┌─────────────────┐
+│  Redis Cache    │  ← Speed layer (in-memory)
+│    (Beanis)     │     Response time: 12ms ⚡
+└─────────────────┘
+        ↓
+┌─────────────────┐
+│   User Request   │  ← Gets cached data 99% of the time
+└─────────────────┘
+        </pre>
+    </div>
+    <div class="col-sm-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Why This Works</h5>
+                <ul class="list-unstyled">
+                    <li>✅ <strong>62x faster queries</strong></li>
+                    <li>✅ 99% less DB load</li>
+                    <li>✅ Scales to 10,000+ users</li>
+                    <li>✅ Cache rebuilds easily</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+**The layers:**
+
+| Layer | Purpose | Speed | Persistent |
+|-------|---------|-------|------------|
+| **OpenStreetMap** | Data source | 500-2000ms | ✅ External |
+| **PostgreSQL + PostGIS** | Source of truth | 750ms | ✅ Yes |
+| **Redis + Beanis** | Speed cache | **12ms** | ❌ Volatile |
+
+**Key insight:** Redis isn't your database - it's your **cache layer**. PostgreSQL is the source of truth that can rebuild the cache anytime.
+
+**What you'll build in this tutorial:**
+- ⚡ **12ms response times** (vs 750ms from database)
+- 🗺️ **Geo-spatial queries** with `GeoPoint` and Redis GEORADIUS
+- 💾 **Cache-first strategy** with automatic PostgreSQL fallback
+- 🌍 **Real data** from OpenStreetMap
+- 🚀 **FastAPI + Beanis** production-ready architecture
 
 ---
 
