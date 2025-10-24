@@ -108,45 +108,135 @@ The solution? **Use Redis as a cache layer** over PostgreSQL.
 
 ---
 
-## The Problem We're Solving
+## The Problem: Finding Nearby Places Fast
 
-<div class="row mt-3">
+### The Scenario
+
+Imagine you're building a **food delivery app** like Uber Eats or DoorDash. Here's what happens when a user opens your app:
+
+<div class="card mb-4">
+<div class="card-body">
+<h5>📱 User Story</h5>
+<ol>
+<li><strong>User opens app</strong> in downtown Rome at coordinates (41.8902, 12.4922)</li>
+<li><strong>App needs to show</strong> all restaurants within 2km radius</li>
+<li><strong>User applies filters:</strong> Italian cuisine, 4.5+ stars, budget-friendly</li>
+<li><strong>App must respond</strong> in under 50ms for smooth UX</li>
+<li><strong>10,000+ users</strong> are doing this simultaneously across the city</li>
+</ol>
+</div>
+</div>
+
+### The Challenge
+
+Your PostgreSQL database has **50,000 restaurants** with full details. To find nearby restaurants, you need:
+
+1. **Geo-spatial calculation** - Which restaurants are within 2km?
+2. **Distance sorting** - Closest first
+3. **Filtering** - Cuisine, rating, price range
+4. **Fast response** - Users expect instant results
+
+**The PostgreSQL query:**
+
+```sql
+SELECT *,
+       ST_Distance(location, ST_MakePoint(12.4922, 41.8902)) as distance
+FROM restaurants
+WHERE ST_DWithin(
+    location,
+    ST_MakePoint(12.4922, 41.8902),
+    2000  -- 2km in meters
+)
+AND cuisine = 'italian'
+AND rating >= 4.5
+ORDER BY distance
+LIMIT 20;
+```
+
+**This query takes 750ms** ⏱️
+
+### Why Is This a Problem?
+
+<div class="row mt-3 mb-3">
     <div class="col-sm-6">
         <div class="alert alert-danger" role="alert">
-            <h5>❌ Without Cache</h5>
+            <h5>❌ Direct Database Queries</h5>
             <ul>
-                <li>PostgreSQL query: <strong>500-1000ms</strong></li>
-                <li>Complex PostGIS calculations</li>
-                <li>10,000 users = 10,000 DB queries/sec</li>
-                <li>Database becomes bottleneck</li>
+                <li><strong>750ms per query</strong> - Too slow for mobile apps</li>
+                <li><strong>Heavy CPU usage</strong> - PostGIS calculations are expensive</li>
+                <li><strong>Can't scale</strong> - 10,000 concurrent users = 10,000 complex queries/sec</li>
+                <li><strong>Database crashes</strong> - Can't handle peak traffic</li>
+                <li><strong>High costs</strong> - Need massive database servers</li>
             </ul>
         </div>
     </div>
     <div class="col-sm-6">
         <div class="alert alert-success" role="alert">
-            <h5>✅ With Redis Cache</h5>
+            <h5>✅ Redis Cache Solution</h5>
             <ul>
-                <li>Redis query: <strong>5-25ms</strong></li>
-                <li>Pre-computed geo-spatial index</li>
-                <li>10,000 users = 10,000 cache hits/sec</li>
-                <li>Database stays idle</li>
+                <li><strong>12ms per query</strong> - 62x faster!</li>
+                <li><strong>Pre-computed indexes</strong> - No calculations needed</li>
+                <li><strong>Scales easily</strong> - 10,000 cache hits/sec is easy</li>
+                <li><strong>Database stays idle</strong> - 99% of requests hit cache</li>
+                <li><strong>Lower costs</strong> - Cheap Redis, small database</li>
             </ul>
         </div>
     </div>
 </div>
 
-**Real-world scenario:** You're building Uber Eats. User opens the app in Rome. You need to:
+### The Math
 
-1. Find all restaurants within 2km
-2. Filter by cuisine (Italian)
-3. Filter by rating (4.5+)
-4. Sort by distance
-5. Return in **under 50ms**
+<div class="table-responsive">
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Without Cache</th>
+<th>With Redis Cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Response time</strong></td>
+<td>750ms ⏱️</td>
+<td>12ms ⚡</td>
+</tr>
+<tr>
+<td><strong>Queries per second (single server)</strong></td>
+<td>~10-20</td>
+<td>10,000+</td>
+</tr>
+<tr class="table-danger">
+<td><strong>10,000 concurrent users</strong></td>
+<td>Need 500+ database servers 💸</td>
+<td>1 Redis server ✅</td>
+</tr>
+<tr>
+<td><strong>Database CPU usage</strong></td>
+<td>100% (constant geo calculations)</td>
+<td>~1% (occasional cache refresh)</td>
+</tr>
+<tr class="table-success">
+<td><strong>User experience</strong></td>
+<td>Slow, janky scrolling 😞</td>
+<td>Instant, smooth 😊</td>
+</tr>
+</tbody>
+</table>
+</div>
 
-PostgreSQL alone? **500-1000ms** ⏱️
-Redis cache? **5-25ms** ⚡
+**Bottom line:** You can't build Uber Eats with PostgreSQL alone. You **need** a cache layer.
 
-That's a **20-200x speedup**!
+### The Solution
+
+Use **Redis as a cache layer** with Beanis:
+
+1. **Import data once** from OpenStreetMap → PostgreSQL (source of truth)
+2. **Cache hot data** in Redis with geo-spatial indexes (speed layer)
+3. **Query Redis first** for 99% of requests (12ms response)
+4. **Fallback to PostgreSQL** only for cache misses (rebuild cache)
+
+PostgreSQL stays as your **source of truth**. Redis is your **speed layer**.
 
 ---
 
