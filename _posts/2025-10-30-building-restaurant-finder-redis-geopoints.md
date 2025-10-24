@@ -69,26 +69,26 @@ LIMIT 20;
 
 <div class="row mt-3 mb-3">
     <div class="col-sm-6">
-        <div class="alert alert-danger" role="alert">
-            <h5>❌ Direct Database Queries</h5>
-            <ul>
-                <li><strong>750ms per query</strong> - Too slow for mobile apps</li>
-                <li><strong>Heavy CPU usage</strong> - PostGIS calculations are expensive</li>
-                <li><strong>Can't scale</strong> - 10,000 concurrent users = 10,000 complex queries/sec</li>
-                <li><strong>Database crashes</strong> - Can't handle peak traffic</li>
-                <li><strong>High costs</strong> - Need massive database servers</li>
+        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da !important; border: 2px solid #842029 !important; color: #842029 !important;">
+            <h5 style="color: #842029 !important; font-weight: bold;">❌ Direct Database Queries</h5>
+            <ul style="color: #842029 !important; margin-bottom: 0;">
+                <li style="color: #842029 !important;"><strong>750ms per query</strong> - Too slow for mobile apps</li>
+                <li style="color: #842029 !important;"><strong>Heavy CPU usage</strong> - PostGIS calculations are expensive</li>
+                <li style="color: #842029 !important;"><strong>Can't scale</strong> - 10,000 concurrent users = 10,000 complex queries/sec</li>
+                <li style="color: #842029 !important;"><strong>Database crashes</strong> - Can't handle peak traffic</li>
+                <li style="color: #842029 !important;"><strong>High costs</strong> - Need massive database servers</li>
             </ul>
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="alert alert-success" role="alert">
-            <h5>✅ Redis Cache Solution</h5>
-            <ul>
-                <li><strong>12ms per query</strong> - 62x faster!</li>
-                <li><strong>Pre-computed indexes</strong> - No calculations needed</li>
-                <li><strong>Scales easily</strong> - 10,000 cache hits/sec is easy</li>
-                <li><strong>Database stays idle</strong> - 99% of requests hit cache</li>
-                <li><strong>Lower costs</strong> - Cheap Redis, small database</li>
+        <div class="alert alert-success" role="alert" style="background-color: #d1e7dd !important; border: 2px solid #0a3622 !important; color: #0a3622 !important;">
+            <h5 style="color: #0a3622 !important; font-weight: bold;">✅ Redis Cache Solution</h5>
+            <ul style="color: #0a3622 !important; margin-bottom: 0;">
+                <li style="color: #0a3622 !important;"><strong>12ms per query</strong> - 62x faster!</li>
+                <li style="color: #0a3622 !important;"><strong>Pre-computed indexes</strong> - No calculations needed</li>
+                <li style="color: #0a3622 !important;"><strong>Scales easily</strong> - 10,000 cache hits/sec is easy</li>
+                <li style="color: #0a3622 !important;"><strong>Database stays idle</strong> - 99% of requests hit cache</li>
+                <li style="color: #0a3622 !important;"><strong>Lower costs</strong> - Cheap Redis, small database</li>
             </ul>
         </div>
     </div>
@@ -403,8 +403,8 @@ That's it! Beanis will:
 
 ## Performance Comparison
 
-<div class="alert alert-info" role="alert">
-  <strong>Note:</strong> These numbers are from the actual demo with proper Redis configuration (in-memory, local network).
+<div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
+  <strong style="color: #084298 !important;">Note:</strong> These numbers are from the actual demo with proper Redis configuration (in-memory, local network).
 </div>
 
 Real-world benchmarks with 2,600+ restaurants (Paris dataset):
@@ -460,12 +460,12 @@ Real-world benchmarks with 2,600+ restaurants (Paris dataset):
 - 🚀 **Throughput:** 10,000+ req/sec (Redis) vs 150 req/sec (PostgreSQL)
 - 💾 **Database load:** Near zero with cache
 
-<div class="alert alert-success" role="alert">
-  <h5>Real Impact</h5>
-  <p>With 10,000 concurrent users:</p>
-  <ul>
-    <li><strong>Without cache:</strong> Database crashes under load</li>
-    <li><strong>With cache:</strong> Handle all requests in 12-25ms each</li>
+<div class="alert alert-success" role="alert" style="background-color: #d1e7dd !important; border: 2px solid #0a3622 !important; color: #0a3622 !important;">
+  <h5 style="color: #0a3622 !important; font-weight: bold;">Real Impact</h5>
+  <p style="color: #0a3622 !important;">With 10,000 concurrent users:</p>
+  <ul style="color: #0a3622 !important; margin-bottom: 0;">
+    <li style="color: #0a3622 !important;"><strong>Without cache:</strong> Database crashes under load</li>
+    <li style="color: #0a3622 !important;"><strong>With cache:</strong> Handle all requests in 12-25ms each</li>
   </ul>
 </div>
 
