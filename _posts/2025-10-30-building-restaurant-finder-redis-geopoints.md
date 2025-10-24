@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Using Redis as a Geo-Spatial Cache: Building a Restaurant Finder with Beanis"
-date: 2025-10-30 10:00:00
+date: 2025-10-30 08:00:00 +0000
 description: "Learn how to use Redis/Beanis as a lightning-fast cache layer for geo-spatial queries, with PostgreSQL as your source of truth and OpenStreetMap as your data source"
 tags: python redis geospatial cache beanis tutorial architecture
 categories: tutorials

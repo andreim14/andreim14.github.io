@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Word Sense Linking: Making NLP Understand What You Really Mean"
-date: 2025-10-27 10:00:00
+date: 2025-10-27 08:00:00 +0000
 description: "Our ACL 2024 paper introduces Word Sense Linking - automatic disambiguation that works on real text, not just sandboxed examples. Learn how to use it."
 tags: nlp word-sense-disambiguation acl2024 research python transformers
 categories: research

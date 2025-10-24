@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Build a RAG System in 50 Lines with Redis + Beanis (No Vector DB Needed)"
-date: 2025-10-24 10:00:00
+date: 2025-10-24 08:00:00 +0000
 description: "Stop paying for Pinecone. If you already use Redis, you already have a vector database. Build production RAG in 50 lines of Python."
 tags: python redis RAG vector-search semantic-search beanis AI embeddings
 categories: tutorials
