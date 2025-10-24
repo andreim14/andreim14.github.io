@@ -204,20 +204,9 @@ class KnowledgeBase(Document):
 
 **14 lines.** That's your entire data model.
 
-### 4. Create Vector Index
+### 4. Ingest Documents
 
-One-time setup:
-
-```bash
-redis-cli FT.CREATE idx:KnowledgeBase:vector \
-  ON HASH PREFIX 1 "KnowledgeBase:" \
-  SCHEMA embedding VECTOR HNSW 6 \
-    TYPE FLOAT32 DIM 1024 DISTANCE_METRIC COSINE
-```
-
-> **Note:** Future Beanis versions will do this automatically.
-
-### 5. Ingest Documents
+**Vector indexes are created automatically** - no manual setup needed!
 
 ```python
 from transformers import AutoModel
@@ -247,9 +236,9 @@ for text in texts:
     await ingest_text(text)
 ```
 
-**20 lines.** Documents are now searchable.
+**20 lines.** Documents are now searchable. Vector indexes were created automatically!
 
-### 6. Search Semantically
+### 5. Search Semantically
 
 ```python
 from beanis.odm.indexes import IndexManager
@@ -500,13 +489,7 @@ pip install -r requirements.txt
 # Start Redis
 docker run -d -p 6379:6379 redis/redis-stack:latest
 
-# Create index
-redis-cli FT.CREATE idx:KnowledgeBase:vector \
-  ON HASH PREFIX 1 "KnowledgeBase:" \
-  SCHEMA embedding VECTOR HNSW 6 \
-    TYPE FLOAT32 DIM 1024 DISTANCE_METRIC COSINE
-
-# Ingest sample docs
+# Ingest sample docs (vector indexes created automatically!)
 python ingest.py
 
 # Search!
