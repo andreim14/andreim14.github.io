@@ -73,6 +73,42 @@ This is like having a translator who needs you to:
 
 Not very useful!
 
+### A Concrete Example: WSD vs WSL
+
+Let's see this in action with: *"The bank can guarantee deposits will cover tuition."*
+
+**Traditional WSD requires:**
+```python
+# Input with pre-marked spans and candidates
+{
+    "text": "The bank can guarantee deposits will cover tuition.",
+    "spans": [
+        {"text": "bank", "start": 4, "end": 8},      # You mark this
+        {"text": "cover", "start": 41, "end": 46}   # And this
+    ],
+    "candidates": {
+        "bank": ["financial institution", "riverbank", "slope"],    # You provide these
+        "cover": ["pay for", "place over", "include", "protect"]   # And these
+    }
+}
+# WSD picks: bank → financial institution, cover → pay for
+```
+
+**WSL needs only:**
+```python
+# Just raw text!
+text = "The bank can guarantee deposits will cover tuition."
+
+# WSL automatically:
+# 1. Identifies ALL ambiguous spans (bank, guarantee, deposits, cover, tuition)
+# 2. Retrieves candidates from WordNet
+# 3. Links each to correct sense
+```
+
+**The key difference:** WSD assumes you know what to disambiguate. WSL figures it out.
+
+This makes WSL practical for real applications where you don't have annotated data or pre-identified spans.
+
 ## Introducing Word Sense Linking
 
 Our solution: **Word Sense Linking (WSL)** removes these constraints.
