@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Word Sense Linking: Making NLP Understand What You Really Mean"
-date: 2025-10-24 14:00:00
+date: 2025-10-27 10:00:00
 description: "Our ACL 2024 paper introduces Word Sense Linking - automatic disambiguation that works on real text, not just sandboxed examples. Learn how to use it."
 tags: nlp word-sense-disambiguation acl2024 research python transformers
 categories: research
@@ -10,6 +10,26 @@ related_posts: false
 thumbnail: assets/img/wsl-thumbnail.png
 keywords: word sense linking, word sense disambiguation, NLP, ACL 2024, transformers, lexical semantics
 author: Andrei Stefan Bejgu
+---
+
+## TL;DR - Why You Should Care
+
+**Word Sense Linking** automatically identifies ambiguous words in text and links them to their correct meanings. It's like having a semantic understanding layer for your NLP pipeline.
+
+**Use it for:**
+- 🔍 Better search results (know if "python" means programming or snake)
+- 🤖 Smarter RAG systems (disambiguate before retrieval)
+- 📊 Accurate knowledge graphs (entities with precise meanings)
+- 🛡️ Context-aware content moderation
+
+**Install and run in 3 lines:**
+```python
+from wsl import WSL
+model = WSL.from_pretrained("Babelscape/wsl-base")
+result = model("The bank can guarantee deposits will cover tuition.")
+# Automatically knows: bank=financial institution, cover=pay for
+```
+
 ---
 
 ## The Ambiguity Problem
@@ -23,18 +43,18 @@ What about **"cover"**? Pay for, or physically cover?
 
 Humans get this instantly from context. But how do we teach machines to do the same?
 
-## The Research: ACL 2024
+## Our ACL 2024 Research
 
-I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the Sandbox"**, accepted at **ACL 2024 (Findings)** - the top conference in computational linguistics.
+I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the Sandbox"**, published at **ACL 2024 (Findings)** - the Association for Computational Linguistics, the top venue in NLP research.
 
 <div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
-<strong style="color: #084298 !important;">Published Work</strong><br>
-📄 <a href="https://aclanthology.org/2024.findings-acl.851/" style="color: #084298 !important;">Read the paper at ACL Anthology</a><br>
+<strong style="color: #084298 !important;">📄 Published at ACL 2024</strong><br>
+<strong style="color: #084298 !important;">Authors:</strong> Andrei Stefan Bejgu, Edoardo Barba, Luigi Procopio, Alberte Fernández-Castro, Roberto Navigli<br>
+<strong style="color: #084298 !important;">Affiliations:</strong> Babelscape & Sapienza University of Rome<br><br>
+📄 <a href="https://aclanthology.org/2024.findings-acl.851/" style="color: #084298 !important; font-weight: bold;">Read the paper at ACL Anthology</a><br>
 🤗 <a href="https://huggingface.co/Babelscape/wsl-base" style="color: #084298 !important;">Try the model on Hugging Face</a><br>
 💻 <a href="https://github.com/Babelscape/WSL" style="color: #084298 !important;">Code on GitHub</a>
 </div>
-
-Co-authored with my colleagues at **Babelscape** and **Sapienza University of Rome**.
 
 ## What's Wrong with Traditional WSD?
 
@@ -394,6 +414,32 @@ Give it a try and let me know what you build with it!
 
 ---
 
-*Published at ACL 2024 (Findings) - Association for Computational Linguistics*
+## Citation
+
+If you use Word Sense Linking in your research or applications, please cite our paper:
+
+```bibtex
+@inproceedings{bejgu-etal-2024-wsl,
+    title     = "Word Sense Linking: Disambiguating Outside the Sandbox",
+    author    = "Bejgu, Andrei Stefan and
+                 Barba, Edoardo and
+                 Procopio, Luigi and
+                 Fern{\'a}ndez-Castro, Alberte and
+                 Navigli, Roberto",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2024",
+    month     = aug,
+    year      = "2024",
+    address   = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url       = "https://aclanthology.org/2024.findings-acl.851/",
+}
+```
+
+**Plain text citation:**
+> Andrei Stefan Bejgu, Edoardo Barba, Luigi Procopio, Alberte Fernández-Castro, and Roberto Navigli. 2024. Word Sense Linking: Disambiguating Outside the Sandbox. In Findings of the Association for Computational Linguistics: ACL 2024, Bangkok, Thailand. Association for Computational Linguistics.
+
+---
+
+*Published at ACL 2024 (Findings) - Association for Computational Linguistics, Bangkok, Thailand*
 
 *Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
