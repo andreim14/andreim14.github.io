@@ -1,0 +1,399 @@
+---
+layout: post
+title: "Word Sense Linking: Making NLP Understand What You Really Mean"
+date: 2025-10-24 14:00:00
+description: "Our ACL 2024 paper introduces Word Sense Linking - automatic disambiguation that works on real text, not just sandboxed examples. Learn how to use it."
+tags: nlp word-sense-disambiguation acl2024 research python transformers
+categories: research
+giscus_comments: true
+related_posts: false
+thumbnail: assets/img/wsl-thumbnail.png
+keywords: word sense linking, word sense disambiguation, NLP, ACL 2024, transformers, lexical semantics
+author: Andrei Stefan Bejgu
+---
+
+## The Ambiguity Problem
+
+Read this sentence:
+
+> "The bank can guarantee deposits will eventually cover future tuition costs."
+
+What does **"bank"** mean? Financial institution or riverbank?
+What about **"cover"**? Pay for, or physically cover?
+
+Humans get this instantly from context. But how do we teach machines to do the same?
+
+## The Research: ACL 2024
+
+I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the Sandbox"**, accepted at **ACL 2024 (Findings)** - the top conference in computational linguistics.
+
+<div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
+<strong style="color: #084298 !important;">Published Work</strong><br>
+📄 <a href="https://aclanthology.org/2024.findings-acl.851/" style="color: #084298 !important;">Read the paper at ACL Anthology</a><br>
+🤗 <a href="https://huggingface.co/Babelscape/wsl-base" style="color: #084298 !important;">Try the model on Hugging Face</a><br>
+💻 <a href="https://github.com/Babelscape/WSL" style="color: #084298 !important;">Code on GitHub</a>
+</div>
+
+Co-authored with my colleagues at **Babelscape** and **Sapienza University of Rome**.
+
+## What's Wrong with Traditional WSD?
+
+**Word Sense Disambiguation (WSD)** has been studied for decades. It achieves great benchmark scores. But it struggles to find real-world applications.
+
+**Why?** It operates in a sandbox:
+
+1. **Assumes you already know which words to disambiguate** - Someone must manually mark "bank" and "cover" first
+2. **Assumes candidate senses are provided** - You must tell it "bank has 2 meanings: financial/riverbank"
+3. **Doesn't work on real, unrestricted text** - Only on pre-processed examples
+
+This is like having a translator who needs you to:
+- Mark which words need translation
+- Provide a list of possible translations for each word
+- Only then pick the right one
+
+Not very useful!
+
+## Introducing Word Sense Linking
+
+Our solution: **Word Sense Linking (WSL)** removes these constraints.
+
+WSL does two things automatically:
+
+1. **Span Identification**: Finds which text spans need disambiguation
+2. **Sense Linking**: Links them to the correct meaning from WordNet
+
+**No manual preprocessing. No candidate provision. Just real text in, meanings out.**
+
+### State-of-the-Art Results
+
+| Model | Precision | Recall | F1 |
+|-------|-----------|--------|-----|
+| ConSeC (previous SOTA) | 80.4% | 64.3% | **71.5%** |
+| **WSL (our model)** | 75.2% | **76.7%** | **75.9%** |
+
+We achieve **4.4% improvement** on the ALL_FULL benchmark, with significantly better recall - we find more correct senses.
+
+## Using WSL: It's Simple
+
+The best part? We released it as an easy-to-use Python library.
+
+### Installation
+
+```bash
+pip install git+https://github.com/Babelscape/WSL.git
+```
+
+### Basic Usage
+
+```python
+from wsl import WSL
+
+# Load pre-trained model
+wsl_model = WSL.from_pretrained("Babelscape/wsl-base")
+
+# Disambiguate!
+result = wsl_model("Bus drivers drive busses for a living.")
+```
+
+### Output
+
+```python
+WSLOutput(
+    text='Bus drivers drive busses for a living.',
+    spans=[
+        Span(
+            start=0, end=11,
+            text='Bus drivers',
+            label='bus driver: someone who drives a bus'
+        ),
+        Span(
+            start=12, end=17,
+            text='drive',
+            label='drive: operate or control a vehicle'
+        ),
+        Span(
+            start=18, end=24,
+            text='busses',
+            label='bus: a vehicle carrying many passengers'
+        ),
+        Span(
+            start=31, end=37,
+            text='living',
+            label='living: the financial means whereby one lives'
+        )
+    ]
+)
+```
+
+**Notice**: It automatically:
+- Identified which spans need disambiguation ("Bus drivers", "drive", "busses", "living")
+- Linked them to the correct WordNet senses
+- Provided human-readable definitions
+
+## Real-World Applications
+
+### 1. Search & Information Retrieval
+
+**Query**: "python tutorial"
+
+WSL disambiguates: Programming language? Or the snake?
+
+```python
+result = wsl_model("Looking for python tutorial")
+# Identifies: "python: a high-level programming language"
+```
+
+Better search results, better user experience.
+
+### 2. Content Moderation
+
+Context-aware filtering:
+
+```python
+wsl_model("The wedding shooting was beautiful")
+# "shooting: the act of making a photograph"
+
+wsl_model("There was a shooting downtown")
+# "shooting: the act of firing a projectile"
+```
+
+Same word, different meanings, different moderation actions.
+
+### 3. RAG Systems Enhancement
+
+Improve retrieval for RAG:
+
+```python
+from wsl import WSL
+
+wsl_model = WSL.from_pretrained("Babelscape/wsl-base")
+
+# User query with ambiguous terms
+query = "What's the best bank for deposits?"
+
+# Disambiguate before retrieval
+result = wsl_model(query)
+
+# Now you know it's about financial institutions
+# Not riverbanks!
+```
+
+Better semantic understanding = better retrieval = better LLM responses.
+
+### 4. Knowledge Graph Construction
+
+Extract entities with precise meanings:
+
+```python
+text = "Apple released a new chip for their computers"
+
+result = wsl_model(text)
+# "Apple: a major American tech company" (not the fruit!)
+# "chip: electronic equipment consisting of a small circuit" (not food!)
+```
+
+Build more accurate knowledge graphs automatically.
+
+## How It Works (The Architecture)
+
+WSL uses a **retriever-reader** architecture:
+
+1. **Retriever**: Gets relevant sense candidates from WordNet based on the input text
+2. **Reader**: Extracts spans from text and links them to retrieved senses
+
+Both components are transformer-based and trained end-to-end.
+
+The model learns to:
+- Recognize which words/phrases are ambiguous
+- Select the contextually appropriate sense
+- Do this jointly, not in separate steps
+
+## Comparison: WSL vs Traditional WSD
+
+<div class="row mt-3 mb-3">
+    <div class="col-sm-6">
+        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da !important; border: 2px solid #842029 !important; color: #842029 !important;">
+            <h5 style="color: #842029 !important; font-weight: bold;">❌ Traditional WSD</h5>
+            <ul style="color: #842029 !important; margin-bottom: 0;">
+                <li style="color: #842029 !important;">Requires pre-marked spans</li>
+                <li style="color: #842029 !important;">Needs candidate senses provided</li>
+                <li style="color: #842029 !important;">Works only on prepared examples</li>
+                <li style="color: #842029 !important;">Manual preprocessing required</li>
+                <li style="color: #842029 !important;">Limited real-world applicability</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="alert alert-success" role="alert" style="background-color: #d1e7dd !important; border: 2px solid #0a3622 !important; color: #0a3622 !important;">
+            <h5 style="color: #0a3622 !important; font-weight: bold;">✅ Word Sense Linking</h5>
+            <ul style="color: #0a3622 !important; margin-bottom: 0;">
+                <li style="color: #0a3622 !important;">Automatic span detection</li>
+                <li style="color: #0a3622 !important;">Automatic candidate retrieval</li>
+                <li style="color: #0a3622 !important;">Works on any text</li>
+                <li style="color: #0a3622 !important;">Zero preprocessing needed</li>
+                <li style="color: #0a3622 !important;">Ready for production use</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+## A Complete Example
+
+Let's disambiguate a complex sentence:
+
+```python
+from wsl import WSL
+
+wsl_model = WSL.from_pretrained("Babelscape/wsl-base")
+
+text = """
+The bank can guarantee deposits will eventually
+cover future tuition costs because they understand
+the financial burden.
+"""
+
+result = wsl_model(text)
+
+# Print identified spans with definitions
+for span in result.spans:
+    print(f"{span.text:20} → {span.label}")
+```
+
+**Output**:
+```
+bank                 → bank: a financial institution
+guarantee            → guarantee: give surety or assume responsibility
+deposits             → deposit: money given as security
+cover                → cover: be sufficient to meet or pay for
+tuition              → tuition: a fee paid for instruction
+financial            → financial: involving or relating to money
+burden               → burden: an onerous or difficult concern
+```
+
+**Every ambiguous term correctly disambiguated!**
+
+## Integration Example: Enhanced Search
+
+Here's how to use WSL to improve search:
+
+```python
+from wsl import WSL
+from typing import List, Dict
+
+class SemanticSearch:
+    def __init__(self):
+        self.wsl = WSL.from_pretrained("Babelscape/wsl-base")
+
+    def understand_query(self, query: str) -> Dict:
+        """Disambiguate query terms for better search"""
+        result = self.wsl(query)
+
+        return {
+            "original_query": query,
+            "disambiguated_terms": [
+                {
+                    "term": span.text,
+                    "sense": span.label,
+                    "start": span.start,
+                    "end": span.end
+                }
+                for span in result.spans
+            ]
+        }
+
+# Usage
+search = SemanticSearch()
+analysis = search.understand_query("Looking for python courses for machine learning")
+
+print(analysis)
+# Knows it's about programming, not snakes!
+```
+
+## Performance Considerations
+
+**Model Size**: ~400MB (base model)
+**Inference Speed**: ~100-200ms per sentence (GPU)
+**Memory**: ~2GB GPU RAM
+
+For production:
+- Batch processing recommended
+- Consider quantization for deployment
+- Cache results for common queries
+
+## Why This Matters
+
+**Traditional WSD** achieved high benchmark scores but couldn't escape the lab.
+
+**Word Sense Linking** makes lexical semantics practical:
+
+1. **No preprocessing** - Works on raw text
+2. **End-to-end** - One model does everything
+3. **Production-ready** - Available on Hugging Face
+4. **Open source** - Free to use (CC BY-NC-SA 4.0)
+
+We're bridging the gap between **research and real-world applications**.
+
+## The Research Team
+
+This work was done in collaboration with:
+- **Edoardo Barba** (Babelscape)
+- **Luigi Procopio** (Sapienza University)
+- **Alberte Fernández-Castro** (Sapienza University)
+- **Roberto Navigli** (Babelscape & Sapienza University)
+
+Presented at **ACL 2024** in Bangkok, Thailand.
+
+## Try It Yourself
+
+Ready to add semantic understanding to your NLP pipeline?
+
+### Quick Start
+
+```bash
+# Install
+pip install git+https://github.com/Babelscape/WSL.git
+
+# Use
+from wsl import WSL
+model = WSL.from_pretrained("Babelscape/wsl-base")
+result = model("Your text here")
+```
+
+### Resources
+
+- **Paper**: [ACL Anthology](https://aclanthology.org/2024.findings-acl.851/)
+- **Code**: [GitHub](https://github.com/Babelscape/WSL)
+- **Models**: [Hugging Face](https://huggingface.co/Babelscape/wsl-base)
+- **Dataset**: [Hugging Face Datasets](https://huggingface.co/datasets/Babelscape/wsl)
+
+## What's Next?
+
+We're working on:
+- **Multilingual WSL** - Beyond English
+- **Domain-specific models** - Medical, legal, technical text
+- **Lightweight versions** - For edge deployment
+- **Integration guides** - For popular NLP frameworks
+
+## Conclusion
+
+**Word Sense Linking** solves a decades-old problem: making word sense disambiguation practical.
+
+No more sandboxes. No more manual preprocessing. Just **real text in, precise meanings out**.
+
+Whether you're building search engines, content moderation systems, or RAG applications - understanding what words really mean in context is crucial.
+
+And now it's as simple as:
+
+```python
+from wsl import WSL
+model = WSL.from_pretrained("Babelscape/wsl-base")
+result = model("Your ambiguous text here")
+```
+
+Give it a try and let me know what you build with it!
+
+---
+
+*Published at ACL 2024 (Findings) - Association for Computational Linguistics*
+
+*Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
