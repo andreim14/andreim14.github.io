@@ -97,18 +97,18 @@ async def search(query: str):
 
 ## Why This is Better
 
-<div class="alert alert-info mt-4 mb-4" role="alert">
-    <h5>🚀 New: Automatic Index Creation</h5>
-    <p class="mb-0">Vector indexes are now created automatically during <code>init_beanis()</code>. No manual <code>redis-cli</code> commands needed! Just define your model with <code>VectorField()</code> and you're ready to search.</p>
+<div class="alert alert-info mt-4 mb-4" role="alert" style="background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460;">
+    <h5 style="color: #0c5460;">🚀 New: Automatic Index Creation</h5>
+    <p class="mb-0" style="color: #0c5460;">Vector indexes are now created automatically during <code>init_beanis()</code>. No manual <code>redis-cli</code> commands needed! Just define your model with <code>VectorField()</code> and you're ready to search.</p>
 </div>
 
 ### Compared to Pinecone
 
 <div class="row mt-3 mb-3">
     <div class="col-sm-6">
-        <div class="alert alert-danger" role="alert">
-            <h5>❌ Pinecone</h5>
-            <ul>
+        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;">
+            <h5 style="color: #721c24;">❌ Pinecone</h5>
+            <ul style="color: #721c24;">
                 <li>Requires API key + billing</li>
                 <li>100+ lines of setup code</li>
                 <li>Separate service to manage</li>
@@ -119,9 +119,9 @@ async def search(query: str):
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="alert alert-success" role="alert">
-            <h5>✅ Beanis + Redis</h5>
-            <ul>
+        <div class="alert alert-success" role="alert" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
+            <h5 style="color: #155724;">✅ Beanis + Redis</h5>
+            <ul style="color: #155724;">
                 <li>No API keys needed</li>
                 <li>50 lines total</li>
                 <li>Automatic index creation</li>
