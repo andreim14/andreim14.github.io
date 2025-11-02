@@ -55,11 +55,13 @@ product = await Product.get(product_id)
 I've spent years working with databases in AI/ML projects. I love MongoDB's ODMs like Beanie - the clean API, Pydantic integration, and how they let you focus on business logic instead of CRUD boilerplate. But when you need Redis-level performance, you're stuck with manual serialization and key management.
 
 **The existing Redis libraries weren't cutting it:**
+
 - **Redis OM** - Excellent, but requires RedisJSON/RediSearch modules (not always available)
 - **Walrus** - No async support, predates Pydantic v2
 - **Raw redis-py** - Fast but verbose, no type safety
 
 I wanted something that combined:
+
 - ✅ Vanilla Redis compatibility (no modules required)
 - ✅ Pydantic v2 validation and type safety
 - ✅ Beanie-like clean API
@@ -73,6 +75,7 @@ When I couldn't find it, I built it. Beanis is what I wish existed when I starte
 ## Real-World Example: Building a Product Catalog
 
 Let's build something real: a product catalog for an e-commerce platform. You need:
+
 - Fast lookups by ID
 - Range queries on price
 - Category filtering
@@ -138,6 +141,7 @@ async def find_products_by_price(redis_client, min_price, max_price):
 ```
 
 **That's over 50 lines** for basic CRUD + one query. And we haven't even added:
+
 - Input validation
 - Error handling
 - Type safety
@@ -275,6 +279,7 @@ popular_by_author = await Article.find(
 ```
 
 **Behind the scenes**, Beanis:
+
 - Maintains Redis sorted sets for each indexed field
 - Automatically updates indexes on insert/update/delete
 - Optimizes queries by choosing the best index
@@ -398,12 +403,12 @@ class Order(Document):
 
 I benchmarked Beanis against raw redis-py with 10,000 operations:
 
-| Operation | Raw Redis | Beanis | Overhead | Why? |
-|-----------|-----------|--------|----------|------|
-| Insert | 0.45ms | 0.49ms | **+8%** | Pydantic validation |
-| Get by ID | 0.38ms | 0.41ms | **+8%** | Type conversion |
-| Range Query | 0.52ms | 0.56ms | **+7%** | Index optimization |
-| Batch Insert (100) | 42ms | 47ms | **+12%** | Validation batching |
+| Operation          | Raw Redis | Beanis | Overhead | Why?                |
+| ------------------ | --------- | ------ | -------- | ------------------- |
+| Insert             | 0.45ms    | 0.49ms | **+8%**  | Pydantic validation |
+| Get by ID          | 0.38ms    | 0.41ms | **+8%**  | Type conversion     |
+| Range Query        | 0.52ms    | 0.56ms | **+7%**  | Index optimization  |
+| Batch Insert (100) | 42ms      | 47ms   | **+12%** | Validation batching |
 
 **The verdict:** ~8% overhead for features you'd have to build anyway (validation, serialization, type safety).
 
@@ -426,6 +431,7 @@ Be honest about trade-offs:
 ## Real-World Use Cases
 
 ### E-Commerce Product Catalog
+
 ```python
 # 10,000+ products, 1000+ queries/second
 products = await Product.find(
@@ -437,6 +443,7 @@ products = await Product.find(
 ```
 
 ### Session Management
+
 ```python
 class Session(Document):
     user_id: str
@@ -448,6 +455,7 @@ await Session.delete_many(expires_at__lt=datetime.now())
 ```
 
 ### Real-time Leaderboards
+
 ```python
 class Score(Document):
     player_id: Indexed[str]
@@ -858,12 +866,14 @@ top_users = await User.find(score__gte=100)
 ## What's Next?
 
 Beanis is **production-ready today** with:
+
 - ✅ 150+ tests passing
 - ✅ 56% code coverage
 - ✅ Full CI/CD pipeline
 - ✅ Comprehensive docs
 
 **Roadmap:**
+
 - 🔄 Relationship support (OneToOne, OneToMany)
 - 📊 Aggregation pipeline
 - 🔐 Field-level encryption
@@ -875,11 +885,13 @@ Beanis is **production-ready today** with:
 ## Try It, Star It, Break It
 
 I built Beanis to scratch my own itch, and now I'm sharing it with the world. If you:
+
 - Want cleaner Redis code
 - Value type safety
 - Need fast queries without the boilerplate
 
 **Give Beanis a try:**
+
 - 📦 PyPI: `pip install beanis`
 - ⭐ GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
 - 📚 Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
@@ -890,6 +902,6 @@ Happy coding! 🚀
 
 ---
 
-*Beanis is inspired by [Beanie](https://github.com/roman-right/beanie) by Roman Right. Standing on the shoulders of giants.*
+_Beanis is inspired by [Beanie](https://github.com/roman-right/beanie) by Roman Right. Standing on the shoulders of giants._
 
-*Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_

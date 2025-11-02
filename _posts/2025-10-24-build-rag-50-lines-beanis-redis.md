@@ -15,6 +15,7 @@ author: Andrei Stefan Bejgu
 ## The Problem
 
 You're building an AI app. You need semantic search for RAG. Everyone tells you:
+
 - "Use Pinecone" ($70/month, 100+ lines of code)
 - "Use Weaviate" (another service to manage)
 - "Use pgvector" (slow, complex tuning)
@@ -137,6 +138,7 @@ async def search(query: str):
 ### The Code Comparison
 
 **Pinecone (verbose):**
+
 ```python
 # Setup
 import pinecone
@@ -160,6 +162,7 @@ results = [match['metadata']['text'] for match in query_response['matches']]
 ```
 
 **Beanis (clean):**
+
 ```python
 # Setup
 doc = KnowledgeBase(text=text, embedding=embedding)
@@ -289,6 +292,7 @@ Let's say you're building a documentation search. User asks:
 **Traditional keyword search:** ❌ No results (docs say "termination policy")
 
 **Semantic search with Beanis:** ✅ Finds:
+
 - "Account termination policy"
 - "How to close your account"
 - "Subscription cancellation process"
@@ -352,12 +356,14 @@ Benchmarked with 10,000 documents:
 ## The "Already Using Redis" Advantage
 
 Most companies already use Redis for:
+
 - ✅ Caching
 - ✅ Session storage
 - ✅ Job queues
 - ✅ Rate limiting
 
 **Now add:**
+
 - ✅ **Vector search** (for RAG/AI)
 
 <div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
@@ -367,6 +373,7 @@ Most companies already use Redis for:
 ### Architecture Simplification
 
 **Before (4 services):**
+
 ```
 Redis      → Cache, sessions
 PostgreSQL → User data
@@ -375,6 +382,7 @@ Your App   → Business logic
 ```
 
 **After (2 services):**
+
 ```
 Redis      → Cache, sessions, vectors!
 PostgreSQL → User data
@@ -382,6 +390,7 @@ Your App   → Business logic
 ```
 
 **Savings:**
+
 - 1 fewer service to manage
 - $70-500/month saved
 - Simpler deployment
@@ -451,6 +460,7 @@ Yes. Use `redis-stack` (includes RediSearch module) or install RediSearch manual
 ### "Can I use OpenAI embeddings?"
 
 Yes! Just swap the model:
+
 ```python
 import openai
 embedding = openai.Embedding.create(input=text, model="text-embedding-3-small")
@@ -519,6 +529,7 @@ python search.py "what is semantic search?"
 ## The Bottom Line
 
 **If you already use Redis:**
+
 - You already have a vector database
 - No need for Pinecone, Weaviate, or pgvector
 - Build RAG in 50 lines of code
@@ -526,6 +537,7 @@ python search.py "what is semantic search?"
 - One fewer service to manage
 
 **Start building:**
+
 - [Beanis Documentation](https://andreim14.github.io/beanis/)
 - [Simple RAG Example](https://github.com/andreim14/beanis-examples/tree/main/simple-rag)
 - [Restaurant Finder Example](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
@@ -540,4 +552,4 @@ In the next post, I'll show you how to build a **multimodal RAG system** that se
 
 ---
 
-*Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_

@@ -17,12 +17,14 @@ author: Andrei Stefan Bejgu
 **Word Sense Linking** automatically identifies ambiguous words in text and links them to their correct meanings. It's like having a semantic understanding layer for your NLP pipeline.
 
 **Use it for:**
+
 - 🔍 Better search results (know if "python" means programming or snake)
 - 🤖 Smarter RAG systems (disambiguate before retrieval)
 - 📊 Accurate knowledge graphs (entities with precise meanings)
 - 🛡️ Context-aware content moderation
 
 **Install and run in 3 lines:**
+
 ```python
 from wsl import WSL
 model = WSL.from_pretrained("Babelscape/wsl-base")
@@ -67,6 +69,7 @@ I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the
 3. **Doesn't work on real, unrestricted text** - Only on pre-processed examples
 
 This is like having a translator who needs you to:
+
 - Mark which words need translation
 - Provide a list of possible translations for each word
 - Only then pick the right one
@@ -75,9 +78,10 @@ Not very useful!
 
 ### A Concrete Example: WSD vs WSL
 
-Let's see this in action with: *"The bank can guarantee deposits will cover tuition."*
+Let's see this in action with: _"The bank can guarantee deposits will cover tuition."_
 
 **Traditional WSD requires:**
+
 ```python
 # Input with pre-marked spans and candidates
 {
@@ -95,6 +99,7 @@ Let's see this in action with: *"The bank can guarantee deposits will cover tuit
 ```
 
 **WSL needs only:**
+
 ```python
 # Just raw text!
 text = "The bank can guarantee deposits will cover tuition."
@@ -122,10 +127,10 @@ WSL does two things automatically:
 
 ### State-of-the-Art Results
 
-| Model | Precision | Recall | F1 |
-|-------|-----------|--------|-----|
-| ConSeC (previous SOTA) | 80.4% | 64.3% | **71.5%** |
-| **WSL (our model)** | 75.2% | **76.7%** | **75.9%** |
+| Model                  | Precision | Recall    | F1        |
+| ---------------------- | --------- | --------- | --------- |
+| ConSeC (previous SOTA) | 80.4%     | 64.3%     | **71.5%** |
+| **WSL (our model)**    | 75.2%     | **76.7%** | **75.9%** |
 
 We achieve **4.4% improvement** on the ALL_FULL benchmark, with significantly better recall - we find more correct senses.
 
@@ -182,6 +187,7 @@ WSLOutput(
 ```
 
 **Notice**: It automatically:
+
 - Identified which spans need disambiguation ("Bus drivers", "drive", "busses", "living")
 - Linked them to the correct WordNet senses
 - Provided human-readable definitions
@@ -260,6 +266,7 @@ WSL uses a **retriever-reader** architecture:
 Both components are transformer-based and trained end-to-end.
 
 The model learns to:
+
 - Recognize which words/phrases are ambiguous
 - Select the contextually appropriate sense
 - Do this jointly, not in separate steps
@@ -316,6 +323,7 @@ for span in result.spans:
 ```
 
 **Output**:
+
 ```
 bank                 → bank: a financial institution
 guarantee            → guarantee: give surety or assume responsibility
@@ -372,6 +380,7 @@ print(analysis)
 **Memory**: ~2GB GPU RAM
 
 For production:
+
 - Batch processing recommended
 - Consider quantization for deployment
 - Cache results for common queries
@@ -392,6 +401,7 @@ We're bridging the gap between **research and real-world applications**.
 ## The Research Team
 
 This work was done in collaboration with:
+
 - **Edoardo Barba** (Babelscape)
 - **Luigi Procopio** (Sapienza University)
 - **Alberte Fernández-Castro** (Sapienza University)
@@ -425,6 +435,7 @@ result = model("Your text here")
 ## What's Next?
 
 We're working on:
+
 - **Multilingual WSL** - Beyond English
 - **Domain-specific models** - Medical, legal, technical text
 - **Lightweight versions** - For edge deployment
@@ -472,10 +483,11 @@ If you use Word Sense Linking in your research or applications, please cite our 
 ```
 
 **Plain text citation:**
+
 > Andrei Stefan Bejgu, Edoardo Barba, Luigi Procopio, Alberte Fernández-Castro, and Roberto Navigli. 2024. Word Sense Linking: Disambiguating Outside the Sandbox. In Findings of the Association for Computational Linguistics: ACL 2024, Bangkok, Thailand. Association for Computational Linguistics.
 
 ---
 
-*Published at ACL 2024 (Findings) - Association for Computational Linguistics, Bangkok, Thailand*
+_Published at ACL 2024 (Findings) - Association for Computational Linguistics, Bangkok, Thailand_
 
-*Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_

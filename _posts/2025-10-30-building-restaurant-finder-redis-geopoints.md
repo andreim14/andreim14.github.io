@@ -221,15 +221,16 @@ Now that we understand the problem, here's how Redis + Beanis solves it:
 
 **The layers:**
 
-| Layer | Purpose | Speed | Persistent |
-|-------|---------|-------|------------|
-| **OpenStreetMap** | Data source | 500-2000ms | ✅ External |
-| **PostgreSQL + PostGIS** | Source of truth | 750ms | ✅ Yes |
-| **Redis + Beanis** | Speed cache | **12ms** | ❌ Volatile |
+| Layer                    | Purpose         | Speed      | Persistent  |
+| ------------------------ | --------------- | ---------- | ----------- |
+| **OpenStreetMap**        | Data source     | 500-2000ms | ✅ External |
+| **PostgreSQL + PostGIS** | Source of truth | 750ms      | ✅ Yes      |
+| **Redis + Beanis**       | Speed cache     | **12ms**   | ❌ Volatile |
 
 **Key insight:** Redis isn't your database - it's your **cache layer**. PostgreSQL is the source of truth that can rebuild the cache anytime.
 
 **What you'll build in this tutorial:**
+
 - ⚡ **12ms response times** (vs 750ms from database)
 - 🗺️ **Geo-spatial queries** with `GeoPoint` and Redis GEORADIUS
 - 💾 **Cache-first strategy** with automatic PostgreSQL fallback
@@ -274,6 +275,7 @@ class RestaurantCache(Document):
 ```
 
 **What Beanis does automatically:**
+
 1. `location: Annotated[GeoPoint, IndexedField()]` → Creates `GEOADD` index in Redis
 2. `Indexed(str/int/float/bool)` → Creates sorted sets for filtering
 3. `Document` → Handles serialization and Redis hash storage
@@ -304,6 +306,7 @@ await restaurant.insert()  # Saves to Redis with all indexes
 ```
 
 **What Beanis does behind the scenes:**
+
 1. Creates Redis hash: `RestaurantCache:123` → `{name: "La Carbonara", ...}`
 2. Creates geo-index: `GEOADD RestaurantCache:location 12.4829 41.8933 "123"`
 3. Creates sorted sets for filters:
@@ -343,6 +346,7 @@ for doc_id, distance in results_with_distance:
 ```
 
 **What this does:**
+
 1. Uses Redis `GEORADIUS` command internally
 2. Returns document IDs sorted by distance
 3. You fetch the full documents as needed
@@ -393,6 +397,7 @@ async def startup():
 ```
 
 That's it! Beanis will:
+
 1. Create all geo-spatial indexes
 2. Create all sorted set indexes
 3. Handle serialization/deserialization
@@ -455,6 +460,7 @@ Real-world benchmarks with 2,600+ restaurants (Paris dataset):
 </div>
 
 **Key metrics:**
+
 - 🎯 **Cache hit rate:** 99.8% after warming
 - ⚡ **Average response time:** 12ms (cache) vs 750ms (database)
 - 🚀 **Throughput:** 10,000+ req/sec (Redis) vs 150 req/sec (PostgreSQL)
@@ -553,6 +559,7 @@ GET /restaurants/nearby?lat=41.8902&lon=12.4922&radius=3&cuisine=italian&min_rat
 **What happens:**
 
 1. **Cache Layer (Redis):**
+
    ```
    ⚡ Checking Redis cache...
    → GEORADIUS RestaurantCache:geo 12.4922 41.8902 3000 m
@@ -581,6 +588,7 @@ GET /restaurants/nearby?lat=41.8902&lon=12.4922&radius=3&cuisine=italian&min_rat
    ```
 
 **On cache miss:**
+
 ```
 💨 Redis cache MISS (took 4.1ms)
 💾 Querying PostgreSQL...
@@ -618,6 +626,7 @@ async def find_nearby_with_metrics(...):
 ```
 
 **Track:**
+
 - Cache hit rate (should be > 95%)
 - Average response time (cache: < 10ms, db: 50-100ms)
 - Cache memory usage
@@ -636,6 +645,7 @@ By using **Beanis as a Redis cache layer** over PostgreSQL, you get:
 ✅ **Real data** - OpenStreetMap provides free, real-world restaurants
 
 **Key principles:**
+
 1. Redis is your **cache**, not your database
 2. PostgreSQL is your **source of truth**
 3. Cache **hot queries**, not everything
@@ -647,10 +657,12 @@ By using **Beanis as a Redis cache layer** over PostgreSQL, you get:
 ## Try It Yourself
 
 **Full working example:**
+
 - Repository: [github.com/andreim14/beanis-examples/tree/main/restaurant-finder](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
 - Beanis docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
 
 **Quick start:**
+
 ```bash
 # Clone the repo
 git clone https://github.com/andreim14/beanis-examples.git
@@ -674,6 +686,7 @@ python demo.py
 ```
 
 The demo includes:
+
 - FastAPI REST API with geo-spatial queries
 - OpenStreetMap data import
 - Redis cache with Beanis
@@ -684,4 +697,4 @@ Questions? Drop a comment below! 🚀
 
 ---
 
-*Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)*
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_

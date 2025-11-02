@@ -11,8 +11,7 @@
 "ACL":
   url: https://aclweb.org
   # gold
-  color:  "#ffa500"
-
+  color: "#ffa500"
 
 "ArXiv":
   url: https://arxiv.org
