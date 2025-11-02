@@ -28,7 +28,7 @@ I'm an AI Applied Scientist at [SylloTips](https://www.syllotips.com) in Rome, w
 
 ## Research & Engineering
 
-I earned my Ph.D. in Artificial Intelligence at [Sapienza University of Rome](https://www.uniroma1.it/it/offerta-formativa/dottorato/2023/dottorato-nazionale-intelligenza-artificiale), specializing in multilingual NLP and advanced machine learning. My industrial Ph.D. experience shaped how I approach building AI systems—prioritizing both theoretical rigor and practical deployment.
+I earned my Ph.D. in Artificial Intelligence at [Sapienza University of Rome](https://www.uniroma1.it/it/offerta-formativa/dottorato/2023/dottorato-nazionale-intelligenza-artificiale), specializing in multilingual NLP and advanced machine learning. My industrial Ph.D. was conducted in collaboration with [Babelscape](https://babelscape.com/), where I gained hands-on experience turning research into production systems—prioritizing both theoretical rigor and practical deployment.
 
 Current areas of focus:
 
