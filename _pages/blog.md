@@ -15,6 +15,7 @@ nav_order: 1
 
 {% if blog_posts.size > 0 %}
 {% for post in blog_posts %}
+
 <div class="post-preview mb-4">
 <h2 class="post-title">
 <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
