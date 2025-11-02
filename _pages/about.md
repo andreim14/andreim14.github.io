@@ -24,20 +24,29 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-Hi, I'm Andrei Stefan Bejgu, an AI Applied Scientist at SylloTips based in Rome. I transform state-of-the-art insights into robust AI solutions by developing human-in-the-loop AI agents, retrieval-augmented systems, and fine-tuning multilingual LLMs using scalable, distributed training methods. My work bridges the gap between research and production, turning complex NLP challenges into high-performance, production-grade products.
+I'm an AI Applied Scientist at [SylloTips](https://www.syllotips.com) in Rome, where I build production systems that bridge academic research and real-world applications. My work focuses on developing human-in-the-loop AI agents, retrieval-augmented generation systems, and fine-tuning multilingual LLMs at scale.
 
-I earned my industrial Ph.D. at Sapienza University of Rome, where I deepened my expertise in multilingual NLP and advanced machine learning techniques—an experience that continues to shape my approach to real-world innovations.
+## Research & Engineering
 
-With a background spanning software development, engineering, and advanced research, I thrive on collaborating with multidisciplinary teams and mentoring emerging talent throughout every stage of a project. When I'm not immersed in code or research, you can find me exploring new ideas in AI and sharing my journey on social media.
+I earned my Ph.D. in Artificial Intelligence at [Sapienza University of Rome](https://www.uniroma1.it/it/offerta-formativa/dottorato/2023/dottorato-nazionale-intelligenza-artificiale), specializing in multilingual NLP and advanced machine learning. My industrial Ph.D. experience shaped how I approach building AI systems—prioritizing both theoretical rigor and practical deployment.
 
-Feel free to [connect with me on LinkedIn](https://www.linkedin.com/in/andrei-stefan-bejgu/) or drop me an email—I'm always open to exciting collaborations and discussions.
+Current areas of focus:
+
+- Human-in-the-loop AI agents for production environments
+- Retrieval-augmented generation (RAG) architectures
+- Distributed training for multilingual language models
+- Word sense disambiguation and semantic understanding
+
+## Recent Work
+
+**[Beanis](https://pypi.org/project/beanis/)** — A Redis ODM for Python that reduces boilerplate by 70% while maintaining performance within 8% of raw Redis. Built for developers who need type safety without sacrificing speed.
+
+**Word Sense Linking** — ACL 2024 research on automatic disambiguation that works on real text, not just controlled examples. Tackles the challenge of understanding context-dependent word meanings at scale.
+
+**Production RAG Systems** — Building retrieval-augmented generation pipelines that developers can actually deploy and maintain in production.
 
 ---
 
-<center>
+I enjoy collaborating with cross-functional teams and mentoring engineers at all career stages. When I'm not writing code or papers, I'm usually exploring new ideas in AI or sharing what I'm learning.
 
-Full CV available <a href='/assets/pdf/cv.pdf'>here</a>.
-
-</center>
-
----
+**[LinkedIn](https://www.linkedin.com/in/andrei-stefan-bejgu/)** • [Email](mailto:your.email@example.com) • **[Full CV](/assets/pdf/cv.pdf)**
