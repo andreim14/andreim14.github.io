@@ -36,7 +36,7 @@ Feel free to [connect with me on LinkedIn](https://www.linkedin.com/in/andrei-st
 
 <center>
 
-Full CV available <a href='assets/pdf/cv.pdf'>here</a>.
+Full CV available <a href='/assets/pdf/cv.pdf'>here</a>.
 
 </center>
 
