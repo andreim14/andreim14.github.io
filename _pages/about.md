@@ -24,8 +24,6 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-
-
 Hi, I'm Andrei Stefan Bejgu, an AI Applied Scientist at SylloTips based in Rome. I transform state-of-the-art insights into robust AI solutions by developing human-in-the-loop AI agents, retrieval-augmented systems, and fine-tuning multilingual LLMs using scalable, distributed training methods. My work bridges the gap between research and production, turning complex NLP challenges into high-performance, production-grade products.
 
 I earned my industrial Ph.D. at Sapienza University of Rome, where I deepened my expertise in multilingual NLP and advanced machine learning techniques—an experience that continues to shape my approach to real-world innovations.

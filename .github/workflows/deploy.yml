@@ -57,7 +57,7 @@ on:
       - "!README.md"
   schedule:
     # Run daily at 9:00 AM UTC to publish scheduled posts
-    - cron: '0 9 * * *'
+    - cron: "0 9 * * *"
   workflow_dispatch:
 
 permissions:
