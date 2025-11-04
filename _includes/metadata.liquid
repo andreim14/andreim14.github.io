@@ -58,17 +58,22 @@
   <meta property="og:title" content="{% if page.title %}{{ title }} | {{ page.title }}{% else %}{{ title }}{% endif %}">
   <meta property="og:url" content="{{ page.url | prepend: site.baseurl | prepend: site.url | remove_first: 'index.html' }}">
   <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
-  {% if page.og_image or site.og_image %}
-    <meta property="og:image" content="{% if page.og_image %}{{ page.og_image }}{% else %}{{ site.og_image }}{% endif %}">
+  {% if page.og_image or page.thumbnail or site.og_image %}
+    <meta property="og:image" content="{% if page.og_image %}{{ page.og_image | prepend: site.baseurl | prepend: site.url }}{% elsif page.thumbnail %}{{ page.thumbnail | prepend: '/' | prepend: site.baseurl | prepend: site.url }}{% else %}{{ site.og_image | prepend: site.baseurl | prepend: site.url }}{% endif %}">
   {% endif %}
   <meta property="og:locale" content="{{ site.lang }}">
+  {% if is_blog_post %}
+    <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+    <meta property="article:modified_time" content="{% if page.last_modified_at %}{{ page.last_modified_at | date_to_xmlschema }}{% else %}{{ page.date | date_to_xmlschema }}{% endif %}">
+    <meta property="article:author" content="{{ author_name }}">
+  {% endif %}
 
   <!-- Twitter card -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="{% if page.og_image or page.thumbnail or site.og_image %}summary_large_image{% else %}summary{% endif %}">
   <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ title }}{% endif %}">
   <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
-  {% if page.og_image or site.og_image %}
-    <meta name="twitter:image" content="{% if page.og_image %}{{ page.og_image }}{% else %}{{ site.og_image }}{% endif %}">
+  {% if page.og_image or page.thumbnail or site.og_image %}
+    <meta name="twitter:image" content="{% if page.og_image %}{{ page.og_image | prepend: site.baseurl | prepend: site.url }}{% elsif page.thumbnail %}{{ page.thumbnail | prepend: '/' | prepend: site.baseurl | prepend: site.url }}{% else %}{{ site.og_image | prepend: site.baseurl | prepend: site.url }}{% endif %}">
   {% endif %}
   {% if site.x_username %}
     <meta name="twitter:site" content="@{{ site.x_username }}">
@@ -231,6 +236,13 @@
         "@type": "{% if is_blog_post %}BlogPosting{% else %}WebSite{% endif %}",
         "description": "{% if page.description %}{{ page.description }}{% else if site.description %}{{ site.description }}{% endif %}",
         "headline": "{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}",
+        {% if is_blog_post %}
+        "datePublished": "{{ page.date | date_to_xmlschema }}",
+        "dateModified": "{% if page.last_modified_at %}{{ page.last_modified_at | date_to_xmlschema }}{% else %}{{ page.date | date_to_xmlschema }}{% endif %}",
+        {% endif %}
+        {% if page.og_image or page.thumbnail or site.og_image %}
+        "image": "{% if page.og_image %}{{ page.og_image | prepend: site.baseurl | prepend: site.url }}{% elsif page.thumbnail %}{{ page.thumbnail | prepend: '/' | prepend: site.baseurl | prepend: site.url }}{% else %}{{ site.og_image | prepend: site.baseurl | prepend: site.url }}{% endif %}",
+        {% endif %}
         {% if sameaslinks != blank %}
         "sameAs": {{ sameaslinks }},
         {% endif %}
@@ -238,4 +250,34 @@
         "@context": "https://schema.org"
     }
   </script>
+
+  {% if is_blog_post %}
+    <!-- Breadcrumbs Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ site.url }}{{ site.baseurl }}/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": "{{ site.url }}{{ site.baseurl }}/blog/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ page.title }}",
+            "item": "{{ page.url | prepend: site.baseurl | prepend: site.url }}"
+          }
+        ]
+      }
+    </script>
+  {% endif %}
 {% endif %}
