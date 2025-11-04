@@ -234,22 +234,26 @@ defaults:
       path: "_pages"
     values:
       sitemap: true
+      changefreq: monthly
+      priority: 0.7
   - scope:
       path: "_posts"
     values:
       sitemap: true
+      changefreq: weekly
+      priority: 0.8
   - scope:
       path: "_projects"
     values:
       sitemap: true
+      changefreq: monthly
+      priority: 0.7
   - scope:
       path: "_news"
     values:
       sitemap: true
-  - scope:
-      path: "*.html"
-    values:
-      sitemap: false
+      changefreq: monthly
+      priority: 0.6
 
 sass:
   style: compressed
