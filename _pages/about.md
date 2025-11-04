@@ -12,6 +12,7 @@ profile:
   align: right
   image: prof_pic.png
   image_circular: false # crops the image to make it circular
+  image_alt: "Andrei Stefan Bejgu - AI Applied Scientist specializing in NLP, LLMs, and multilingual AI"
   more_info: false
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
