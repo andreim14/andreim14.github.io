@@ -4,6 +4,10 @@ title: about
 permalink: /
 subtitle: AI Applied Scientist @ <a href="https://www.syllotips.com">SylloTips</a> | Ph.D. in Artificial Intelligence @ <a href="https://nlp.uniroma1.it/">Sapienza University of Rome</a>
 
+# Sitemap settings
+priority: 1.0
+changefreq: weekly
+
 profile:
   align: right
   image: prof_pic.png
