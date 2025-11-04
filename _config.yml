@@ -210,10 +210,44 @@ plugins:
   - jekyll-twitter-plugin
   - jemoji
 
-# Sitemap settings
+# -----------------------------------------------------------------------------
+# Sitemap Configuration
+# -----------------------------------------------------------------------------
+
+# Configure jekyll-sitemap plugin
+# See: https://github.com/jekyll/jekyll-sitemap
+sitemap:
+  priority: 1.0
+  changefreq: monthly
+
+# Sitemap settings - control what goes into sitemap.xml
 defaults:
   - scope:
+      path: ""
+    values:
+      sitemap: true
+  - scope:
       path: "assets"
+    values:
+      sitemap: false
+  - scope:
+      path: "_pages"
+    values:
+      sitemap: true
+  - scope:
+      path: "_posts"
+    values:
+      sitemap: true
+  - scope:
+      path: "_projects"
+    values:
+      sitemap: true
+  - scope:
+      path: "_news"
+    values:
+      sitemap: true
+  - scope:
+      path: "*.html"
     values:
       sitemap: false
 
