@@ -165,7 +165,7 @@ kramdown:
       start_line: 1
 
 # Includes & excludes
-include: ["_pages", "_scripts", "robots.txt"]
+include: ["_pages", "_scripts", "robots.txt", ".nojekyll"]
 exclude:
   - bin/
   - CONTRIBUTING.md
