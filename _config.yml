@@ -214,41 +214,17 @@ plugins:
 # Sitemap Configuration
 # -----------------------------------------------------------------------------
 
-# Configure jekyll-sitemap plugin
-# See: https://github.com/jekyll/jekyll-sitemap
+# The jekyll-sitemap plugin will automatically generate sitemap.xml
+# Configure what to exclude from the sitemap
 defaults:
   - scope:
-      path: ""
-    values:
-      sitemap: true
-  - scope:
       path: "assets"
-    values:
-      sitemap: false
-  - scope:
-      path: "*.html"
     values:
       sitemap: false
   - scope:
       path: "googlea2a501e9f13dfcbc.html"
     values:
       sitemap: false
-  - scope:
-      path: "_pages"
-    values:
-      sitemap: true
-  - scope:
-      path: "_posts"
-    values:
-      sitemap: true
-  - scope:
-      path: "_projects"
-    values:
-      sitemap: true
-  - scope:
-      path: "_news"
-    values:
-      sitemap: true
 
 sass:
   style: compressed
