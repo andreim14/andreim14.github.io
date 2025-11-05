@@ -7,11 +7,13 @@ on:
       - main
     paths:
       - "assets/**"
+      - "_sass/**"
       - "**.bib"
       - "**.html"
       - "**.js"
       - "**.liquid"
       - "**/*.md"
+      - "**.scss"
       - "**.yml"
       - "Gemfile"
       - "Gemfile.lock"
@@ -34,11 +36,13 @@ on:
       - main
     paths:
       - "assets/**"
+      - "_sass/**"
       - "**.bib"
       - "**.html"
       - "**.js"
       - "**.liquid"
       - "**/*.md"
+      - "**.scss"
       - "**.yml"
       - "Gemfile"
       - "Gemfile.lock"
