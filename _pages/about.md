@@ -29,13 +29,13 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-<div class="animated-section">
+<div class="animated-section" markdown="1">
 
 👋 Hi! I'm an AI Applied Scientist at [SylloTips](https://www.syllotips.com) in Rome, where I build production systems that bridge academic research and real-world applications. My work focuses on developing <span class="highlight-text">human-in-the-loop AI agents</span>, <span class="highlight-text">retrieval-augmented generation systems</span>, and fine-tuning <span class="highlight-text">multilingual LLMs</span> at scale.
 
 </div>
 
-<div class="section-card animated-section">
+<div class="section-card animated-section" markdown="1">
 
 ## 🎓 Research & Engineering
 
@@ -54,11 +54,11 @@ I earned my Ph.D. in Artificial Intelligence at [Sapienza University of Rome](ht
 
 </div>
 
-<div class="section-card animated-section">
+<div class="section-card animated-section" markdown="1">
 
 ## 🚀 Featured Projects
 
-<div class="project-highlight">
+<div class="project-highlight" markdown="1">
 
 **[Beanis](https://pypi.org/project/beanis/)** — Redis ODM for Python
 
@@ -66,7 +66,7 @@ A high-performance Redis Object-Document Mapper that reduces boilerplate by 70% 
 
 </div>
 
-<div class="project-highlight">
+<div class="project-highlight" markdown="1">
 
 **Word Sense Linking** — ACL 2024
 
@@ -74,7 +74,7 @@ Research on automatic disambiguation that works on real text, not just controlle
 
 </div>
 
-<div class="project-highlight">
+<div class="project-highlight" markdown="1">
 
 **Production RAG Systems**
 
@@ -84,7 +84,7 @@ Building retrieval-augmented generation pipelines that developers can actually d
 
 </div>
 
-<div class="callout-box animated-section">
+<div class="callout-box animated-section" markdown="1">
 
 💡 I enjoy collaborating with cross-functional teams and mentoring engineers at all career stages. When I'm not writing code or papers, I'm usually exploring new ideas in AI or sharing what I'm learning through blog posts and open-source contributions.
 
