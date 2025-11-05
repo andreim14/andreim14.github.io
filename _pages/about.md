@@ -29,29 +29,63 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I'm an AI Applied Scientist at [SylloTips](https://www.syllotips.com) in Rome, where I build production systems that bridge academic research and real-world applications. My work focuses on developing human-in-the-loop AI agents, retrieval-augmented generation systems, and fine-tuning multilingual LLMs at scale.
+<div class="animated-section">
 
-## Research & Engineering
+👋 Hi! I'm an AI Applied Scientist at [SylloTips](https://www.syllotips.com) in Rome, where I build production systems that bridge academic research and real-world applications. My work focuses on developing <span class="highlight-text">human-in-the-loop AI agents</span>, <span class="highlight-text">retrieval-augmented generation systems</span>, and fine-tuning <span class="highlight-text">multilingual LLMs</span> at scale.
+
+</div>
+
+<div class="section-card animated-section">
+
+## 🎓 Research & Engineering
 
 I earned my Ph.D. in Artificial Intelligence at [Sapienza University of Rome](https://nlp.uniroma1.it/), specializing in multilingual NLP and advanced machine learning. My industrial Ph.D. was conducted in collaboration with [Babelscape](https://babelscape.com/), where I gained hands-on experience turning research into production systems—prioritizing both theoretical rigor and practical deployment.
 
-Current areas of focus:
+**Current Areas of Focus:**
 
-- Human-in-the-loop AI agents for production environments
-- Retrieval-augmented generation (RAG) architectures
-- Distributed training for multilingual language models
-- Word sense disambiguation and semantic understanding
+<div class="tags-container">
+  <span class="tag">Human-in-the-loop AI Agents</span>
+  <span class="tag">RAG Architectures</span>
+  <span class="tag">Multilingual LLMs</span>
+  <span class="tag">Word Sense Disambiguation</span>
+  <span class="tag">Semantic Understanding</span>
+  <span class="tag">Distributed Training</span>
+</div>
 
-## Recent Work
+</div>
 
-**[Beanis](https://pypi.org/project/beanis/)** — A Redis ODM for Python that reduces boilerplate by 70% while maintaining performance within 8% of raw Redis. Built for developers who need type safety without sacrificing speed.
+<div class="section-card animated-section">
 
-**Word Sense Linking** — ACL 2024 research on automatic disambiguation that works on real text, not just controlled examples. Tackles the challenge of understanding context-dependent word meanings at scale.
+## 🚀 Featured Projects
 
-**Production RAG Systems** — Building retrieval-augmented generation pipelines that developers can actually deploy and maintain in production.
+<div class="project-highlight">
 
----
+**[Beanis](https://pypi.org/project/beanis/)** — Redis ODM for Python
 
-I enjoy collaborating with cross-functional teams and mentoring engineers at all career stages. When I'm not writing code or papers, I'm usually exploring new ideas in AI or sharing what I'm learning.
+A high-performance Redis Object-Document Mapper that reduces boilerplate by 70% while maintaining performance within 8% of raw Redis. Built for developers who need type safety without sacrificing speed.
 
-**[LinkedIn](https://www.linkedin.com/in/andrei-stefan-bejgu/)** • [Email](mailto:your.email@example.com) • **[Full CV](/assets/pdf/cv.pdf)**
+</div>
+
+<div class="project-highlight">
+
+**Word Sense Linking** — ACL 2024
+
+Research on automatic disambiguation that works on real text, not just controlled examples. Tackles the challenge of understanding context-dependent word meanings at scale.
+
+</div>
+
+<div class="project-highlight">
+
+**Production RAG Systems**
+
+Building retrieval-augmented generation pipelines that developers can actually deploy and maintain in production environments with real-world constraints.
+
+</div>
+
+</div>
+
+<div class="callout-box animated-section">
+
+💡 I enjoy collaborating with cross-functional teams and mentoring engineers at all career stages. When I'm not writing code or papers, I'm usually exploring new ideas in AI or sharing what I'm learning through blog posts and open-source contributions.
+
+</div>
