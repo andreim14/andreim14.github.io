@@ -51,11 +51,11 @@ I'm thrilled to share our paper **"Concept-pedia: A Wide-coverage Semantically-a
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-overview.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/conceptpedia-examples.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
-    Overview of the Concept-pedia dataset structure and semantic annotations from BabelNet.
+    Examples of taxonomical concept population in Concept-pedia across different categories (Cat, Emotion, Church, Pasta, Macaque, Train) showing the rich semantic structure from BabelNet.
 </div>
 
 ### Massive Scale with Semantic Structure
@@ -102,11 +102,11 @@ When we evaluate state-of-the-art models on Concept-10k:
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-performance.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/conceptpedia-comparison.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
-    Performance comparison: Vision-language models show dramatic drops on Concept-10k vs ImageNet.
+    Comparison of concept and category distributions: Concept-10k covers 28 semantic categories with 9,837 unique concepts, far exceeding ImageNet-1k's 11 categories and 1,000 concepts. The distribution is more balanced across diverse categories.
 </div>
 
 ### Why Does This Happen?
@@ -147,11 +147,11 @@ These aren't edge cases - they're everyday objects that humans recognize instant
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-examples.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/conceptpedia-annotation-examples.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
-    Examples of concepts from Concept-10k that challenge modern vision-language models.
+    Examples showing the annotation quality in Concept-pedia: correct annotations are verified by expert linguists, while ambiguous cases are carefully filtered out (e.g., distinguishing "church" from "altar" when both appear in the same image).
 </div>
 
 ## How We Built Concept-pedia
@@ -164,6 +164,15 @@ We leveraged **BabelNet**, the largest multilingual semantic network:
 - Filtered for concepts with clear visual representations
 - Ensured semantic diversity across categories
 - Maintained rich semantic annotations
+
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/conceptpedia-link-propagation.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+    Link propagation examples: Our methodology uses Wikipedia hyperlinks and BabelNet's semantic structure to automatically annotate images with precise concepts, ensuring high-quality annotations at scale.
+</div>
 
 ### Image Collection
 
