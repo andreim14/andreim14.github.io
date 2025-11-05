@@ -1,0 +1,2126 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+% \usepackage{acl}
+\usepackage[final]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{makecell}
+\usepackage{placeins}
+\usepackage{needspace}
+\usepackage{comment}
+\usepackage{multirow} % Required for multirow
+\usepackage{array}  
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{times}
+\usepackage{tabularx}
+\usepackage{makecell}
+
+
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+\usepackage[ruled]{algorithm2e}
+% \usepackage{algorithm}
+\usepackage{algpseudocode}
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+\usepackage{dcolumn}
+
+% \newcolumntype{d}[1]{D{.}{.}{#1}}
+\newcolumntype{d}[1]{>{\centering\arraybackslash}D{.}{.}{#1}}
+
+\usepackage{siunitx}
+\sisetup{
+    table-number-alignment = center,
+    round-mode = places,
+    round-precision = 1
+}
+
+\usepackage{subcaption} % For subfigures
+% \raggedbottom
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float} % For forcing table placement
+\usepackage{adjustbox}
+% \usepackage{pdflatex}
+\usepackage{enumitem}
+
+\newcommand{\resource}{Concept-pedia}
+\newcommand{\benchmark}{Concept-10k}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}} % checkmark
+\newcommand{\xmark}{\ding{55}}
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{Concept-pedia: a Wide-coverage Semantically-annotated \\ Multimodal Dataset}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+% \author{Karim Ghonim \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\\And
+%   Second Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\}
+% \author{Karim Ghonim\textsuperscript{1} \quad Andrei Stefan Bejgu\textsuperscript{2} \quad Alberte Fernández-Castro\textsuperscript{1,2} \quad  Roberto Navigli\textsuperscript{1,2} \\\\
+%  Sapienza University of Rome  \qquad  \qquad  \qquad  \qquad  ~~~~~
+%         Babelscape, Italy  \qquad \qquad   \\
+%    $^1$\texttt{surname@diag.uniroma1.it} \qquad \quad  \qquad  \qquad
+%    ~$^2$\texttt{surname@babelscape.com}
+%         }
+
+% \hspace{1cm}
+
+% \hspace{1cm}
+% \author{  Karim Ghonim\textsuperscript{1}, Andrei Stefan Bejgu\textsuperscript{2}, Alberte Fernández-Castro\textsuperscript{1,2}, Roberto Navigli\textsuperscript{1,2} \\\\
+%  Sapienza University of Rome  \qquad  \qquad  \qquad  \qquad  ~~~~~
+%         Babelscape, Italy  \qquad \qquad   \\
+%    $^1$\texttt{surname@diag.uniroma1.it} \qquad \quad  \qquad  \qquad
+%    ~$^2$\texttt{surname@babelscape.com}
+%         }
+
+
+\author{  Karim Ghonim\textsuperscript{1} \quad \quad Andrei Stefan Bejgu\textsuperscript{2} \quad \quad Alberte Fernández-Castro\textsuperscript{1,2} \\ 
+ \hspace{-2cm} {\bf Roberto Navigli\textsuperscript{1,2}} \\\\
+ Sapienza University of Rome  \qquad  \qquad  \qquad  \qquad  ~~~~~
+        Babelscape, Italy  \qquad \qquad   \\
+   $^1$\texttt{surname@diag.uniroma1.it} \qquad \quad  \qquad  \qquad
+   ~$^2$\texttt{surname@babelscape.com}
+        }
+
+%           Sapienza NLP Group\\
+%           Sapienza University of Rome\\
+% \textsuperscript{1}Sapienza University of Rome\;
+% \texttt{\{surname\}@diag.uniroma1.it}\\
+%    \textsuperscript{2}Babelscape\;
+% \texttt{\{surname\}@babelscape.com}
+% }
+
+ % \author{Alessandro Scir\`e$^{1,2}$ \qquad Karim Ghonim$^{2}$ \qquad Roberto Navigli$^{2}$\\\\
+
+         
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+% This document is a supplement to the general instructions for *ACL authors. It contains instructions for using the \LaTeX{} style files for ACL conferences.
+% The document itself conforms to its own specifications, and is therefore an example of what your manuscript should look like.
+% These instructions should be used both for papers submitted for review and for final versions of accepted papers.
+\begin{abstract}
+Vision-language Models (VLMs), such as CLIP and SigLIP, have become the \textit{de facto} standard for multimodal tasks, serving as essential building blocks for recent Multimodal Large Language Models, including LLaVA and PaliGemma. 
+However, current evaluations for VLMs remain heavily anchored to ImageNet.
+In this paper, we question whether ImageNet's coverage is still sufficiently challenging for modern VLMs, and investigate the impact of adding novel and varied concept categories, i.e., semantically grouped fine-grained synsets. 
+To this end, we introduce \resource, a novel, large-scale, semantically-annotated multimodal resource covering more than 165,000 concepts.
+Leveraging a language-agnostic, automatic annotation pipeline grounded in Wikipedia, \resource~expands the range of visual concepts, including diverse abstract categories.
+Building on \resource, we also present a manually-curated Visual Concept Recognition evaluation benchmark, \benchmark, that spans thousands of concepts across a wide range of categories.
+Our experiments show that current models, although excelling on ImageNet, struggle with \benchmark. Not only do these findings highlight a persistent bias toward ImageNet-centric concepts, but they also underscore the urgent need for more representative benchmarks. 
+By offering a broader and semantically richer testbed, \benchmark~aims to support the development of multimodal systems that better generalize to the complexities of real-world visual concepts.
+\end{abstract}
+
+% and fine-grained distinctions overlooked by existing benchmarks.
+% \Comment{
+% Multimodal models have seen consistent improvements in the current era of Large Language Models. Models like CLIP and SigLIP have demonstrated impressive zero-shot performance acrossvarious tasks, particularly in Visual Concept Recognition. These models have become the de facto standard for multimodal tasks and serve as essential building blocks for Vision Language Models (VLMs), such as LLaVA.
+% Visual Concept Recognition remains a key evaluation metric for these models, and it is largely centered around ImageNet. In this paper, we question whether ImageNet’s coverage is sufficient to comprehensively evaluate a model’s general performance or if additional concept categories are required.
+% In this paper, we introduce \resource, a semantically annotated  wide-coverage dataset that significantly expands on the categories covered by current benchmarks, such as ImageNet. 
+% Furthermore, we propose a language-agnostic automatic annotation pipeline that enables the creation of semantically annotated datasets from Wikipedia. 
+% Finally, we present \benchmark, a wide-coverage benchmark we believe to be crucial for evaluating state-of-the-art multimodal models, alongside experiments showing current models’ bias toward ImageNet images and concepts.
+% }
+% These models, among others, have demonstrated impressive zero-shot performance on downstream Visual Concept Recognition benchmarks such as ImageNet-1k \citep{deng2009imagenet} and ObjectNet \citep{barbu2019objectnet}.
+% However, this success also highlights two critical issues, which we address in this study.
+% This was acclaimed to them being trained on large amounts of image-text pairs, from which they learned to recognize and represent concepts in both modalities.
+% without requiring additional training or fine-tuning.
+% The success of contemporary vision and vision-text models can largely be attributed to their training on large-scale image-text datasets, which allow them to capture a broad spectrum of concepts represented in standard benchmarks. However, this success also highlights two critical issues, which we address in this study.
+% However, this success also highlights two critical issues, which we address in this study.
+% This was also supported by the fact that progress on ImageNet often translates to different domains, e.g., office and medical images \citep{zhang2020impact, matsoukas2022makes}.
+% Despite its foundational role, reliance on ImageNet introduces several limitations. Previous works questioned whether the apparent improvements achieved by state-of-the-art models reflect genuine advancements in generalization or merely overfitting to the specific images and annotations in the ImageNet test set, including mislabeled samples 
+\section{Introduction}
+
+Vision-language models have rapidly advanced in recent years, achieving remarkable performance on zero-shot Visual Concept Recognition benchmarks such as ImageNet-1k \citep{deng2009imagenet} and ObjectNet \citep{barbu2019objectnet}. 
+Prominent models like CLIP \citep{radford2021learning} and SigLIP \citep{zhai2023sigmoid}, which aim to learn a shared representation space for text and images simultaneously, have become standard approaches in multimodal research.
+
+The success of vision-text models can largely be attributed to their training on large-scale image-text datasets, which allow them to recognize a broad spectrum of concepts represented in standard benchmarks. 
+This has been thoroughly studied by \citet{laion-5b} and \citet{gadre2024datacomp}, among others, who analyze how the quantity of data, combined with the data curation techniques used during model pre-training, impacts zero-shot concept recognition capabilities.
+However, despite advancements in multimodal models, concept representation capabilities are predominantly evaluated using datasets like ImageNet-1k, iNaturalist \citep{van2018inaturalist} and ObjectNet.
+iNaturalist covers more than 8,000 concepts, specializing in plants and animals, while ObjectNet includes 313 concepts and explicitly focuses on objects.
+Although ImageNet-1k covers just 1,000 classes, it encompasses a broader and more diverse set of categories spanning objects, animals, food, and more, establishing itself as the de facto benchmark for general-purpose Visual Concept Recognition.
+This extensive coverage makes ImageNet-1k a more general and versatile evaluation benchmark for multimodal models. 
+
+ImageNet has been fundamental in shaping advancements in both Computer Vision and vision-text research. However, the field’s heavy reliance on ImageNet comes with some well-documented issues. 
+First, multiple studies have raised concerns that the reported performance gains might stem from models effectively "overfitting" to ImageNet's specific collection of images and labels, rather than genuinely improving generalization abilities \citep{recht2019imagenet, beyer2020we}.
+Second, ImageNet is not exempt from data-quality issues, including ambiguous or outright incorrect annotations, and its single-label assignment for each image is often insufficient given the multi-object nature of many images \citep{beyer2020we}. 
+These limitations can impact model accuracy without adequately reflecting real-world robustness.
+Moreover, with the increasingly expanding range of multimodal applications today, relying on ImageNet as a general-purpose benchmark is becoming increasingly restrictive due to its constrained coverage of concepts.
+% \citep{recht2019imagenet, beyer2020we}. 
+% This issue is further compounded by the fact that many recent models are trained on large-scale crawled data, often without explicit measures to prevent data leakage into evaluation benchmarks. There have been attempts to mitigate this issue by relabeling ImageNet-1k images (even providing multi-labels), or introducing new images for the ImageNet-1k concepts (or classes).
+% Secondly, these benchmarks are still limited in their coverage of concepts. For instance, the ImageNet-1k test set includes only one thousand WordNet \citep{miller1995wordnet} concepts, while ObjectNet covers just 313 classes. Although ImageNet-21k includes a much broader range of concepts, it lacks an official test set that can serve as a reliable evaluation framework for current models.
+% Finally, the ImageNet benchmark's creation process is heavily biased towards english concepts that would not be considered universal as shown by \citep{liu2021visually}.
+Indeed, ImageNet currently includes entries for approximately 21,841 concepts, which represent 26\% of all WordNet nominal synsets.\footnote{\url {https://www.image-net.org/}} 
+However, its only manually validated benchmark, ImageNet-1k, provides images for just 1,000 concepts, which the research community continues to rely on for evaluation in the absence of broader alternatives.
+% ImageNet originally aimed to represent all WordNet synsets but currently includes entries for approximately 21,841 concepts.\footnote{\url{https://www.image-net.org/}} However, its only validated benchmark, ImageNet-1k, provides images for just 1,000 concepts, which the research community continues to rely on for evaluation.
+% Consequently, the research community continues to rely on ImageNet-1k for evaluation.
+% which is limited in the diversity of concept categories it represents.
+% In this work, we question whether this progress on ImageNet translates to concepts in the wild.
+
+In this work, we investigate whether the performance gains achieved on ImageNet truly generalize to a broader and more varied range of concepts.
+% (real world setting). 
+To enable this assessment, we present \resource, a wide-coverage multimodal resource that provides semantically-annotated images and texts.
+\resource~covers a significantly larger and more varied set of concepts compared to existing datasets. 
+Using \resource, we show that current models exhibit a bias toward ImageNet images and concepts.
+% Thanks to Concept-pedia we find that while this study highlights the ability of current state-of-the-art models to handle concepts from well-studied categories, showing that they struggle with more varied, real-world concepts. 
+% Our experiments indicate that much work is still required in this direction, as models exhibit a strong bias toward concepts included in current benchmarks and fail when we move to concepts from different categories.
+
+To summarize, our contributions are as follows:
+\begin{itemize}
+
+    \item \resource, a wide-coverage semantically-annotated multimodal resource that provides multi-label annotations, covering 165,000 concepts across 28 categories;
+    \item A novel manually-curated evaluation benchmark, \benchmark, that covers 
+    $\approx$ 10k concepts;
+    \item A study on the ability of models to generalize to images and concepts beyond existing benchmarks such as ImageNet.
+    % \item A study on the bias of models toward images and concepts from existing benchmarks like ImageNet.
+\end{itemize}
+\noindent In the hope of fostering research in Multimodal Concept Recognition, we release the code and data at  \url{https://github.com/SapienzaNLP/concept-pedia}.
+%
+% .
+
+% For this reason, we adopt the Concept and Named Entity Recognition (CNER) categories as they encompass both, making them a great fit for our use case.
+% We use the CNER categories in order to measure the coverage of current benchmarks in order to compare them to that of \resource.
+% To the best of our knowledge, no prior efforts have focused on creating a benchmark encompassing all concept categories. As previously mentioned, ImageNet contains images for approximately 21,000 concepts. However, the available benchmark and its out-of-distribution (OOD) variations \citep{beyer2020we, recht2019imagenet, hendrycks2021many, hendrycks2021natural} provide samples for 1,000 concepts that cover only 12 CNER  categories. 
+% Even ImageNet-CoG \citep{sariyildiz2021concept}, which was specifically designed to include concepts beyond those in ImageNet, remains heavily skewed toward the same categories.
+\begin{figure*}[t]
+    \centering
+ \includegraphics[width=\linewidth]
+% {latex/images/pop_tart.pdf} % Adjust width as needed
+{latex/images/instance-of-fig-full_ISA.pdf} % Adjust width as needed
+% {latex/images/tex_mex.pdf} % Adjust width as needed
+% {latex/images/tax_ex.pdf} % Adjust width as needed
+    \caption{Examples for taxonomical concept population in Concept-pedia across different CNER categories.}
+    \label{fig:ents_pop}
+\end{figure*}
+
+\section{Related Work}
+ % ImageNet very popular
+% To address a number of issues, many variants of ImageNet, why? More images, etc.
+% However, they don't cover enough variety of categories. We want to test bla bla
+% My work comes in
+% CNER is never introduced
+% In contrast, most other evaluation benchmarks tend to focus on specific domains or categories, limiting their breadth of coverage.
+ImageNet has acted as an anchor for tracking progress in multimodal research, particularly in assessing the proficiency of multimodal models in detecting concepts within images. This is largely because ImageNet was designed to cover a wide range of concepts, i.e., WordNet synsets, ensuring representation across diverse categories, thus serving as a pre-training resource (ImageNet-21k) and a standard evaluation benchmark (ImageNet-1k).
+However, the ImageNet-21k dataset \cite{ridnik2021imagenet} is limited to approximately 22,000 concepts, predominantly skewed toward objects. 
+To address this limitation, we base our resource on Wikipedia, leveraging its manually added hyperlinks to ensure broader concept coverage. As a result, \resource~encompasses 165,000 concepts, spanning a wider range of categories and exhibiting a more balanced distribution.
+Wikipedia has previously been utilized to create large-scale training corpora for various objectives.
+For instance, \citet{srinivasan2021wit} introduced Wikipedia-based Image Text (WIT), a multilingual multimodal dataset extracted from Wikipedia. However, WIT contains image-text data only and lacks concept annotations, which \resource~provides.
+On the other hand, Wikipedia hyperlinks have already been successfully used to automatically create datasets for several NLP tasks, such as Named Entity Recognition \cite{nothman2013learning, al2015polyglot, tsai2016cross, pan2017cross, tedeschi2021wikineural, martinelli-etal-2024-cner}, Word Sense Disambiguation, Semantic Role Labeling, Semantic Parsing, Relation Extraction (all introduced in \citet{conia2024mosaico}), and Entity Linking \cite{wu-etal-2020-scalable}. 
+However, to the best of our knowledge, \resource~is the first multimodal resource that leverages Wikipedia hyperlinks to annotate images with concepts.
+
+Moreover, ImageNet-21k lacks an official human-validated evaluation benchmark.
+The only widely used ImageNet benchmark, ImageNet-1k, provides samples for just 1,000 concepts, primarily consisting of objects and animals. To evaluate models’ robustness on out-of-distribution images, several variations of ImageNet have been introduced, such as ImageNet-v2 \cite{recht2019imagenet}, ImageNet-R \cite{hendrycks2021many}, and ImageNet-A \cite{hendrycks2021natural}, incorporating new images for ImageNet concepts. 
+Another variation of ImageNet-1k is ImageNet-ReaL \cite{beyer2020we}, which addresses annotation inaccuracies and the single-label limitation in ImageNet-1k by relabeling the images and assigning multiple labels where applicable.
+However, all these variations remain limited to the same original set of concepts used in ImageNet.
+This limitation is even more evident in ObjectNet and iNaturalist, which include images for 313 and 8,142 concepts, respectively.
+Similarly, ImageNet-CoG \citep{sariyildiz2021concept}, which was explicitly designed to include concepts beyond those in ImageNet, remains heavily skewed toward the same categories as ImageNet-1k, while BabelPic \citep{calabrese2020fatality} focuses explicitly on non-concrete (NC) concepts, such as emotions. 
+% While both datasets are valuable, they focus on specific domains and lack diversity in the semantic categories they cover.
+% This limitation is even more evident in ObjectNet and iNaturalist, which include images for 313 and 8,142 concepts respectively. 
+% Both datasets, while valuable, focus on specific domains and lack diversity in the semantic categories they cover.
+% While ObjectNet includes images for 313 concepts and iNaturalist for 8,142, both focus on specific domains and lack diversity in the semantic categories they cover.
+% \citet{calabrese2020fatality} introduced a dataset focusing on non-concrete (NC) concepts, such as emotions (e.g., sadness), in contrast to the concrete, object-centered concepts that dominate ImageNet.
+% Additionally, .
+These constraints underscore the need for a broader benchmark to complement the existing, domain-specific datasets.
+To address this issue, we leverage Wikipedia, in combination with semantic categories, with the novel goal of creating a more diverse and comprehensive benchmark, i.e., \benchmark.
+% To address this issue, we explore combining semantic categories and Wikipedia as a resource with the novel goal of creating a more diverse and comprehensive benchmark, i.e., \benchmark.
+% for creating a more diverse and comprehensive benchmark, i.e., \benchmark.
+% With \benchmark, we differentiate from previous benchmarks by introducing an evaluation resource that covers a wider range of concepts and semantic categories. 
+
+More specifically, \benchmark~contains images for approximately 10,000 concepts, making it substantially larger than currently used general-purpose benchmarks. 
+Furthermore, it ensures a more balanced distribution across categories, avoiding the skew toward specific categories such as objects or animals present in benchmarks like ImageNet-1k or iNaturalist.
+
+% , primarily consisting of objects and animals.
+ % In contrast, \resource~offers images for over 175,000 concepts while maintaining a far more balanced distribution.
+% Additionally, other works have provided insights into the limited coverage of ImageNet from various perspectives. For instance, \citet{calabrese2020fatality} introduced a dataset focusing on non-concrete (NC) concepts, such as emotions (e.g., sadness), in contrast to the concrete, object-centered concepts that dominate ImageNet. Similar NC concepts are also incorporated into \resource~and \benchmark.
+% Several previous works have introduced categories to group synsets into coarse-grained sets. However, these efforts often focus either on named entities \citep{pradhan2012conll, ding2021few, fetahu2023semeval} or solely on concepts \citep{izquierdo2007exploring, vial2019sense}. In contrast, \citet{} proposed the Concept and Named Entity Recognition (CNER) categories, which encompass both concepts and named entities, making them particularly well-suited for our use case.
+% To the best of our knowledge, no prior efforts have focused on creating a benchmark encompassing all concept categories.
+% Furthermore, 
+%
+% On the other hand, \resource~offers images for over 175,000 concepts, while maintaining a far more balanced distribution.
+% Additionally, \citet{liu2021visually} developed Multicultural Reasoning over Vision and Language (MaRVL), which addresses the North American and Western European biases in ImageNet by including more universal concepts that reflect a broader range of languages and cultures.
+
+% - ImageNet, ImageNet v2, ImageNet Real, ObjectNet? \\
+% - Wikineural, Mosaico, CNER. \\
+% - WiT
+% We also cover concepts that are more universal compared to the english/euro centric concepts in ImageNet (give examples). 
+% \footnote{Wikipedia: \url{https://www.wikipedia.org}}
+% Our work focuses on crowdsourced data from Wikipedia, and our goal is to extract image-to-concept associations. We leverage the hyperlinks present in image captions as the foundation for mapping images to their corresponding concepts. By utilizing BabelNet\footnote{BabelNet: \url{https://babelnet.org}}, we are able to map these hyperlinks to concepts within a multilingual knowledge graph, allowing us to exploit BabelNet’s extensive taxonomic relations to represent the concepts depicted in the images.
+% In this section, we present the steps required to create \resource.
+% We detail the procedure required to associate images in Wikipedia to their respective concepts.
+% We leverage the hyperlinks in image captions as the foundation for mapping images to their corresponding concepts.
+% By utilizing BabelNet\footnote{BabelNet: \url{https://babelnet.org}}, we map these hyperlinks to concepts within a multilingual knowledge graph, allowing us to exploit BabelNet’s extensive taxonomic relations to tag the concepts depicted in the images.
+
+
+\section{Concept-pedia}
+In this section, we outline the process of creating \resource, detailing how images from Wikipedia are associated with their respective concepts (see Figure \ref{fig:concept-construction}). We use hyperlinks in image captions as the basis for mapping images to concepts with the help of BabelNet\footnote{\url{https://babelnet.org}} \cite{navigli-ponzetto-2010-babelnet, navigli2021ten}, a multilingual knowledge graph. 
+% Leveraging 
+% , we map these hyperlinks to concepts in the images.
+% However, as Wikipedia is manually edited, not all captions are semantically linked and lack many direct hyperlinks. To address this limitation, our first step involves expanding the existing hyperlinks in captions by automatically annotating missing links. Following this, we aim to maximize coverage of the most relevant concepts while ensuring that each selected concept is represented by a sufficient number of images. This balance is critical to maintain the dataset's quality and representativeness.
+However, since Wikipedia is manually edited, many captions lack direct hyperlinks. 
+% not all captions are semantically linked.
+% and
+% first expand the existing hyperlinks in captions by 
+To address this limitation, we automatically annotate the captions with the missing links. 
+Next, we generalize entities to the concepts they are instances of (e.g. Colosseum is an instance of amphitheater), and ensure that each concept in our resource is associated with an adequate number of images by exploiting BabelNet's taxonomical information. 
+Striking this balance is crucial to maintaining the dataset’s quality and representativeness.
+% corresponding
+% In this section, we outline the methodology used to construct the \resource~resource and benchmark.
+% In this section, we outline our methodology for creating the \resource~resource and benchmark. This includes the automatic annotation process to incorporate hyperlinks absent from the corresponding captions, the procedure for maximizing concept coverage while retaining only relevant concepts and categories, and ensuring that each concept is represented by a sufficient number of images.
+% It is important to note that this methodology is grounded in Wikipedia\footnote{Wikipedia: \url{https://www.wikipedia.org}} and BabelNet\footnote{BabelNet: \url{https://babelnet.org}}, making it both language-agnostic and domain-independent. As a result, it can be easily extended to create datasets tailored for diverse purposes.
+% \subsection{Processing Wikipedia}
+% We start with an XML dump from Wikipedia\footnote{We use the Wikipedia dump released on Nov 20, 2022}, which contains comprehensive information on images, captions, page text, and related metadata. As previously mentioned, our current coverage is limited to English.
+% We initially process the Wikitext—the markup language used by MediaWiki—to extract relevant information, including image-caption pairs, all hyperlinks within the page and their sources (e.g., title, caption, main text), and the propagation type (e.g., redirections, lists).
+% The page text and captions are further processed using SpaCy\footnote{\url{https://spacy.io/}} for tokenization, lemmatization, and part-of-speech (POS) tagging, which are essential for the link propagation process discussed in Section \ref{subsec:link_prop}.
+% For the images, we developed a custom Wikipedia/Wikimedia image downloader tool.
+
+% We apply minimal filtering heuristics to retain as many samples as possible.
+% We provide more details regarding the processing and filtering procedures in Appendix \ref{sec:appendix}.
+
+\subsection{Link propagation}
+\label{subsec:link_prop}
+
+Wikipedia pages provide manually annotated hyperlinks, including those found in image captions. However, many mentions of entities or concepts within captions lack corresponding hyperlinks, resulting in missed annotations, as illustrated in Figure \ref{fig:colosseo1}.
+% many high-quality examples are lost due to missing mention links in captions. 
+To overcome this issue, we employ a link propagation algorithm inspired by \citet{tedeschi2021wikineural}, which matches unannotated text chunks in a caption with links present in the Wikipedia page containing the caption.
+
+The algorithm operates on the assumption that captions frequently reference mentions already linked within the body of the corresponding Wikipedia page. 
+Building on this assumption, the propagation algorithm attempts to match unlinked text chunks in captions with manually annotated links in the page. 
+This matching process relies on a sequence of cascaded heuristics to expand the annotations.
+First, \textbf{exact string matching} identifies exact surface form overlaps between text chunks and linked mentions, ensuring high precision when captions use identical terminology.
+Then, \textbf{lemma matching} extends this by normalizing text to its lemmatized form, which we perform using SpaCy\footnote{\url{https://spacy.io/}}, enabling matches that account for inflectional variations such as pluralization or verb conjugation (e.g., \textit{cathedrals} being matched with \textit{cathedral}).
+
+To further link more unannotated text chunks, we propose two heuristics that utilize the inter-resource mapping provided by BabelNet to match text chunks with synonyms or alternative lexicalizations. 
+The first heuristic, referred to as \textbf{synonym matching}, obtains for each existing link in a Wikipedia page the corresponding BabelNet synset, and identifies unannotated text chunks that match WordNet synonyms or Wikidata aliases contained within that synset. 
+For instance, \textit{natatorium} can be linked to the \textit{swimming pool} page since both terms are synonyms in the corresponding WordNet synset, and~\textit{gas} linked to \textit{gasoline} due to the former being a Wikidata alias. 
+This technique is particularly useful for handling variations in naming conventions, such as acronyms or synonyms. 
+The second heuristic, i.e. \textbf{redirection matching}, performs an analogous matching using Wikipedia page redirections, i.e. pages that redirect to other pages. 
+This allows us to capture alternative spellings, common misspellings, and other variations, e.g. \textit{Red Panda} and \textit{Lesser Panda}. 
+% though this introduces a greater risk of noise.
+% Then, lemma matching extends this by normalizing text to its lemmatized form using SpaCy\footnote{\url{https://spacy.io/}}, enabling matches that account for inflectional variations, such as pluralization or verb conjugation (e.g., \textit{cathedrals} being matched with \textit{cathedral}).
+
+While the link propagation algorithm significantly enhances coverage, the precision of its heuristics varies. 
+Hyperlinks manually added to captions naturally exhibit the highest precision, as they were explicitly added by Wikipedia editors. 
+In contrast, heuristics like synonym or redirection matching introduce a degree of uncertainty, e.g. potentially introducing concept shifts (e.g. \textit{Driver (person)} redirecting to \textit{Driving}).
+To maximize coverage while maintaining transparency, \resource~includes annotations derived from all heuristics and records the link propagation information for each link. 
+This enables downstream applications to tailor their use of the annotations based on their needs -- prioritizing precision (e.g., by using only existing or exact matches) or maximizing recall (e.g., by incorporating all annotations). We discuss this in more detail in Section \ref{sec:data_analysis}.
+
+This link propagation approach to creating multimodal datasets achieves two key objectives. First, creating manually annotated datasets is notoriously expensive; this method repurposes high-quality manual annotations, thereby significantly reducing costs. 
+Second, as highlighted by \citet{beyer2020we}, images inherently contain multiple concepts, which our link propagation algorithm helps associate. 
+By leveraging this approach, we produce what is, to the best of our knowledge, the first semantically-annotated multimodal training resource of this scale with multi-label concept annotations.
+
+% This link propagation approach to creating multimodal datasets achieves two key objectives. First, creating manually annotated datasets is notoriously expensive; this method repurposes high-quality manual annotations, thereby significantly reducing costs. 
+% Second, as highlighted by \citet{beyer2020we}, images inherently contain multiple concepts, which our link propagation algorithm helps associate. 
+% By leveraging this approach, we produce what is, to the best of our knowledge, the first semantically-annotated multimodal training resource of this scale with multi-label concept annotations.
+% This link propagation approach to creating multimodal datasets achieves two key objectives. First, creating manually annotated datasets is notoriously expensive; this method repurposes high-quality manual annotations, significantly reducing costs. Second, as highlighted by \citet{beyer2020we}, images inherently contain multiple concepts, which our link propagation algorithm helps associate. By leveraging this approach, we produce what is, to the best of our knowledge, the first semantically-annotated multimodal training resource of this scale with multi-label concept annotations.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1\linewidth]{latex/images/new_jap_macaque_4.pdf} 
+\caption{An example of a Wikipedia page containing an image-caption pair in which the caption lacks a hyperlink to the mentioned concept, while the page body contains the corresponding link.}
+\label{fig:colosseo1}
+\end{figure}
+% already have manually tagged concepts and entities in the captions and Wikipedia , which helps avoid the time-consuming and expensive process of manually checking or annotating the samples.
+% -- EXISTS: Already in the caption \\
+% -- EXACT: Surface form matching \\
+% -- WIKI+Alias: Link matching \\
+% -- LEMMA: Lemma matching \\
+% -- REDIRECT: Redirections \\
+\begin{figure*}[t] % Use figure* to span both columns
+    \centering
+    % First subfigure
+    \begin{subfigure}[b]{0.49\linewidth} % Adjust width to fit both in one figure
+        \centering
+        \includegraphics[width=8cm, height=5.0cm, keepaspectratio]{latex/images/cner-pop-7.pdf} % Set the same height
+        % \includegraphics[height=5.5cm]{latex/images/cner-pop-4pdf} % Set the same height
+        \caption{Number of concepts covered per category.}
+        \label{fig:class-stat-1k}
+    \end{subfigure}
+    \hfill % Adds horizontal space between the two subfigures
+    % Second subfigure
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        % \includegraphics
+        \includegraphics[width=8cm, height=5.0cm, keepaspectratio]{latex/images/concept-distr-7.pdf} % Set the same height
+        % \includegraphics[height=5.5cm]{latex/images/concept-distr-4.pdf} % Set the same height
+        \caption{Distribution (\%) of categories for each benchmark.}
+        \label{fig:cner-stat-1k}
+    \end{subfigure}
+    % Main caption
+    \caption{Comparison of concept and category distributions between \benchmark~and ImageNet-1k.}
+    \label{fig:combined-distribution}
+\end{figure*}
+% \subsection{Taxonomy propagation}
+
+\subsection{Taxonomical Concept Propagation}
+\label{subsec:conc_pop}
+After the link propagation step, 74.5\% of the 4.6 million English Wikipedia captions (Nov, 2023 dump) are annotated with at least one link. 
+% \footnote{We use the Wikipedia dump released on Nov 20, 2022}
+We leverage the correspondence established in BabelNet between its synsets and Wikipedia links to map these annotations. This enables us to exploit BabelNet's synset classification into concepts (e.g. \textit{City}) and named entities (e.g. \textit{Paris}), revealing that approximately 85\% of the synsets involved are classified as named entities.
+% (see Table~\ref{table:new_stats}). 
+
+To maximize the size of our dataset and maintain a focus on concepts rather than specific entities, we transform each entity annotation into its corresponding generalized concept using BabelNet's taxonomic information, which is derived from the integration of WordNet and Wikidata hypernymy and instance-of relations. For example, the entity \textit{Arrie Church} is generalized to the concept \textit{Church} (see Figure~\ref{fig:ents_pop}). 
+Additionally, we observe that many concepts are associated with only a few images (see Table~\ref{table:new_stats}, last two columns). To ensure that each concept is adequately represented, we iteratively refine the annotations for underrepresented synsets, i.e. those synsets with fewer images than a predetermined threshold. To do so, we map each annotation to its direct parent concept (e.g., mapping \textit{Hokuto} to \textit{Train}). 
+This process is repeated until every concept meets the minimum image requirement, ensuring a balanced distribution across the training, development, and test splits.
+
+An additional benefit of grounding our dataset in BabelNet is that its taxonomy preserves a hierarchical structure, similarly to ImageNet in this respect, while covering a broader range of synsets beyond those available in WordNet.
+
+% An additional benefit of grounding our dataset in BabelNet is that its taxonomy preserves a hierarchical structure -- similar to ImageNet -- while extending the taxonomy to include a broader range of synsets beyond those found in WordNet.
+% However, many concepts remain underrepresented, with only a few associated images (see Table~\ref{table:new_stats}, last two columns). To address this, we iteratively refine the annotations for synsets with fewer images than a set threshold. Specifically, we map each underrepresented annotation to its direct parent concept (e.g., mapping \textit{Hokuto} to \textit{Train}) using BabelNet’s hypernymy relations, which are derived from integrate knowledge from both WordNet and Wikidata. 
+% This iterative process continues until every concept meets the minimum image requirement, thereby facilitating balanced train, development, and test splits.
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l|cccr}
+    \toprule
+    % \textbf{Step} & \textbf{Cap} & \textbf{Link} & \textbf{Uniq. Con.} & \textbf{Freq. Conc.} \\
+    \textbf{Propagation} & \textbf{Capt.} & \textbf{Links} & \multicolumn{2}{c}{\textbf{Concept}}  \\
+    \cmidrule(lr){4-5} 
+    
+     &  & & \textbf{Unique} & \textbf{Freq.} \\
+    \midrule
+    w/o  & 1.1M & 0.6M &  114K & 46K \\ 
+    + Link & 3.4M & 1.2M & 165K & 48K \\
+    + Taxonomical & 3.4M & 1.2M & 101K & 101K \\
+    \bottomrule
+\end{tabular}
+\caption{Statistics of \resource~at each stage of the propagation algorithm, showing the number of captions with at least one link (Capt.), unique Wikipedia link annotations (Links), unique concepts (Unique), and frequent concepts that appear more than 5 times (Freq.) at each step.}
+\label{table:new_stats}
+\end{table}
+
+\subsection{Dataset Statistics}
+% We report in Table \ref{table:new_stats} the statistics, at each step, about our (image, caption) pairs in terms of size, number of link annotations. 
+% We stress that there is a 1-to-1 correspondence between a Wikipedia link and a concept or entity represented in BabelNet through a synset, and unique links with 5 occurrences or more.
+Table \ref{table:new_stats} presents \resource~statistics at each step, including the number of captions, links, and concept annotations. Additionally, we report the number of concepts that occur at least five times, referred to as frequent concepts. 
+
+We observe that,  while the Link Propagation step (Section \ref{subsec:link_prop}) doubles the number of links (row 2 of Table \ref{table:new_stats}) and adds approximately 50,000 new concepts, it has little effect on frequent concepts, i.e., concepts appearing more than 5 times.
+In contrast, the Taxonomical Propagation step (Section \ref{subsec:conc_pop}) flattens the set of unique concepts to 101,354 and ensures that each of them is associated with at least 5 images in the dataset (row 3 of Table \ref{table:new_stats}).
+% We observe that,  while the Link Propagation step (Section \ref{subsec:link_prop}) doubles the number of links and adds $\approx$50,000 new concepts, it has little effect on frequent concepts, i.e., concepts appearing more than 5 times.
+% \footnote{We set $n$ = 5.}
+% In contrast, the Taxonomical Propagation step (Section \ref{subsec:conc_pop}) does not increase unique links or overall concepts but doubles those with sufficient image representation, strengthening their presence in the dataset.
+% We observe that while the Link Propagation step, detailed in Section 
+% \ref{subsec:link_prop}, significantly increases the number of links (doubling them) and introduces approximately 50,000 new concepts to our resource, it has minimal impact on the number of concepts that appear more than five times.
+% In contrast, the Taxonomical Propagation step, explained in Section \ref{subsec:conc_pop}, does not expand the number of unique links or overall concepts covered. However, it effectively doubles the number of concepts that are represented by more than five images, improving dataset coverage for frequently occurring concepts.
+% , thereby improving their representation in the dataset
+% Aggiungere parte dove si descrivono i numeri quindi quanti dati perdiamo nei versi step 
+
+\begin{comment} 
+\textbf{OLD: }
+After the link propagation step, we identified two key issues. First, the majority of our propagated annotations correspond to named entities. Second, a significant portion of the concepts are fine-grained and are represented by too few images, as illustrated in the Appendix
+% With all instances annotated with their corresponding Wikipedia pages, we use the one-to-one correspondence between Wikipedia pages and BabelNet  synsets \cite{navigli-ponzetto-2010-babelnet}. 
+
+With all the captions annotated with the Wikipedia links, we then leverage the correspondence between Wikipedia links and BabelNet synsets \cite{navigli-ponzetto-2010-babelnet}.
+This enables us to exploit BabelNet's classification of each synset as either a concept (C) or a named entity (NE), referred to collectively as synset types.
+% To address this, with all samples annotated with their corresponding Wikipedia pages, we leverage the one-to-one correspondence between Wikipedia pages and BabelNet \cite{navigli2012babelnet} synsets. This enables us to classify each synset as either a concept (C) or a named entity (NE), referred to collectively as synset types.
+% Following \cite{tedeschi2021wikineural}, and considering that \textit{type annotations} are often noisy\footnote{Based on the majority case of the title occurrence within its Wikipedia page}, we utilize a synset type classifier introduced by the authors to enhance the precision of our type annotations.
+Since our dataset is derived from Wikipedia, it is inherently entity-dense, with entities accounting for approximately 85\% of the annotated synsets, as shown in Table 
+However, as our primary objective is to evaluate models’ capabilities to represent concepts in a multimodal setting, we aim to retain these instances. 
+To achieve this, we leverage the taxonomic information provided by BabelNet to associate each entity synset with its corresponding generalized concept (e.g., 
+Arrie Church → Church), as illustrated in Figure \ref{fig:ents_pop}.
+% which stems from WordNet and Wikidata(e.g., Arabian Mau → Cat)
+Grounding our dataset in BabelNet, the taxonomy of which stems from WordNet and Wikidata, offers the additional advantage of preserving the hierarchical structure of the dataset, similar to ImageNet, while significantly broadening the taxonomy’s scope and including a wider range of synsets, even those beyond WordNet.
+
+To ensure each concept is represented by a sufficient number of images, we iteratively apply this procedure for synsets that are underrepresented, i.e., those with fewer images than a set threshold. 
+% Starting with the least populated concepts in \resource, we map each concept to its direct parent concept (e.g., Hokuto → Train).
+We start with a least populated concepts in \resource, and map them to their direct parent concept (e.g., Hokuto → Train). We repeat this process until each concept has a minimum desired number of images.
+As a result, we ensure adequate representation for all concepts, facilitating the creation of balanced train/dev/test splits.
+\end{comment} 
+% An additional advantage of grounding our dataset in BabelNet, which incorporates the taxonomy from WordNet, is that it allows us to retain the hierarchical structure of the dataset, similar to ImageNet, while covering a significantly broader range of synsets, including those beyond WordNet.
+% % Furthermore, through concept population, Concept-pedia offers multiple levels of granularity, enabling the heirarchical training of models as well as their evaluation of models at different levels of abstraction.
+% We iteratively follow the same steps for the selected synsets that are either too specific or insufficiently populated 
+% retain samples for synsets .
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{l|ccc}
+%     \toprule
+%     \textbf{Step} & \textbf{Captions} & \textbf{Links} & \textbf{Concepts} \\
+%     \midrule
+%     Pre Prop.  & 1.1M & 0.6M &  48K\\ 
+%     Link Prop. & 3.4M & 1.2M & 165K \\
+%     Tax Prop.  & 3.4M & 1.2M & 100K\\
+%     \bottomrule
+% \end{tabular}
+% \caption{Statistics of \resource~at each stage of the propagation algorithm, showing the number of captions with at least one link, number of unique links, and number of concepts appearing more than a set threshold (i.e., 5) at each step.}
+% \label{table:new_stats}
+% \end{table}
+
+% (e.g., CELESTIAL, FEELING) 
+
+%This approach ensures that our benchmark evaluates not only a model’s ability to recognize concrete concepts from well-studied domains (e.g., Animals or Objects) but also its capacity to identify non-concrete concepts (e.g., Feelings) and those requiring domain-specific knowledge.
+% \citet{} introduced 29 semantic categories to group synsets, encompassing both concepts and named entities. 
+% We adopted this categorization to assess the coverage of our resource, benchmark, and other existing benchmarks. 
+% This allows us to 
+
+% As illustrated in Figure \ref{fig:combined-distribution}, 
+
+% can be found in Figures \ref{fig:cog1} and \ref{fig:cog2}, while further dataset statistics are provided in Table \ref{table:raw_stats}.
+
+% \citet{} introduced a set of semantic categories that group synsets, including both concepts and named entities. We adopted these categories to evaluate the coverage of our resource, benchmark, and existing benchmarks. 
+% This approach ensures that our benchmark assesses not only a model’s ability to recognize concrete concepts from well-researched (e.g., Animals or Objects) but also its capability to identify non-concrete (NC) concepts (e.g., Feeling), as well as those requiring domain knowledge. 
+% % specific world or domain knowledge (e.g., determining whether a person is an artist).
+% % or identifying which celestial star is in the image).
+% As illustrated in Figure \ref{subsec:conc_pop}, ImageNet, currently the most widely used general benchmark, covers only 11 categories, with just 6 containing more than 4 concepts. In contrast, \resource~spans 28 categories and provides a significantly greater number of concepts for those categories shared with ImageNet, as shown in Figure \ref{subsec:conc_pop}.
+% Further details about the distribution of the remaining categories are provided in Figures \ref{fig:cog1} and \ref{fig:cog2}.
+% \begin{algorithm}[t!]
+% % \renewcommand{\thealgocf}{} % Remove algorithm numbering
+% \caption{Concept Population}\label{alg:pop_alg}
+% \KwIn{Initial set of synsets $S = \{s_1, s_2, \ldots, s_n\}$; 
+% Taxonomy map $T$; 
+% Desired final size $m$}
+% \KwOut{Final set of synsets $S^*$ of size $m$}
+% \BlankLine
+% \ForEach{$s_i \in S^*$}{
+%     \If{$s_i$ represents an entity}{
+%         Replace $s_i$ with its corresponding concepts $T(s_i)$\;
+%     }
+% }
+% \While{$|S^*| > m$}{
+%     Identify the least frequent synset $s_{\min}$ in $S$\;
+%     Move $s_{\min}$ to its parent synset $T(s_{\min})$\;
+%     \If{$T(s_{\min}) \notin S$}{
+%         Add $T(s_{\min})$ to $S$\;
+%     }
+%     \If{$s_{\min}$ has no parent synsets}{
+%         Remove $s_{\min}$ from $S^*$\;
+%     }
+% }
+% \end{algorithm}
+%  the fact that Wikipedia can be represented as a graph thanks to BabelNet (which includes WordNet annotations), 
+% \begin{algorithm}
+% \caption{Concept Population}\label{alg:pop_alg}
+% \begin{algorithmic}[] % [1] for line numbering
+% \Require \\Initial set of synsets $S = \{s_1, s_2, \ldots, s_n\}$, Taxonomy map $T$, Target size $m$
+% \Ensure Final set of synsets $S$ of size $m$
+% \ForAll{$s_i \in S$}
+%     \If{$s_i$ represents an entity}
+%         \State Replace $s_i$ with its corresponding concepts $T(s_i)$
+%     \EndIf
+% \EndFor
+% \While{$|S| > m$}
+%     \State Identify the least frequent synset $s_{\min}$ in $S$
+%     \State Move $s_{\min}$ to its parent synset $T(s_{\min})$
+%     \If{$T(s_{\min}) \notin S$}
+%         \State Add $T(s_{\min})$ to $S$
+%     \EndIf
+%     \If{$s_{\min}$ has no child synsets}
+%         \State Remove $s_{\min}$ from $S$
+%     \EndIf
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}
+% Furthermore, as shown by \citep{beyer2020we}, images naturally contain multiple concepts, and with this in mind, we release the first multimodal training resource with multi-label concept annotations of this scale.
+% As the final step in our dataset creation pipeline, we show the power of knowledge graphs and taxonomy for concept sample population.
+% \subsection{Processing Wikipedia}
+% \begin{figure*}[t] % Use figure* to span both columns
+%     \centering
+%     % First subfigure
+%     \begin{subfigure}[b]{0.45\linewidth} % Adjust width to fit both in one figure
+%         \centering
+%         \includegraphics[width=8cm, height=4.0cm, keepaspectratio]{latex/images/class-stat-52.pdf}
+%         \caption{Number of concepts covered by each benchmark.}
+%         \label{fig:class-stat}
+%     \end{subfigure}
+%     \hfill % Adds horizontal space between the two subfigures
+%     % Second subfigure
+%     \begin{subfigure}[b]{0.45\linewidth}
+%         \centering
+%         \includegraphics[width=8cm, height=4.0cm, keepaspectratio]{latex/images/cner-stat-50.pdf}
+        
+%         % \includegraphics[height=4.5cm]{latex/images/cner-stat-50.pdf} % Set the same height
+%         \caption{Distinct concept categories.}
+%         \label{fig:cner-stat}
+%     \end{subfigure}
+%     % Main caption
+%     \caption{Comparison of Concept-10k coverage across concepts and categories.}
+%     \label{fig:combined-stats}
+% \end{figure*}
+
+
+% \begin{table}[t]
+% \centering
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabular}{l|rrrr}
+%     \toprule
+%    &  \textbf{Obj-N} & \textbf{IN-1k} & \textbf{iNat} & \textbf{Con-10k}  \\
+    
+%     \midrule
+%    Concepts & 313 & 1000 & 8142 & \textbf{9837}\\
+%    Categories & 1 & 11 & 4 & \textbf{28} \\
+%     \bottomrule
+% \end{tabular}
+% \caption{Comparison of concept and semantic category coverage across ObjectNet (Obj-N), ImageNet-1K (IN-1K), iNaturalist (iNat), and Concept-10K (Con-10K).}
+% \label{table:new_stats}
+% \end{table}
+
+\begin{comment}
+\subsection{Is ImageNet-1k Enough?}
+ImageNet is an essential evaluation benchmark for Computer Vision and has been the primary testbed for evaluating current multimodal models in a zero-shot fashion. 
+However, it still lacks balance in category coverage, being skewed towards categories like Animals and Artifacts, i.e., objects.
+% highlighted by the categories introduced by \citep{}. 
+% This limitation also applies to other benchmarks, such as ObjectNet and iNaturalist, which are even more constrained than ImageNet in terms of category diversity.
+Moreover, ImageNet contains samples for 1,000 concepts that span only 12 CNER categories. This limitation extends to other benchmarks, such as ObjectNet and iNaturalist, which are even more constrained in terms of category diversity. 
+ObjectNet, for instance, includes images for 313 objects, 113 of which overlap with ImageNet, all belonging to a single CNER class. Similarly, iNaturalist, despite encompassing 8,142 classes, represents only four CNER categories.
+This suggests that performing better on these benchmarks is insufficient to claim that a model excels at representing multimodal concepts or generalization. 
+% [Which and why are they important. Specific subtrees of concepts, and ignoring others.]
+% It was created with the idea of containing the main objects we deal with on a daily basis, but even ignoring the bias of the selection process in English, if a model is able to identify two very specific dog breeds in English, e.g. ex1 and ex2, can we really say that it "generelazies better"?
+% With this in mind, we chose Wikipedia as our starting point to create both a resource and a benchmark that spans a broader range of categories.
+% Similarly, ObjectNet includes images for 313 objects, 113 of which overlap with ImageNet, all falling under a single CNER class. Another example is iNaturalist, which, despite encompassing 8,142 classes, represents only four CNER categories, highlighting the need for a more comprehensive benchmark to complement these existing, more specialized datasets. 
+\end{comment}
+\section{Concept-10k}
+\label{sec:concept-10k}
+Having created a large silver dataset with \resource, we can proceed to develop a gold-standard benchmark. 
+% that includes as many concept categories as possible. 
+Based on the results of our manual validation, presented in Section \ref{sec:data_analysis}, we observed that larger captions or those containing multiple concepts are more prone to propagating concepts that are not visually represented in the images. 
+% (to avoid false positives)
+To address this, starting with concepts that have at least 10 images, we apply three heuristics to \resource~to select the most representative image-concept pairs:
+1) we filter out all image-caption pairs with multiple concepts, leaving their inclusion to future work;
+2) for each concept, we rank images by caption length and retain the $k$ shortest-caption images (we set $k=5$); 
+3) we remove any concepts that are parents of other concepts within the same set according to the BabelNet taxonomy, e.g., if we have \textit{Car} and \textit{Race car}, we remove \textit{Car} to avoid false negatives at test time.
+% e.g. if we have \textit{car} and \textit{race car}, we would remove car. This is done in order to avoid false negatives at test time (e.g. having both \textit{cat} and \textit{domestic cat} as possible classes).
+% We set $k=5$ samples in the \benchmark~test set.
+% To address this, we first filter out samples with multiple concepts, explicitly retaining only single-concept samples for this iteration of the benchmark. 
+
+The final step in creating our \benchmark~gold-standard benchmark involves manually validating each image-concept pair.
+In this task, two expert linguists\footnote{Annotators were compensated according to the standard salary for their geographical location.} with extensive experience in annotating lexical-semantic tasks were presented with image-concept pairs and instructed to perform a binary classification (True or False) based on whether the image was labeled with the correct concept. 
+Additionally, the annotators were tasked with filtering out any Not Safe For Work (NSFW) or corrupt images.
+The inter-annotator agreement for this task was measured, yielding a Cohen’s kappa coefficient of $\kappa = 89.3$, indicating almost perfect agreement.
+Further details regarding this annotation process can be found in Appendix \ref{sec:appendix-bench}.
+\begin{comment}
+    It is also important to note that we opted against using model-based selection methods (e.g., CLIPScore \citep{hessel2021clipscore}).
+There are two main reasons behind this decision. 
+First, such methods inherently introduce bias \cite{gadre2024datacomp}. 
+Second, we qualitatively observe that current models struggle to accurately assess the similarity between the visual and textual representations of new concepts, often resulting in the erroneous exclusion of valid samples.
+\end{comment}
+
+
+% \subsection{Benchmark Statistics and Analysis}
+% This procedure results in \benchmark, a manually validated benchmark of 49,185 image-concept pairs, spanning 9,837 unique concepts, each represented by five images.
+% To analyze the domain coverage of our final benchmark, we utilize the Concept and Named Entity Recognition (CNER) category set introduced by \citet{}, which maps BabelNet synsets to a predefined set of 29 semantic categories shared across concepts and entities. 
+% This mapping enables a systematic comparison of the diversity of our resource with that of ImageNet-1k, enabling an in-depth analysis of the category coverage of the two resources.
+
+% ImageNet-1k spans only 11 out of 29 CNER categories, with just 6 containing more than 4 distinct concepts. 
+% In contrast, \benchmark~covers 28 categories, excluding only \textit{DateTime}, and includes a significantly higher number of concepts for the categories it shares with ImageNet-1k, as shown in Figure \ref{fig:class-stat-1k}. 
+% This shows that \benchmark~enables a broader evaluation, encompassing not only concrete concepts but also abstract ones, such as Feelings or Events, which are often underrepresented in existing benchmarks.
+% Furthermore, \benchmark~not only covers more concepts per category than ImageNet-1k but also exhibits a less biased distribution toward categories such as Artifacts, i.e., objects, as seen in ImageNet-1k, as shown in Figure \ref{fig:cner-stat-1k}.
+% % \ref{fig:combined-distribution}.
+% Additional details on the distribution of the remaining categories are provided in Appendix \ref{sec:appendix-CoG}.
+
+% \begin{table}[t]
+% \centering
+% % \setlength{\tabcolsep}{4pt}
+% \begin{tabular}{l|rr}
+%     \toprule
+%   & \textbf{Concepts} & \textbf{Categories} \\
+%     \midrule
+  
+%  % \textbf{ObjectNet}  &  312 & 1 \\
+
+%   \textbf{iNaturalist}  & 8142 & 4 \\
+%   \textbf{ImageNet-1k}  & 1000 & 11 \\
+%    \textbf{Concept-10k} & \textbf{9837} & \textbf{28}\\
+%     \bottomrule
+% \end{tabular}
+% \caption{Comparison of concept and semantic category coverage of benchmarks and Concept-10K.}
+% \label{table:new_stats}
+% \end{table}
+
+
+\begin{table}
+\centering
+\setlength{\tabcolsep}{10pt} 
+    % \vspace{3mm} % Adds space between the tables
+\begin{tabular}{l c c}
+\toprule
+\textbf{}        & \textbf{Concepts}    & \textbf{Categories} \\ 
+\midrule
+\textbf{ImageNet-1k}    & 1,000           & 11 \\ 
+\textbf{ObjectNet}    & ~~~312           & ~~1 \\ 
+% \hline
+% \midrule
+\textbf{iNaturalist}    & 8,142           & ~~3 \\ 
+\midrule
+
+\textbf{Concept-10k}     & \textbf{9,837}           & \textbf{28}
+\\ 
+\bottomrule
+\end{tabular}
+\caption{Number of unique concepts and semantic categories covered in each dataset.}
+% labels.}
+\label{tab:conc_vs_rest_coverage}
+\end{table}
+
+
+\subsection{Benchmark Statistics and Analysis}
+The above procedure results in \benchmark, a manually validated benchmark of 49,185 image-concept pairs, spanning 9,837 unique concepts, each represented by five images.
+To analyze the domain coverage of our final benchmark, we utilize the Concept and Named Entity Recognition (CNER) category set introduced by \citet{martinelli-etal-2024-cner}, which maps BabelNet synsets to a predefined set of 29 semantic categories shared across concepts and entities. This mapping enables a systematic comparison of the diversity of our resource with that of ImageNet-1k, enabling an in-depth analysis of the category coverage of the two resources.
+% We provide examples of 
+We present \resource~instances of concepts from various CNER categories in Appendix~\ref{sec:appendix-cner}.
+% In Table~\ref{tab:cner-examples} in the Appendix, we present \resource~instances of concepts from various CNER categories.
+
+ImageNet-1k spans only 11 out of 29 CNER categories, as shown in Table \ref{tab:conc_vs_rest_coverage}, with just 6 containing more than four distinct concepts. 
+In contrast, \benchmark~covers 28 categories, excluding only \textit{DateTime}, and includes a significantly higher number of concepts for the categories it shares with ImageNet-1k, as shown in Figure \ref{fig:class-stat-1k}. 
+This demonstrates that \benchmark~enables a broader evaluation, encompassing not only concrete concepts but also abstract ones, such as \textit{Feelings} or \textit{Events}, which are often underrepresented in existing benchmarks.
+A comparison with other benchmarks, including those from \citet{radford2021learning}, is provided in Appendix~\ref{sec:benchmark-coverage}, showing that \benchmark{} introduces more categories (28) than all other benchmarks combined (18).
+Furthermore, as we show in Figure \ref{fig:cner-stat-1k}, 
+not only does \benchmark~cover more concepts per category than ImageNet-1k but it also exhibits a less biased distribution toward categories such as \textit{Artifacts}, i.e., objects, as seen in ImageNet-1k.
+Additional details on the distribution of the remaining categories in \benchmark~are provided in Appendix \ref{sec:appendix-CoG}.
+% The distribution of all categories in \benchmark~is presented in Appendix~\ref{sec:appendix-CoG}.
+% \ref{fig:combined-distribution}.
+% Additional details on category distribution are provided in Appendix \ref{sec:appendix-CoG}.
+
+ %, as well as the dataset statistics, 
+% 
+% \benchmark~provides a robust evaluation framework for state-of-the-art models,  
+
+
+\section{Dataset Evaluation}
+\label{sec:data_analysis}
+% This analysis examines whether the images selected are more representative of the concepts compared to those extracted from Wikipedia and further validates our silver labels
+% \subsection{Human Validation}
+% To evaluate the quality of our dataset, we conduct a series of manual annotation experiments. %, including a comparison with ImageNet described in Section \ref{subsec:cn1k_in1k}.
+To evaluate the quality of \resource~and \benchmark, we conduct a series of manual annotation experiments. %, including a comparison with ImageNet described in Section \ref{subsec:cn1k_in1k}.
+\begin{comment}
+    This evaluation aims to validate both our images and automatic data annotation pipeline, ensuring the overall quality of our benchmark.
+\end{comment}
+% This evaluation serves to validate our
+% automatic data annotation pipeline as well as the quality of the images, ensuring the overall quality of our benchmark.
+
+% resource creation process and the quality of the images and samples. 
+% Additionally, we manually validate the test set examples to ensure the overall quality of our benchmark.
+
+
+
+\begin{table}[t]
+    \centering
+    % \small
+    \setlength{\tabcolsep}{20pt}
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Propagation Type} & \textbf{P} \\
+        \midrule
+       Hyperlink in caption & 100 \\
+        Exact string matching & 100 \\
+        Lemma matching & ~~91 \\
+        Synonym matching & ~~96 \\
+        Redirection matching & ~~84 \\
+        % CAT & Wikipedia Categories & 57 \\
+        \midrule
+        Taxonomical propagation & ~~96\\
+        \bottomrule
+    \end{tabular}
+    \caption{Precision (\%) scores for the link and taxonomical concept propagation   heuristics.}
+    \label{tab:precision_types}
+\end{table}
+
+
+\subsection{Annotation Quality Assessment}
+% We first evaluate the effectiveness of our automatic concept-image asso
+We first evaluate the effectiveness of the Link Propagation step in our \resource{} creation methodology (Section~\ref{subsec:link_prop}). To do so, we randomly sample 200 image-caption–link instances for each annotation type (i.e., source links and the heuristics described) and manually evaluate them. 
+As shown in Table~\ref{tab:precision_types}, precision is generally high, with all heuristics exceeding 90\%, except for redirection matching, which, as expected, yields slightly lower precision.
+For the Taxonomical Concept Propagation step, we evaluate 300 randomly sampled links generalized to concepts, and observe a precision of 96\%.
+
+% \Comment{}
+% We first evaluate the effectiveness of the Link Propagation step of our \resource~creation methodology (Section \ref{subsec:link_prop}). 
+% To do so, for each annotation type (i.e. the source links plus the four heuristics presented in the section) we randomly select 200 image-caption-link instances and evaluate them. 
+% As shown in Table \ref{tab:precision_types}, precision is generally high, with all heuristics exceeding 90\% except for redirection matching, which, as expected, yields a slightly lower precision.
+% Regarding the Taxonomical Concept Propagation, we evaluate a random sample of 300 links generalized to concepts, obtaining 96\% precision.
+
+% To evaluate our link propagation algorithm, we randomly selected 200 samples from each propagation type (e.g., Exact, Alias) to assess the precision of each, resulting in a total of 1,000 samples. 
+% As shown in Table \ref{tab:precision_types}, the precision across heuristics is generally high, with all exceeding 90% except for REDIRECT, which yields a precision of 84%.
+% Further details on the propagation types and their precision are provided in Table \ref{tab:precision_types}.
+% This analysis helped us identify which propagation types to exclude from the annotations for this task (e.g., CAT).
+% \subsection{\benchmark}
+% As mentioned in Section \ref{sec:concept-10k}, 
+% \begin{table}[h!]
+% \centering
+% \begin{tabular}{l|c}
+% \hline
+% \textbf{Task} & \textbf{Cohen's $\kappa$} \\ \hline
+% Silver Labels & 95.12 \\
+% Con-1k vs. In-1k & 88.1 \\
+% Concept-10k & 89.3 \\ \hline
+% \end{tabular}
+% \caption{Cohen's kappa values for various tasks.}
+% \label{tab:cohen_kappa_values}
+% \end{table}
+% the quality of the images, determining whether they accurately represent the given concepts, 
+
+\subsection{Comparison with ImageNet-1k}
+% \subsection{Concept-1k vs. ImageNet-1k}
+\label{subsec:cn1k_in1k}
+To further assess the quality of our silver dataset, we focus on two key aspects: the accuracy of the images in representing the given concepts and the precision of our automatic annotations compared to existing benchmarks, such as ImageNet.
+To this end, we conduct an experiment using an equal number of images from ImageNet and a restricted version of \resource~that contains only ImageNet-1k concepts, referred to as Concept-1k.
+We evaluate 2,000 examples by randomly sampling two images per concept from both Concept-1k and ImageNet-1k, ensuring equal representation across concepts. 
+This setup enables a fair comparison of quality between our dataset and a well-established benchmark.
+
+
+\begin{table}
+\centering
+\setlength{\tabcolsep}{10pt} 
+    % \vspace{3mm} % Adds space between the tables
+\begin{tabular}{c c c}
+\toprule
+\textbf{}        & \textbf{ImageNet-1k}    & \textbf{Concept-1k} \\ 
+\midrule
+\textbf{High}    & 88.4\%            & 95.7\%  \\ 
+% \hline
+\textbf{Low}     & 83.7\%            & 76.8\%  
+\\ 
+\bottomrule
+\end{tabular}
+\caption{Label accuracy of manually annotated subsets of ImageNet-1k and Concept-1k.}
+% labels.}
+\label{tab:conc_vs_in}
+\end{table}
+
+
+
+
+Two expert linguists, following the guidelines detailed in Appendix \ref{sec:guidelines-con1k_In1k}, are provided with 10 possible candidate labels, i.e., Wikipedia titles, for each image, retrieved from different vision-text models\footnote{We use SigLIP-base, SigLIP-large, and SigLIP-(SO)-400M, CLIP-base and CLIP-large and select the 10 most predicted labels.}, and instructed to select all the prominent concepts depicted in the image. To ensure unbiased evaluation, instances are shuffled across resources and are shown without any source information. %annotators blindly annotate shuffled samples from both datasets without knowledge of their source.  
+%Multiple labels were allowed to determine if each linked concept was present, rather than whether it is the most prominent.
+We accept \textit{None} as a possible label to identify instances where the concept is correctly tagged given the context in the caption but not visually represented in the image, as shown in Figure \ref{fig:hemp}. 
+% Given the fine-grained nature of ImageNet-1k classes (e.g., specific dog breeds), annotators are also asked to rate their confidence in their labels as High or Low. 
+Given the fine-grained nature of ImageNet-1K classes (e.g., specific dog breeds), annotators are also asked to rate their confidence in their labels as High or Low. 
+This process results in 84\% of items in Concept-1K and 89\% in ImageNet-1K being tagged with high confidence by both annotators.
+
+% Table \ref{tab:conc_vs_in_conf} shows that 84\% of items in Concept-1k and 89\% in ImageNet-1k were tagged with high confidence by both annotators. 
+
+For these items, as shown in Table \ref{tab:conc_vs_in}, Concept-1k labels are confirmed as correct 95.7\% of the time, compared to 88.4\% for ImageNet-1k, validating the quality of our automatic labels and highlighting our dataset’s competitiveness with a well-established benchmark.  
+The inter-annotator agreement, measured on a shared subset of 200 instances, yields a Cohen’s kappa coefficient of $\kappa =$ 88.1, indicating almost perfect agreement.
+  % \cite{XXX} 
+
+
+\begin{table*}[t]
+\centering
+% \small
+\begin{tabular}{lcccccccc}
+    \toprule
+    \textbf{Model} & \textbf{ViT size} & \textbf{Params} & \textbf{Fine-Tuning} & \multicolumn{3}{c}{\textbf{ImageNet-1k}} & \textbf{\benchmark} \\
+    \cmidrule(lr){5-7} 
+    & & & & \textbf{Validation} & \textbf{v2} & \textbf{ReaL} &  \\
+    \midrule
+    CLIP & B & 150M & \xmark  & 68.3 & 61.9 & - & 22.0 \\
+    % SigLIP & B & 203M & \xmark  & \textbf{76.2} & \textbf{69.6} & \textbf{82.8} & 31.9 \\
+    % SigLIP & B & 203M & \cmark & 75.9 & 69.1 & 81.5 & \textbf{36.9} \\
+    % \midrule
+    % CLIP & B & 150M & \xmark  & 68.3 & 61.9 & - & 24.9 \\
+    SigLIP & B & 203M & \xmark  & \textbf{76.2} & \textbf{69.6} & \textbf{82.8} & 31.1 \\
+    SigLIP & B & 203M & \cmark & 75.9 & 69.1 & 81.5 & \textbf{36.1} \\
+    \midrule
+    CLIP & L & 428M & \xmark  & 75.5 & 69.0 & - & 26.7 \\
+    % OpenCLIP & ViT-L/14 & 256 & 74.0 & 61.1 & - & 66.4 & 25.1 \\
+    % EVA-CLIP & ViT-L/14 & 256 & 79.8 & 72.9 & - & 75.3 & 25.0 \\
+    % SigLIP & L & 652M & \xmark  & \textbf{80.5} & \textbf{74.2} &\textbf{85.9} & 37.2 \\
+    % SigLIP & L & 652M & \cmark & 79.3 & 73.5 & 85.3 & \textbf{43.3} \\
+    % \midrule
+    SigLIP & L & 652M & \xmark  & \textbf{80.5} & \textbf{74.2} &\textbf{85.9} & 36.1 \\
+    SigLIP & L & 652M & \cmark & 79.3 & 73.5 & 85.3 & \textbf{41.9} \\
+    \midrule
+    % CLIP & ViT-L/14 & 576 & 76.6 & 72.0 & -& 24.9 \\
+    % EVA-CLIP & ViT-L/14 & 576 & 80.4 & 73.8 & - & 78.4 & 25.1 \\
+    % SigLIP & ViT-L/14 & 576 & \textbf{82.1} & \textbf{75.9} & \textbf{87.0} & 25.9 \\
+    % \midrule
+    % OpenCLIP & ViT-G/14 & 1.4B & 80.1 & 73.6 & - & 35.6 \\
+    % EVA-CLIP & ViT-E/14 & 256 & 82.0 & 75.7 & - & 79.6 & 28.4 \\
+    % SigLIP & SO (400M) & 878M & \xmark  & \textbf{83.2} & \textbf{77.2} & \textbf{87.5}  & 42.0 \\
+    % SigLIP & SO (400M) & 878M & \cmark  & 83.0 & 76.7 & 87.1 & \textbf{49.7} \\
+    SigLIP & SO (400M) & 878M & \xmark  & \textbf{83.2} & \textbf{77.2} & \textbf{87.5}  & 40.3 \\
+    SigLIP & SO (400M) & 878M & \cmark  & 83.0 & 76.7 & 87.1 & \textbf{45.0} \\
+    \bottomrule
+\end{tabular}
+\caption{We report the zero-shot and fine-tuned performance of different models. Performance is measured using top-1 accuracy (acc@1) for all datasets, except for ImageNet ReaL, where we report ReaL accuracy instead. We also report the performance of SigLIP fine-tuned on \resource~on ImageNet test sets as well as on \benchmark.}
+\label{tab:imagenet-comparison}
+\end{table*}
+
+
+\begin{figure}[t!]
+    \centering
+    \small
+\includegraphics[width=1\linewidth]{latex/images/manilla_hemp.pdf}
+    \caption{Examples of correct annotations excluded from \benchmark. This is due to the concept not being visually represented in the image.}
+    \label{fig:hemp}
+\end{figure}
+
+\section{Experiments and Results}
+% \subsection{Visual Concept Recognition}
+
+\subsection{Experimental setup}
+We assess whether current models can generalize to new concepts beyond those included in ImageNet. 
+To achieve this, we evaluate a diverse set of open-source vision-text transformer-based models, using them as baselines in our experiments and analyzing their accuracy on standard variations of ImageNet-1k (i.e., ImageNet-1k Val, ImageNet-v2, and ImageNet-ReaL) as well as on \benchmark.
+% ImageNet-1k validation set is the only public ImageNet test set available. ImageNet-v2 is a re-creation of the original validation set, designed to test models’ generalization capabilities on new data. ImageNet-ReaL provides alternative annotations to address potential labeling errors in the original validation set. Together
+Our evaluation includes the SigLIP family of models \citep{zhai2023sigmoid}, featuring three configurations: SigLIP-base, SigLIP-large, and SigLIP with a Shape-Optimized (SO) 400M parameter Vision Transformer (ViT) architecture. Additionally, we evaluate two models of the CLIP family \citep{radford2021learning}, namely CLIP-base and CLIP-large.
+We select these models based on their strong performance (see Appendix~\ref{app:MLLM}).
+% We report performance results for other multimodal models in Appendix~\ref{app:MLLM}.
+
+% Our evaluation includes the SigLIP family of models, featuring three configurations: SigLIP-base, SigLIP-large, and SigLIP with a Shape-Optimized (SO) 400M parameter Vision Transformer (ViT) architecture. Additionally, we evaluate two models of the CLIP family, namely CLIP-base and CLIP-large.
+% , which represent different configurations of vision transformer backbones.
+
+To test the models’ ability to recognize concepts, we embed candidate concepts and input images into the same latent space and predict the class with the highest cosine similarity to the image embedding, and thus measure top-1 accuracy. This unified evaluation framework standardizes predictions across models, ensuring a fair and consistent comparison.
+Although SigLIP and CLIP are trained with different optimization objectives, as SigLIP employs a sigmoid-based loss function and CLIP utilizes a softmax loss, we apply this methodology to evaluate both models consistently.
+We carry out our evaluation in two scenarios, namely, zero-shot and fine-tuned, presented hereafter.
+
+% Although SigLIP and CLIP are trained with different optimization objectives—SigLIP employs a sigmoid-based loss function while CLIP utilizes a softmax loss—we use this methodology to evaluate both models consistently. 
+% To assess model performance, we compare both SigLIP and CLIP in two scenarios: zero-shot and fine-tuned, using our \benchmark. In the zero-shot scenario, we evaluate the models directly on Concept-10k to highlight their pretrained capabilities. In the fine-tuned scenario, we first fine-tune the models using Concept-pedia and then test their performance on Concept-10k.
+% This setup allows us to evaluate how well the models adapt to the specific characteristics of our benchmark.
+% This approach allows us to compare their performance on the same benchmarks under identical conditions.
+% To assess model performance, we compare both SigLIP and CLIP in zero-shot and fine-tuned scenarios on our \benchmark. The zero-shot evaluation highlights each model’s pretraining capabilities, while the fine-tuned evaluation measures how well the models adapt to the specific characteristics of our benchmark. 
+% after fine-tuning while maintaining a fair comparison with their zero-shot capabilities.
+% \begin{table}
+% \centering
+% % \small
+% \begin{tabular}{c c c}
+% \toprule
+% \textbf{}        & \textbf{ImageNet-1k}    & \textbf{Concept-1k} \\ 
+% \midrule
+% \textbf{High Conf.} & 89\%              & 84\%       \\ 
+% \bottomrule
+% \end{tabular}
+% % \caption{Items (\%) labeled as \textit{High Confidence} for each dataset.}
+% \caption{High confidence items (\%) for each dataset.}
+% \label{tab:conc_vs_in_conf}
+% \end{table}
+
+% \FloatBarrier
+
+% ### Submission Table Start
+% \begin{table*}[t!]
+% \centering
+% \begin{tabular}{lc cccccc}
+% \toprule
+% \textbf{Model} & \textbf{Fine-Tuning }& \textbf{ANIM} & \textbf{BIO} & \textbf{FOOD} & \textbf{MEASURE} & \textbf{LAW} & \textbf{PSY} \\
+% % \midrule
+% % SigLIP-Base   & \xmark  & 59.6 & 51.1 & 50.9 & 18.6 & 14.6 & 13.3 \\
+% % SigLIP-Base & \cmark & \textbf{60.4} & \textbf{55.1} & \textbf{54.4} & \textbf{21.9} & \textbf{18.5} & \textbf{18.5} \\
+% \midrule
+% SigLIP-large  & \xmark  & 66.9 & 58.4 & 56.3 & 25.4 & 16.9 & 19.2 \\
+% SigLIP-large & \cmark & \textbf{67.1} & \textbf{62.0} & \textbf{62.4} & \textbf{25.6} & \textbf{24.6} & \textbf{20.4} \\
+% \midrule
+% SigLIP-SO400m  & \xmark  & 69.2 & 60.1 & 59.7 & 24.5 & 19.2 & 23.2 \\
+% SigLIP-SO400m & \cmark & \textbf{71.9} & \textbf{62.8} & \textbf{65.3} & \textbf{26.0} & \textbf{23.1} & \textbf{24.1} \\
+% \bottomrule
+% \end{tabular}
+% \caption{Model performance across semantic types in \benchmark. \textbf{Bold} values indicate best performance for each model size.}
+% \label{tab:siglip-semantic-types}
+% \end{table*}
+% ### Submission Table End
+
+
+
+% \begin{table*}[t!]
+% \centering
+% \begin{tabular}{l|cccccc}
+% % \begin{tabular}{l|c|c|c|c|c|c}
+% \toprule
+% \textbf{Model} & \textbf{ANIM} & \textbf{BIO} & \textbf{FOOD} & \textbf{MEASURE} & \textbf{LAW} & \textbf{PSY} \\
+% \midrule
+% SigLIP-Base     & 59.6 & 51.1 & 50.9 & 18.6 & 14.6 & 13.3 \\
+% SigLIP-Base-ft  & \textbf{60.4} & \textbf{55.1} & \textbf{54.4} & \textbf{21.9} & \textbf{18.5} & \textbf{18.5} \\
+% \midrule
+% SigLIP-Large    & 66.9 & 58.4 & 56.3 & 25.4 & 16.9 & 19.2 \\
+% SigLIP-Large-ft & \textbf{67.1} & \textbf{62.0} & \textbf{62.4} & \textbf{25.6} & \textbf{24.6} & \textbf{20.4} \\
+% \bottomrule
+% \end{tabular}
+% \caption{Performance of SigLIP models across different semantic types of \benchmark. Bold values indicate best performance per model size.}
+% \label{tab:siglip-semantic-types}
+% \end{table*}
+
+
+\begin{table}[t!]
+\raggedright
+\begin{tabular}{l c c}
+\toprule
+% \textbf{}        & \multicolumn{2}{c|}{\textbf{SigLIP-so400m}} \\ \hline
+\textbf{}        & \textbf{ImageNet-1k}   & \textbf{Concept-1k} \\ 
+% \hline
+\midrule
+\textbf{SigLIP-base}    & 86.3              & 79.1        \\ 
+% \hline
+\textbf{SigLIP-large}    & 87.6               & 83.0\       \\ 
+% \hline
+\bottomrule
+\end{tabular}
+\caption{Model prediction accuracy (\%) on manually annotated subsets of ImageNet-1k and Concept-1k, evaluated against high-confidence manual annotation labels.}
+\label{tab:conc_vs_in-model}
+\end{table}
+
+\subsection{Zero-shot Visual Concept Recognition}
+In this section, we present the zero-shot performance of the models evaluated on both ImageNet-1k variants and our novel benchmark, \benchmark. 
+The latter aims to provide insight into the ability of pre-trained models to scale on categories not included in ImageNet-1k.
+% In this setting, our objective is
+%show the table first
+As shown in Table \ref{tab:imagenet-comparison}, models perform relatively well on ImageNet-1k concepts, but struggle to accurately recognize the wide range of concepts present in the \benchmark~test set across the board. 
+Even SigLIP-SO400m, the best-performing model on all variations of ImageNet-1k, fails to exceed 40.3\% accuracy on \benchmark. 
+% We report performance results for other multimodal models in Appendix~\ref{app:MLLM}. 
+% support our choice of SigLIP and CLIP in the experiments.
+% In Appendix \ref{app:MLLM}, we report the performances of Multimodal Large Language Models (LLMs) as well as other encoder-based VLMs to support our decision to select SigLIP and CLIP for our experiments.
+%, underscoring its difficulty.
+
+% To determine whether the introduced categories are responsible for the observed drop in performance, we test whether models maintain their accuracy on Concept-1k, which covers only the set of concepts shared by ImageNet-1k, as discussed in Section \ref{subsec:cn1k_in1k}.
+% As shown in Table \ref{tab:conc_vs_in-model}, performance on Concept-1k decreases compared to ImageNet-1k. 
+% A similar drop in performance is observed with ImageNet-v2, which, similarly to Concept-1k, introduces new images for ImageNet-1k concepts. 
+% These results suggest that the drop in performance is highly influenced by the increased diversity of concepts, not by the quality of the images or annotations. 
+
+To determine whether the introduced categories are responsible for the observed drop in performance, we evaluate model accuracy on Concept-1k, which includes only the concepts shared with ImageNet-1k Validation, as discussed in Section \ref{subsec:cn1k_in1k}. As shown in Table \ref{tab:conc_vs_in-model}, performance on Concept-1k decreases compared to ImageNet-1k. A similar performance drop is observed with ImageNet-v2 (cf. Table \ref{tab:imagenet-comparison}), which, like Concept-1k, introduces new images for ImageNet-1k concepts.
+These results suggest that the performance drop is primarily driven by the increased diversity of concepts rather than by the quality of the images or annotations.
+% These results suggest that the drop in performance is highly influenced by the increased diversity of concepts, not by the quality of the images or annotations.
+% These results suggest that the performance decline is influenced by factors beyond the increased diversity of concepts, potentially including the quality of images or annotations.
+% This suggeststhat Concept-1k is of comparable difficulty to ImageNet-V2.
+% Table \ref{tab:conc_vs_in-model} shows that models’ performance on Concept-1k closely aligns with their performance on ImageNet-1k, suggesting that Concept-1k is of comparable difficulty and distribution. 
+% Table \ref{tab:conc_vs_in-model} shows that models’ performance on Concept-1k closely aligns with their performance on ImageNet-1k, suggesting that Concept-1k is of comparable difficulty and distribution. 
+% These results further show that the drop in performance is highly influenced by the increased diversity of concepts, not by the quality of the images or annotations. 
+% similarly to \cite{recht2019imagenet}.
+% From the results, it is evident that while models performance on Concept-1k is in the same range as ImageNet, they struggle with new categories. 
+
+\begin{table*}[t!]
+\centering
+\setlength{\tabcolsep}{9pt}
+\begin{tabularx}{\textwidth}{l|cc|cc|cc}
+\toprule
+\textbf{Semantic Type} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-base}} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-base-ft}} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-large}} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-large-ft}} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-SO400m}} & 
+\makecell{\textbf{SigLIP} \\ \textbf{-SO400m-ft}} \\
+% \textbf{Semantic Type} & \multicolumn{2}{c|}
+% {\textbf{SigLIP-base}} & \multicolumn{2}{c}{\textbf{SigLIP-large}}
+% \\
+% \cline{2-3} \cline{4-5}
+ % & \textbf{zero-shot} & \textbf{fine-tuned} & \textbf{zero-shot} & \textbf{fine-tuned}
+% \\
+\midrule
+ANIM    & 59.6 & \textbf{60.4} & 66.9 & \textbf{67.1} & 69.2 & \textbf{71.9} \\
+% \hline
+BIO     & 51.1 & \textbf{55.1} & 58.4 & \textbf{62.0} & 60.1 & \textbf{63.0} \\
+% \hline
+FOOD    & 50.9 & \textbf{54.4} & 56.3 & \textbf{62.4} & 59.7 & \textbf{65.3} \\
+% \hline
+% \hline
+CEL     & 44.1 & \textbf{52.9} & 44.2 & \textbf{55.9} & \textbf{61.8} & 55.9
+\\
+PLANT   & 40.1 & \textbf{46.0} & 45.3 & \textbf{53.7} & 49.1 & \textbf{55.3}
+\\
+MON     & 40.0 & \textbf{48.7} & 49.3 & \textbf{61.3} & 45.3 & \textbf{55.3}
+\\
+GROUP   & 34.1 & \textbf{37.8} & 40.6 & \textbf{43.7} & 44.3 & \textbf{48.2}
+\\
+ARTIFACT & 32.4 & \textbf{39.8} & 36.5 & \textbf{45.2} & 41.3 & \textbf{48.2}
+\\
+DISEASE  & \textbf{30.7} & \textbf{30.7} & 35.3 & \textbf{36.6} & 42.4 & \textbf{46.0}
+\\
+PART     & 28.5 & \textbf{33.8} & 35.4 & \textbf{38.6} & 36.5 & \textbf{40.8}
+\\
+STRUCT   & 27.4 & \textbf{31.8} & 30.5 & \textbf{37.0} & 39.3 & \textbf{43.7}
+\\
+ASSET    & 25.9 & \textbf{35.8} & 27.2 & \textbf{44.4} & 33.3 & \textbf{46.9}
+\\
+EVE      & 24.1 & \textbf{28.7} & 28.2 & \textbf{34.4} & 33.4 & \textbf{36.1}
+\\ 
+LOC      & 23.7 & \textbf{26.5} & 28.9 & \textbf{31.7} & 32.6 & \textbf{33.4}
+\\
+DISCIPLINE & 23.2 & \textbf{28.1} & 28.8 & \textbf{35.0} & 32.0 & \textbf{36.1}
+\\
+SUPER    & 23.1 & \textbf{31.3} & 31.3 & \textbf{34.3} & 31.3 & \textbf{45.5}
+\\ 
+SUB      & 22.3 & \textbf{28.3} & 28.0 & \textbf{34.5} & 33.3 & \textbf{38.4}
+\\
+MEDIA    & 20.6 & \textbf{25.9} & 25.5 & \textbf{32.0} & 28.7 & \textbf{34.3}
+\\
+PER      & 22.3 & \textbf{23.8} & \textbf{29.2} & \textbf{29.2} & 32.2 & \textbf{37.6}
+\\
+PROPERTY & 22.1 & \textbf{26.6} & 27.2 & \textbf{30.9} & \textbf{30.3} & \textbf{30.3}
+\\
+LANGUAGE ITEM & 17.9 & \textbf{22.9} & 22.9 & \textbf{27.1} & 27.9 & \textbf{30.0}
+\\
+CULT     & 20.0 & \textbf{21.0} & 22.1 & \textbf{26.7} & 26.7 & \textbf{30.3}
+\\
+ORG      & 18.8 & \textbf{19.8} & 22.7 & \textbf{27.1} & 30.5 & \textbf{35.9}
+\\
+RELATION & 18.7 & \textbf{21.5} & \textbf{25.8} & 21.5 & \textbf{26.3} & 23.4
+\\
+MEASURE  & 18.6 & \textbf{21.9} & 25.4 & \textbf{25.6} & 24.5 & \textbf{26.0}
+\\
+LAW      & 14.6 & \textbf{18.5} & 16.9 & \textbf{24.6} & 19.2 & \textbf{23.1}
+\\
+PSY      & 13.3 & \textbf{18.5} & 19.2 & \textbf{20.4} & 23.2 & \textbf{24.1} \\
+\bottomrule
+\end{tabularx}
+\caption{We report the zero-shot and fine-tuned (ft) SigLIP models across all semantic categories presented in \benchmark. Results in \textbf{bold} indicate the best performance per model size.}
+% \label{tab:full-siglip-semantic-types}
+\label{tab:siglip-semantic-types}
+\end{table*}
+
+
+\subsection{\resource~Fine-tuning}
+% Training on Concept-10k vs trianing on Concept-100k
+% We then fine-tune both CLIP and SigLIP on the complete \resource training set, as well as the 10k training split.
+To determine the quality and usefulness of \resource~in improving models' ability to detect new concepts, we first filter out all \benchmark~images. We then fine-tune SigLIP on the resulting dataset using a contrastive learning approach.
+SigLIP is selected in our experiments for two main reasons: first, it is the best-performing model for its size, as shown in Table \ref{tab:imagenet-comparison}, and second, it is less sensitive to batch size compared to CLIP, making it a more practical choice given our academic budget constraints.
+Further details about the hyperparameters used can be found in Appendix \ref{sec:appendix-fine}.
+As shown in Table \ref{tab:imagenet-comparison}, SigLIP models of different sizes show consistent accuracy improvements from fine-tuning on the \resource~training data, demonstrating an enhanced ability to detect a broader range of concepts, with an average accuracy increase of 5.2 percentage points.
+For instance, SigLIP-SO400m achieves 45.0\% accuracy, up from 40.3\%, highlighting that \benchmark~remains highly challenging even after fine-tuning.
+ Moreover, we observe consistent performance improvements across semantic categories when models are fine-tuned using \resource, particularly in categories where models struggle in the zero-shot setting. As shown in Table~\ref{tab:siglip-semantic-types}, SigLIP-large shows a notable increase of 7.7 percentage points in the LAW category, while also improving on more common categories such as ANIM and FOOD. 
+% A more detailed per-category analysis is provided in Appendix~\ref{sec:per-sem-cat-perf}.
+ % \ref{tab:full-siglip-semantic-types} in the Appendix.
+ Interestingly, model performance on ImageNet-1k variations is minimally affected, despite differences in category coverage and distribution. 
+ Moreover, as shown in Appendix ~\ref{sec:cross-modal}, fine-tuning on \resource{} for Visual Concept Recognition does not degrade performance on cross-modal retrieval. Finally, in Appendix~\ref{sec:appendix-label-ablation}, we analyze the impact of incorporating multi-label annotations in \resource{} on overall performance.
+ % We also show in Appendix~\ref{sec:cross-modal} that fine-tuning on \resource{} for Visual Concept Recognition does not degrade performance on cross-modal retrieval. Furthermore, in Appendix~\ref{sec:appendix-label-ablation}, we analyze the impact of incorporating multi-label annotations in \resource{} on overall performance.
+ 
+ % Interestingly, model performance on ImageNet-1k variations is minimally affected, despite differences in category coverage and distribution. We also show in Appendix~\ref{sec:cross-modal} that fine-tuning on \resource~for Visual Concept Recognition does not degrade performance on cross-modal retrieval. Furthermore, we investigate the role of multi-label annotations in Appendix \ref{sec:appendix-label-ablation}, analyzing their impact on performance.
+ % Additionally, we analyze the impact of incorporating multi-label annotations \resource~in Appendix \ref{sec:appendix-label-ablation}.
+% Interestingly, model performance on ImageNet-1k variations is minimally affected despite the difference in category coverage and distribution. 
+% We also show in Appendix \ref{sec:cross-modal} that fine-tuning on \resource~for Visual Concept Recognition does not cause degradation in performance on cross-modal retrieval.
+% Finally, we analyze the effect of fine-tuning the impact of incorporating multi-label annotations in \resource~in Appendix \ref{sec:appendix-label-ablation}.
+
+% These findings further highlight the importance of comprehensive evaluation and benchmarking of VLMs across a broader and more diverse range of concepts, rather than relying solely on existing benchmarks that tend to focus on a narrower set of semantic categories.
+
+
+% We use two different splits of \resource~in our experiments: the full training resource and a subset containing only images with concepts overlapping with \benchmark, while testing exclusively on \benchmark. 
+% This setup allows us to assess whether models benefit from learning a broader range of concepts and how this influences their performance on the ImageNet set.
+\section{Conclusion}
+In this work, we present an automatic annotation methodology for creating multimodal datasets grounded in Wikipedia, resulting in \resource, a semantically-annotated, wide-coverage dataset that we exploit for Visual Concept Recognition.
+Additionally, we introduce \benchmark, a manually validated benchmark that covers a considerably broader range of concept categories than existing benchmarks, offering a more challenging evaluation for VLMs.
+Our experiments show that, in the zero-shot setting, even VLMs that perform well on established benchmarks, such as ImageNet (e.g., SigLIP-SO400m achieving 83.2\% acc@1), struggle to generalize to the diverse and challenging concepts included in \benchmark, with the best-performing model achieving just 40.3\% accuracy.
+% While a performance drop was expected due to the expanded concept set, our findings highlight the need for more comprehensive evaluations to enhance model robustness across diverse datasets.
+Our work highlights that \resource~can improve multimodal model performance on new concept categories, yielding an average accuracy gain of 5.2 percentage points, while maintaining performance on ImageNet.
+For future work, we aim to expand \resource~to cover a wider range of languages, ensuring greater linguistic diversity, and to incorporate multi-label annotations into our benchmark.
+% For future work, we aim to expand \resource~to support a wider range of languages, ensuring greater linguistic diversity, and to incorporate multi-label annotations into our benchmark.
+% for a more comprehensive evaluation of multimodal models. 
+% Furthermore, we intend to use its annotations to create datasets for entity-focused tasks, such as Multimodal Entity Linking.
+% the larger set of concepts, our findings emphasize the need for further efforts to evaluate and strengthen models on diverse and comprehensive datasets.
+
+% Importantly, we show that \resource~can improve the performance of multimodal models on new concept categories, with an average increase of 6.3 percentage points, while maintaining their performance on ImageNet.
+
+% In this work, we present \resource, a semantically-annotated, wide-coverage dataset for Visual Concept Recognition, along with an automatic annotation methodology for creating multimodal datasets grounded in Wikipedia.
+% In this work, we introduce \resource, a semantically annotated, wide-coverage dataset for Visual Concept Recognition, along with an automatic annotation methodology for creating multimodal datasets grounded in Wikipedia.
+% Furthermore, we release \benchmark, a more challenging manually validated benchmark that covers a wider range of concept categories than current benchmarks.
+% Our extensive experimental setup demonstrates that even VLMs performing well on established benchmarks, such as ImageNet, struggle to generalize to concepts from different categories covered by \benchmark.
+% Finally, we show that \resource~can be leveraged to enhance the performance of multimodal models on new concept categories and concepts.
+% For future work, we plan to expand \resource~to include multiple languages and utilize its annotations to create datasets for entity-focused tasks, such as Multimodal Entity Linking.
+\section*{Limitations}
+% Only in English. Concept selection was automatic. 
+\resource{} is currently based solely on the English version of Wikipedia, potentially introducing a cultural bias. 
+Expanding to other languages could help mitigate this issue, enrich existing concepts with additional images, and introduce entirely new concepts. 
+Additionally, the final set of concepts included in our benchmark is selected using a frequency-based algorithm, which may result in suboptimal class diversity within categories. 
+Addressing these limitations is left for future work.
+
+Beyond Visual Concept Recognition, \resource{} offers a rich set of annotations that include captions, entity annotations, and concept annotations of varying levels of granularity. This could support a range of tasks such as Visual Question Answering (focused on both entities and concepts) and Multimodal Entity Linking. 
+It may also enable the development of semantically-grounded multimodal retrieval approaches that go beyond the current image–caption-centric methods. We leave these directions for future work.
+
+% Currently, \resource~was based on the English version of Wikipedia only, potentially introducing a cultural bias. 
+% Expanding to other languages would not only help address this issue but also provide additional images for existing concepts and introduce new concepts. 
+% Furthermore, the current benchmark’s final set of concepts is selected using a frequency-based algorithm, which may lead to a sub-optimal class selection, such as low diversity within categories. 
+% Addressing these limitations is left for future work. 
+% Moreover, \resource{} provides a rich set of annotations, including captions, entity annotations, and concepts at different levels of granularity. We believe this resource has the potential to support a variety of tasks, such as Visual Question Answering (focused on both entities and concepts) and Multimodal Entity Linking. 
+% It could also facilitate the development of semantically grounded multimodal retrievers that move beyond the current image–caption-centric paradigm. 
+% While in this paper we focus on Visual Concept Recognition, we leave these directions for future work.
+% \subsection{References}
+
+% \nocite{Ando2005,andrew2007scalable,rasooli-tetrault-2015}
+% \begin{center}
+% \noindent
+%     \begin{minipage}{0.1\linewidth}
+%         \begin{center}
+%             \includegraphics[scale=0.2]{figures/erc.pdf}
+%         \end{center}
+%     \end{minipage}
+%     \hspace{0.01\linewidth}
+%     \begin{minipage}{0.70\linewidth}
+%         The authors gratefully acknowledge the support of the ERC Consolidator Grant MOUSSE No.\ 726487 under the European Union's Horizon 2020 research.
+%     \end{minipage}
+%     \hspace{0.01\linewidth}
+%     \begin{minipage}{0.1\linewidth}
+%         \begin{center}
+%             \includegraphics[scale=0.08]{figures/eu.pdf}
+%         \end{center}
+%     \end{minipage}\\
+% \end{center}
+% \vspace{0.2cm}
+
+\section*{Acknowledgements}
+
+\begin{center}
+\noindent
+    \begin{minipage}{0.1\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.05]{latex/images/fair.jpg}
+        \end{center}
+    \end{minipage}
+    \hspace{0.01\linewidth}
+    \begin{minipage}{0.70\linewidth}
+         We gratefully acknowledge the support of the PNRR MUR project PE0000013-FAIR. % Simone Conia gratefully acknowledges the support of the PNRR MUR project PE0000013-FAIR, which fully funds his fellowship.
+    \end{minipage}
+    \hspace{0.01\linewidth}
+    \begin{minipage}{0.1\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.08]{latex/images/eu.pdf}
+        \end{center}
+    \end{minipage}\\
+\end{center}
+\vspace{0.2cm}
+\noindent We also gratefully acknowledge the CREATIVE project (CRoss-modal understanding and gEnerATIon of Visual and tExtual content), which is funded by the MUR Progetti di Ricerca di Rilevante Interesse Nazionale programme (PRIN 2020). Karim Ghonim and Alberte Fernández-Castro conducted this work during their enrollment in the Italian National Doctorate in Artificial Intelligence at Sapienza University of Rome. The work of Alberte Fernández-Castro is co-funded by Babelscape.
+
+
+% \section*{Acknowledgments}
+% \noindent We gratefully acknowledge the CREATIVE project (CRoss-modal understanding and gEnerATIon of Visual and tExtual content), which is funded by the MUR Progetti di Ricerca di Rilevante Interesse Nazionale programme (PRIN 2020). Karim Ghonim conducted this work during his enrollment in the Italian National Doctorate on Artificial Intelligence at Sapienza University of Rome.
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+% \cleardoublepage
+\bibliography{anthology, latex/custom}
+
+\cleardoublepage
+
+\appendix
+\label{sec:appendix}
+
+ % Furthermore, Table \ref{table:raw_stats} presents the statistics of \resource~before the application of concept propagation, further emphasizing its potential for entity-focused tasks, such as Multimodal Entity Linking.
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{c|c}
+%     \toprule
+%     \textbf{Frequency Range} & \textbf{Percentage} \\
+%     \midrule
+%     $\leq 5$  & 76.0\%   \\
+%     $\leq 10$ & 10.0\%   \\
+%     $\leq 20$ & 7.5\%  \\
+%     $> 20$    & 6.5\%  \\
+%     \bottomrule
+% \end{tabular}
+% \caption{Concept frequency of hyperlinks directly linked in Wikipedia.}
+% \label{table:raw_stats-freq}
+% \end{table}
+
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{l|r}
+%     \toprule
+%     \textbf{Statistic} & \textbf{Value} \\
+%     \midrule
+%     Image-Caption pairs & 3.4M \\
+%     Avg. concepts per caption & 1.86 \\
+%     Total unique synsets & 1.2M \\
+%     Total unique entities & 1.0M \\
+%     Total unique concepts & 175K \\
+%     \bottomrule
+% \end{tabular}
+% \caption{Key statistics of the \resource\ dataset, highlighting the coverage of our dataset.}
+% \label{table:raw_stats}
+% \end{table}
+\begin{comment}
+    \section{Dataset statistics}
+\label{sec:appendix-stats-data}
+% % Show statistics for:
+% caption length, concepts per image, images per concept, distribution of Out-Of-ImageNet categories from CNER.
+In Table \ref{tab:dataset_comparison_stats}, we provide additional statistics about \resource, highlighting its scale compared to similar datasets.
+\begin{table*}[t]
+\centering
+\begin{tabular}{lcccc}
+    \toprule
+    & \textbf{\resource} & \textbf{ImageNet-1k} & \textbf{ImageNet-21k} & \textbf{WiT} \\
+    \midrule
+    \textbf{Samples} & 3.4M & 1.4M & 14M & 5.4M \\
+    \textbf{WordNet Concepts} & 38K & 1K & 22K & - \\
+    \textbf{Concepts} & 675K & 1K & 22K & - \\
+    \textbf{Image-Caption pairs} & 3.4M & - & - & 5.4M \\
+    \bottomrule
+\end{tabular}
+\caption{Comparison of datasets: \resource, ImageNet-1k, ImageNet-21k, and the English subset of WiT.}
+\label{tab:dataset_comparison_stats}
+\end{table*}
+
+\end{comment}
+
+\section{Annotation Guidelines}
+\label{sec:appendix-guide}
+In this section, we outline the annotation guidelines employed in our study. 
+We assign each annotation task to two expert linguists.
+Annotators were paid according to the standard salaries for their geographical location.
+Annotators were tasked with performing three distinct annotation tasks to evaluate the automatic annotations and the associated images. Due to the different requirements of these tasks, we developed a custom application for each in order to facilitate the process.
+
+Annotators received detailed, task-specific guidelines, which we describe below. 
+As a general guideline for all tasks, annotators were instructed to discard corrupt or unclear images, as well as NSFW images and concepts. 
+\\
+Furthermore, for every concept utilized across tasks, we provided the annotators with the definition retrieved from different resources through BabelNet, e.g. Wikidata, WordNet.
+In case of persistent ambiguity occurring with a given concept, if the human annotator could not determine the correct annotation, with a high degree of confidence, they were required to flag the given sample. 
+\\
+%
+% and provided them with task-specific guidelines, annotation examples, and a simple interface for each task.
+
+\subsection{Task 1: Silver Labels Evaluation}
+\paragraph{Task Description}
+In this task, annotators are presented with image-caption pairs where hyperlinks are visible and clickable, as they appear in Wikipedia. 
+We supplement the existing hyperlinks in the captions with additional links provided by our link propagation approach, as described in \ref{subsec:link_prop}. 
+Annotators are required to click on the provided hyperlink in the caption and verify whether it corresponds it is associated correctly. 
+Some examples are provided in Figure \ref{fig:bryant}.
+
+    % \begin{figure}[t]
+    %     \centering
+    %     \includegraphics[width=0.9\linewidth]{latex/images/colosseo_2008.pdf} % Adjust width as needed
+    %     \caption{Example of a caption with missing hyperlinks.}
+    %     \label{fig:colos-negs}
+    % \end{figure}
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{latex/images/panda.pdf}
+        % \caption{Example 1}
+        % \label{fig:panda}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{latex/images/bryant.pdf}
+        % \caption{ExamplesLink propagation annotations.}
+        % \label{fig:bryant}
+    \end{subfigure}
+    \caption{Examples of link propagation annotations in Concept-pedia.}
+    \label{fig:bryant}
+\end{figure}
+
+   %  \vspace{-1em} 
+   %  \begin{center}
+   %      \begin{figure}[H]
+   %          \centering
+   %          \includegraphics[width=0.3\textheight]{latex/images/panda.pdf}
+   %          % \caption{Examples for concept population in Concept-pedia.}
+   %          \label{fig:pand}
+   %      \end{figure}
+   %  \end{center}
+   % \vspace{-4em} 
+   %  \begin{center}
+   %      \begin{figure}[H]
+   %          \centering
+   %          \includegraphics[width=0.3\textheight]{latex/images/bryant.pdf}
+   %          % \caption{Examples for concept population in Concept-pedia.}
+   %          \caption{Link propagation annotation examples.}
+            
+   %          \label{fig:bryant}
+   %      \end{figure}
+   %  \end{center}
+   %  \vspace{-3em}
+    
+\subsection{Task 2: Concept-1k vs. ImageNet-1k}
+\label{sec:guidelines-con1k_In1k}
+\paragraph{Task Description}
+% \paragraph{Annotation Procedure}
+\begin{enumerate}
+    % \item \textbf{Main Concept Identification:}
+    \item Check what the main concept \emph{could} be in the image. It needs to have visually clear features. 
+    
+    \item The image can be inside or outside of a building as long as it is visually clear. If an image clearly depicts a specific location or structure, such as the interior of a church with recognizable features like stained glass windows and pews, it should be tagged accordingly. 
+
+    \item If the concept does not cover the \emph{majority} of the image, then it is not considered the main concept. 
+    
+    \item The image needs to depict most of the concept. For example, an image focused only on an “altar”, which is peculiar to a church but not representing a church, can not be tagged as a “church”. On the contrary, an image with the inside of a church should be tagged as church because it is the biggest inner part of the church. 
+    % \vspace{-3em} 
+    \begin{center}
+        \begin{figure}[h]
+            \centering
+            \rotatebox{270}{\includegraphics[width=0.22\textheight]{latex/images/church_altar.pdf}} % Adjust width or height as needed
+            % \caption{Examples for concept population in Concept-pedia.}
+            \label{fig:church_altar}
+        \end{figure}
+    \end{center}
+    % \vspace{-7em} 
+    \item When an object is the image's primary focus, and a person is present but not the main subject, prioritize tagging the object. For example, if an image shows a person kayaking on a lake, the appropriate tag would be "kayak" rather than "person," since the kayak is the specific object of interest.
+
+    \vspace{-2em} 
+    \begin{center}
+        \begin{figure}[h]
+            \centering
+            \rotatebox{270}{\includegraphics[width=0.2\textheight]{latex/images/kayak.pdf}} % Adjust width or height as needed
+            % \caption{Examples for concept population in Concept-pedia.}
+            \label{fig:kayak}
+        \end{figure}
+    \end{center}
+    % \vspace{-5em} 
+
+    \item In the case of two competing concepts, tag the image with both concepts. 
+    
+    \item The maximum number of tags should be two. If there are more than two, tag the image as \textbf{uncertain} and provide an explanation in the notes tab.
+
+    \item If none of the concepts provided correctly describe the image, leave the sample untagged, and mention it in the notes with the probable main concept in your opinion.
+
+    \item Kindly use the notes tab extensively to signal any issues regarding the process or the data.
+\end{enumerate}
+
+\paragraph{Examples}
+\begin{itemize}
+    \item \textbf{Example 1: Clear Single Concept}
+    \begin{itemize}[label=-]
+        \item \textbf{Image Description:} A close-up photograph of a sunflower in a field, filling the entire frame with its petals and center clearly visible.
+        \item \textbf{Tag:} "sunflower"
+        \item \textbf{Motivation:} The sunflower is the dominant and sole subject of the image, with no other competing elements.
+    \end{itemize}
+
+    \item \textbf{Example 2: Specific Object with a Person Present}
+    \begin{itemize}[label=-]
+        \item \textbf{Image Description:} An image of a person kayaking on a serene lake, with the kayak being prominently visible and the person facing away from the camera.
+        \item \textbf{Tag:} "kayak"
+        \item \textbf{Motivation:} The kayak is the main focus, and while a person is present, they are not the primary subject. The emphasis is on the activity and the kayak itself.
+    \end{itemize}
+
+    \item \textbf{Example 3: Two Competing Concepts}
+    \begin{itemize}[label=-]
+        \item \textbf{Image Description:} A dog and a cat sitting side by side on a couch, both looking directly at the camera and occupying equal space in the frame.
+        \item \textbf{Tags:} "dog," "cat"
+        \item \textbf{Motivation:} Both animals are equally prominent and central to the image, making it appropriate to tag both.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Task 3: \benchmark~Validation}
+\label{sec:appendix-bench}
+We followed the instructions outlined in \cite{krizhevsky2009learning}, with one key difference: we provided definitions for each concept, extracted from sources such as Wikidata, Wikipedia, and WordNet, to eliminate any potential ambiguity. Annotators were tasked with selecting the images to be included in the final benchmark. This step was essential because, in some cases, the label propagated by our algorithm was correct in the context of the caption but the concept was not visually represented in the image.
+
+In Figure \ref{fig:bad_ann}, we present two such examples. The propagated label is shown in red, while the caption is shown in blue. Although the label is accurate relative to the caption, it is not suitable as a Visual Concept Recognition label.
+
+\begin{center}
+    \begin{figure}[t]
+        \raggedright
+        \includegraphics[width=0.3\textheight]{latex/images/bad_anns_2.pdf}
+        % \caption{Examples for concept population in Concept-pedia.}
+        \caption{Filtered negative examples from \benchmark.}
+        \label{fig:bad_ann}
+    \end{figure}
+\end{center}
+% \vspace{-3em}
+
+\section{Training details}
+\label{sec:appendix-fine}
+In this section, we detail our fine-tuning approach using the \resource~dataset.
+
+We fine-tuned open-sourced SigLIP-base \footnote{\url{google/siglip-base-patch16-256}}, SigLIP-large \footnote{\url{google/siglip-large-patch16-256}}, and SigLIP-SO400m \footnote{\url{google/siglip-so400m-patch14-384}} on the complete training split of \resource.
+% two splits of \resource: first, , and second, a restricted split containing only training examples that include concepts from the \benchmark~set of concepts.
+The models are trained with a batch size of 256 for 50,000 steps using AdaFactor \cite{shazeer2018adafactor} as optimizer with a learning rate of \( 1 \cdot 10^{-6} \).
+
+\section{Multi-Label Ablation}
+\label{sec:appendix-label-ablation}
+We ablate the impact of leveraging multi-label annotations in \resource~for fine-tuning.
+To do so, we construct a single-label version of \resource~and fine-tune both SigLIP-base and SigLIP-large on it, comparing their performance against models trained using the original multi-label annotations.
+
+To generate the single-label version of \resource, we retain the label assigned by the propagation heuristic with the highest precision, as reported in Table \ref{tab:precision_types}.
+For samples with multiple annotations of the same type, we resolve conflicts by randomly selecting one label.
+
+As shown in Table \ref{tab:single-label}, regardless of model size, while fine-tuning on single-label annotations still improves performance, models benefit even more from multi-label annotations. This confirms the advantage of using multi-label annotations for images when suitable and available.
+
+
+% \begin{table}[ht]
+%     \centering
+%     \label{tab:model_comparison}
+%     \begin{tabular}{|l|c|c|c|}
+%         \hline
+%         \textbf{Model}  & \textbf{Zero-shot} & \textbf{Single-label} & \textbf{Multi-label} \\ \hline
+%          SigLIP-base & 31.9 & 34.8   & \textbf{36.9} \\ \hline
+%         SigLIP-large & 37.2 & 41.9 & \textbf{43.3}    \\ \hline
+%     \end{tabular}
+%     \caption{Performance comparison between models fine-tuned on \resource~using single-label and multi-label annotations.}
+%     \label{tab:single-label}
+% \end{table}
+
+
+\begin{table}[t]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+
+    \label{tab:model_comparison}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Model}  & \textbf{Zero-shot} & \textbf{Single-label} & \textbf{Multi-label} \\ 
+        \midrule
+         SigLIP &  \multirow{2}{*}{31.1} & \multirow{2}{*}{33.9}   & \multirow{2}{*}{\textbf{36.1}} \\ 
+        -base  &     &     & \\ 
+          \midrule
+        SigLIP & \multirow{2}{*}{36.1} & \multirow{2}{*}{39.4} & \multirow{2}{*}{\textbf{41.9}} \\ 
+              -large &   &   &  \\ 
+              \bottomrule
+    \end{tabular}
+    \caption{Performance comparison between models fine-tuned on \resource~using single-label and multi-label annotations.}
+    \label{tab:single-label}
+\end{table}
+
+
+
+\section{Model-based Filtering}
+    It is important to note that we opted against using model-based selection methods (e.g., CLIPScore \citep{hessel2021clipscore}).
+There are two main reasons behind this decision. 
+First, such methods inherently introduce bias \cite{gadre2024datacomp}. 
+Second, we qualitatively observe that current models struggle to accurately assess the similarity between the visual and textual representations of new concepts, often resulting in the erroneous exclusion of valid samples.
+
+
+\begin{table}[t]
+    \centering
+    \label{tab:model_comparison}
+    \begin{tabular}{llcc}
+        \toprule
+        \textbf{Model}       & \textbf{Training Data} & \textbf{in-1k} & \textbf{Con-10k} \\ 
+        \midrule
+         SigLIP & \resource & 75.9   & 36.1  \\ 
+          -base  & ImageNet-21k       & 78.5                  & 30.2                  \\ 
+          \midrule
+        SigLIP & \resource       & 79.3  & 41.9                    \\
+              -large & ImageNet-21k   & 81.2                   & 32.6                  \\ 
+              \bottomrule
+    \end{tabular}
+    \caption{Performance comparison between models fine-tuned on ImageNet-21k and \resource.}
+    \label{tab:21k-train}
+\end{table}
+
+\begin{table}[t]
+\raggedright
+\setlength{\tabcolsep}{11pt} 
+
+\begin{tabular}{cccc}
+% \begin{tabular}{c S[table-format=2.1] c c@{}}
+% \begin{tabular}{@{}c S[table-format=2.1] S[table-format=2.1] S[table-format=2.1]@{}}
+% \begin{tabular}{c d{2} c c}
+
+\toprule
+\textbf{}    & \textbf{in-1k} & \textbf{Con-1k} & \textbf{Con-10k} \\ \midrule
+\textbf{High}   & 10.4\%               & 34.3\%                            & 51.2\%                                      \\ \midrule
+\textbf{Low} & \hspace{0.4em}9.1\%                & 27.3\%                            & 52.3\%          \\ 
+\bottomrule
+\end{tabular}
+\caption{Performance breakdown on SigLIP's ability to detect negatives for manually annotated subsets of ImageNet-1k and Concept-pedia.}
+\label{tab:neg_det_breakdown}
+\end{table}
+
+
+
+% \section{Concept-pedia Samples}
+% We present a selection of images from the dataset that represent various concept categories, as shown in Figure \ref{fig:img_examps}. In Figure \ref{fig:hemp}, we show examples where the images are tagged with the correct concept, but the concept is not visually represented in the image, leading to their exclusion from the \benchmark~benchmark.
+% \label{sec:appendix-conc-samples}
+% \begin{figure}[t]
+%     \centering
+%     \small
+% \includegraphics[width=1\linewidth]{latex/images/manilla_hemp.pdf}
+%     \caption{Examples of correct annotations excluded from \benchmark.}
+%     \label{fig:app-hemp}
+% \end{figure}
+
+\section{Negative Detection}
+\label{sec:appendix-neg}
+In this experiment, we investigate whether models truly detect the correct concept or merely tend to predict “true” regardless of correctness. 
+This is particularly relevant for SigLIP, which is trained to perform multi-label classification by generating a score for each label and applying a threshold to determine whether the label is predicted as true or false.
+
+We examine this from two perspectives: first, whether the models are biased towards producing high scores for ImageNet labels, even when the predictions are incorrect, and second, whether they are biased towards predicting incorrect labels (as per our annotations) for ImageNet images.
+
+As part of our manual annotation process, we are able to detect a significant number of negative samples, i.e., where the label is not visually represented in the image.
+With this, using SigLIP, we predict a probability for this concept (which we know is incorrect) being correct given an image. 
+In this case, we want to check if the model is able to correctly determine that this concept is not visually represented in the image. 
+We show that for ImageNet, for example, the model consistently predicts high probabilities for incorrect labels. 
+Interestingly, however, for our split, the model still struggled to perform this task correctly, but not as badly as with ImageNet. This suggests that models overfit on ImageNet concepts, as well as ImageNet annotations. 
+Moreover, this bias is less pronounced in the Concept-10k classes, as shown in Table \ref{tab:neg_det_breakdown}, which provides yet further confirmation of the bias towards ImageNet classes.
+
+
+\begin{table}[t!]
+\centering
+    \setlength{\tabcolsep}{4pt}
+% \begin{tabular}{l c c}
+% \begin{tabular}{l c d{2}}
+\begin{tabular}{l c S[table-format=2.1]}
+% \begin{tabular}{@{}l S[table-format=2.1] S[table-format=2.1]@{}}
+
+\toprule
+\textbf{Model}       &\textbf{ImageNet-1k}   & \textbf{Concept-10k} \\ 
+% \hline
+\midrule
+\textbf{CLIP-base}  & 68.3              & 22.0       \\ 
+\textbf{SigLIP-base}  & 76.2              & 31.1        \\ 
+% \hline
+\textbf{CLIP-large}  & 75.5               & 26.7\       \\ 
+\textbf{SigLIP-large} &  80.5       & 36.1\       \\ 
+\textbf{SigLIP-so400m}  &  83.2   & 40.3\       \\ 
+
+\textbf{FLAVA}  & 36.2               & 4.8 \       \\ 
+
+\textbf{LLava-1.5}  & 22.8 & 2.8 \\
+\textbf{InstructBLIP}  & 14.6 & 2.6 \\ 
+% \hline
+\bottomrule
+\end{tabular}
+\caption{Comparison of zero-shot model performance (top-1 accuracy) on ImageNet-1k and Concept-10k.}
+\label{tab:MLLM-performance}
+\end{table}
+
+
+
+
+
+\section{Comparison with ImageNet-21k}
+% \section{Dataset Comparison}
+\label{sec:appendix-21k}
+We compare ImageNet-21k, another large-scale resource, to \resource~in terms of category coverage and distribution, as illustrated in Figure \ref{fig:21k}. Furthermore, we evaluate its effectiveness as a training resource for recognizing the newly introduced concepts in \benchmark.
+As shown in Table \ref{tab:21k-train}, while fine-tuning on ImageNet-21k improves model performance on ImageNet-1k, it leads to a deterioration in performance on \resource. We attribute this to two factors: first, ImageNet-21k does not cover all CNER categories present in \resource~and subsequently in \benchmark; second, similarly to ImageNet-1k, it is heavily skewed toward a subset of categories, such as Artifact and Plant.
+
+
+\section{MLLM and VLM Evaluation}
+\label{app:MLLM}
+Additionally, we evaluate the visual concept recognition capabilities of Multimodal Large Language Models (MLLMs) such as LLava-1.5 \cite{liu2024improved} and InstructBLIP \cite{InstructBLIP}, both of which use a 7-billion-parameter LLM.
+Given that \benchmark~comprises approximately 10,000 classes and these models support a maximum context length of 4K tokens, it is infeasible to include all class names directly in the prompt.
+To address this, inspired by \citet{de2020autoregressive}, we adopt a constrained decoding approach that restricts the model’s output space to the set of candidate classes.
+
+
+
+% \begin{table}[t!]
+% \raggedright
+% \begin{tabular}{l c c c}
+% \toprule
+% \textbf{}        & \textbf{Params} &\textbf{ImageNet-1k}   & \textbf{Concept-10k} \\ 
+% % \hline
+% \midrule
+% \textbf{CLIP-base}  & 150M & 68.3              & 24.9       \\ 
+% \textbf{SigLIP-base}  & 203M  & 76.2              & 31.9        \\ 
+% % \hline
+% \textbf{FLAVA} & 350M  & 36.2               & - \       \\ 
+% \textbf{CLIP-large} & 428M   & 75.5               & 30.1\       \\ 
+% \textbf{SigLIP-large} &  652M & 80.5       & 37.2\       \\ 
+% \textbf{SigLIP-so400m}  & 878M  & 83.2   & 42.0\       \\ 
+
+% \textbf{Llava-1.5} & 7.06B  & 22.8 & 2.8 \\
+% \textbf{InstructBLIP}  & 7.91B  & 14.6 & 2.6 \\ 
+% % \hline
+% \bottomrule
+% \end{tabular}
+% \caption{Model prediction accuracy (\%) on manually annotated subsets of ImageNet-1k and Concept-1k, evaluated against high-confidence manual annotation labels.}
+% \label{tab:conc_vs_in-model}
+% \end{table}
+
+
+\begin{table}[t!]
+\centering
+    \setlength{\tabcolsep}{4pt}
+\begin{tabular}{l c c c}
+\toprule
+% \textbf{Model}       &\textbf{Image-to-Text}   & \textbf{Text to Image} \\ 
+\textbf{Model} & \textbf{Fine-tuning}& \textbf{I $\rightarrow$ T} & \textbf{T $\rightarrow$ I} \\
+% \hline
+\midrule
+\textbf{CLIP-base} & \xmark  & 56.3             & 36.5       \\ 
+\textbf{SigLIP-base}  & \xmark  & 64.4              & 47.2       \\ 
+\textbf{SigLIP-base} & \cmark  & 63.7               & 46.7\       \\ 
+\midrule
+\textbf{CLIP-large} & \xmark & 57.9 & 37.1 \\
+\textbf{SigLIP-large }& \xmark & 69.5	& 51.1 \\
+\textbf{SigLIP-large} & \cmark	& 68.3	& 50.2 \\
+\midrule
+\textbf{SigLIP-SO400 }& \xmark & 70.2 & 52.0 \\
+\textbf{SigLIP-SO400} & \cmark & 69.1 & 50.9 \\
+
+% \hline
+\bottomrule
+\end{tabular}
+\caption{Cross-modal (Text-to-Image and Image-to-Text) retrieval performance on the MSCOCO test set. We report model performance in both the zero-shot setting and after fine-tuning on \resource.}
+\label{tab:mscoco-retrieval}
+\end{table}
+
+\section{Cross-modal Retrieval Performance}
+\label{sec:cross-modal}
+The results presented in Table \ref{tab:mscoco-retrieval} show that fine-tuning on Concept-pedia does not considerably degrade the performance of VLMs, even on retrieval tasks, which are not the focus of our study or dataset. The observed drop in retrieval performance is minimal (only 0.9 points on average), and our fine-tuned SigLIP models still outperform similarly sized models, such as CLIP.
+
+
+
+% \section{Semantic Category Performance}
+% \label{sec:per-sem-cat-perf}
+% In Table \ref{tab:full-siglip-semantic-types}, we provide the detailed analysis of model performances, both in the zero-shot and fine-tuned settings on all semantic categories.
+
+\section{Benchmark Category Coverage}
+\label{sec:benchmark-coverage}
+In Table~\ref{tab:datasets_summary}, we report the concept and semantic category coverage of commonly used benchmarks, including ImageNet-1k, iNaturalist, ObjectNet, and the 27 datasets used in \cite{radford2021learning}, and compare them with Concept-10k. We show that Concept-10k not only includes significantly more concepts than the other benchmarks, but also covers a broader range of semantic categories. Notably, even when combining all other benchmarks, the total number of unique semantic categories amounts to 18, which Concept-10k surpasses with 28 categories.
+
+\section{Comparison with ImageNet-CoG}
+\label{sec:appendix-CoG}
+As previously mentioned, ImageNet-CoG was created to provide concepts that are not included in ImageNet. In Figures \ref{fig:cog1} and \ref{fig:cog2} we show how it compares against \benchmark~in terms of CNER category coverage and population.
+Even though ImageNet-CoG includes more concept categories than ImageNet-1k, we can clearly see that it suffers from a similarly skewed category distribution toward Artifacts.
+
+\section{CNER categories}
+\label{sec:appendix-cner}
+In Table \ref{tab:cner-examples}, we present \resource~instances of concepts from different CNER categories.
+
+
+\begin{figure*}[t]
+    \centering
+ \includegraphics[width=\linewidth]{latex/images/image_examps.pdf} % Adjust width as needed
+    \caption{Examples from \resource. We provide the caption (in blue) and the concept (in red) for each image.}
+    \label{fig:img_examps}
+\end{figure*}
+
+
+
+
+% \begin{table*}[t!]
+% \centering
+% \setlength{\tabcolsep}{9pt}
+% \begin{tabularx}{\textwidth}{l|cc|cc|cc}
+% \toprule
+% \textbf{Semantic Type} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-base}} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-base-ft}} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-large}} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-large-ft}} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-SO400m}} & 
+% \makecell{\textbf{SigLIP} \\ \textbf{-SO400m-ft}} \\
+% % \textbf{Semantic Type} & \multicolumn{2}{c|}
+% % {\textbf{SigLIP-base}} & \multicolumn{2}{c}{\textbf{SigLIP-large}}
+% % \\
+% % \cline{2-3} \cline{4-5}
+%  % & \textbf{zero-shot} & \textbf{fine-tuned} & \textbf{zero-shot} & \textbf{fine-tuned}
+% \\
+% \midrule
+% ANIM    & 59.6 & \textbf{60.4} & 66.9 & \textbf{67.1} & 69.2 & \textbf{71.9} \\
+% % \hline
+% BIO     & 51.1 & \textbf{55.1} & 58.4 & \textbf{62.0} & 60.1 & \textbf{63.0} \\
+% % \hline
+% FOOD    & 50.9 & \textbf{54.4} & 56.3 & \textbf{62.4} & 59.7 & \textbf{65.3} \\
+% % \hline
+% % \hline
+% CEL     & 44.1 & \textbf{52.9} & 44.2 & \textbf{55.9} & \textbf{61.8} & 55.9
+% \\
+% PLANT   & 40.1 & \textbf{46.0} & 45.3 & \textbf{53.7} & 49.1 & \textbf{55.3}
+% \\
+% MON     & 40.0 & \textbf{48.7} & 49.3 & \textbf{61.3} & 45.3 & \textbf{55.3}
+% \\
+% GROUP   & 34.1 & \textbf{37.8} & 40.6 & \textbf{43.7} & 44.3 & \textbf{48.2}
+% \\
+% ARTIFACT & 32.4 & \textbf{39.8} & 36.5 & \textbf{45.2} & 41.3 & \textbf{48.2}
+% \\
+% DISEASE  & 30.7 & 30.7 & 35.3 & \textbf{36.6} & 42.4 & \textbf{46.0}
+% \\
+% PART     & 28.5 & \textbf{33.8} & 35.4 & \textbf{38.6} & 36.5 & \textbf{40.8}
+% \\
+% STRUCT   & 27.4 & \textbf{31.8} & 30.5 & \textbf{37.0} & 39.3 & \textbf{43.7}
+% \\
+% ASSET    & 25.9 & \textbf{35.8} & 27.2 & \textbf{44.4} & 33.3 & \textbf{46.9}
+% \\
+% EVE      & 24.1 & \textbf{28.7} & 28.2 & \textbf{34.4} & 33.4 & \textbf{36.1}
+% \\ 
+% LOC      & 23.7 & \textbf{26.5} & 28.9 & \textbf{31.7} & 32.6 & \textbf{33.4}
+% \\
+% DISCIPLINE & 23.2 & \textbf{28.1} & 28.8 & \textbf{35.0} & 32.0 & \textbf{36.1}
+% \\
+% SUPER    & 23.1 & \textbf{31.3} & 31.3 & \textbf{34.3} & 31.3 & \textbf{45.5}
+% \\ 
+% SUB      & 22.3 & \textbf{28.3} & 28.0 & \textbf{34.5} & 33.3 & \textbf{38.4}
+% \\
+% MEDIA    & 20.6 & \textbf{25.9} & 25.5 & \textbf{32.0} & 28.7 & \textbf{34.3}
+% \\
+% PER      & 22.3 & \textbf{23.8} & 29.2 & 29.2 & 32.2 & \textbf{37.6}
+% \\
+% PROPERTY & 22.1 & \textbf{26.6} & 27.2 & \textbf{30.9} & 30.3 & 30.3
+% \\
+% LANGUAGE ITEM & 17.9 & \textbf{22.9} & 22.9 & \textbf{27.1} & 27.9 & \textbf{30.0}
+% \\
+% CULT     & 20.0 & \textbf{21.0} & 22.1 & \textbf{26.7} & 26.7 & \textbf{30.3}
+% \\
+% ORG      & 18.8 & \textbf{19.8} & 22.7 & \textbf{27.1} & 30.5 & \textbf{35.9}
+% \\
+% RELATION & 18.7 & \textbf{21.5} & \textbf{25.8} & 21.5 & \textbf{26.3} & 23.4
+% \\
+% MEASURE  & 18.6 & \textbf{21.9} & 25.4 & \textbf{25.6} & 24.5 & \textbf{26.0}
+% \\
+% LAW      & 14.6 & \textbf{18.5} & 16.9 & \textbf{24.6} & 19.2 & \textbf{23.1}
+% \\
+% PSY      & 13.3 & \textbf{18.5} & 19.2 & \textbf{20.4} & 23.2 & \textbf{24.1} \\
+% \bottomrule
+% \end{tabularx}
+% \caption{We report the zero-shot and fine-tuned (ft) SigLIP models across all semantic types presented in \benchmark. Results in \textbf{bold} indicate the best performance per model size.}
+% \label{tab:full-siglip-semantic-types}
+% \end{table*}
+
+
+
+
+% \begin{table*}[t!]
+% \centering
+% \begin{tabular}{l|cc|cc}
+% \toprule
+% \textbf{Semantic Type} & \textbf{SigLIP-base} & \textbf{SigLIP-base-ft} & \textbf{SigLIP-large} & \textbf{SigLIP-large-ft} 
+% % \textbf{Semantic Type} & \multicolumn{2}{c|}
+% % {\textbf{SigLIP-base}} & \multicolumn{2}{c}{\textbf{SigLIP-large}}
+% % \\
+% % \cline{2-3} \cline{4-5}
+%  % & \textbf{zero-shot} & \textbf{fine-tuned} & \textbf{zero-shot} & \textbf{fine-tuned}
+% \\
+% \midrule
+% ANIM    & 59.6 & \textbf{60.4} & 66.9 & \textbf{67.1} \\
+% % \hline
+% BIO     & 51.1 & \textbf{55.1} & 58.4 & \textbf{62.0} \\
+% % \hline
+% FOOD    & 50.9 & \textbf{54.4} & 56.3 & \textbf{62.4} \\
+% % \hline
+% % \hline
+% CEL & 44.1 & \textbf{52.9} & 44.2 & \textbf{55.9}
+% \\
+% PLANT & 40.1 & \textbf{46.0} & 45.3 & \textbf{53.7}
+% \\
+% MON  & 40.0 & \textbf{48.7} & 49.3 & \textbf{61.3}
+% \\
+% GROUP & 34.1 & \textbf{37.8} & 40.6 & \textbf{43.7}
+% \\
+% ARTIFACT & 32.4 & \textbf{39.8} & 36.5 & \textbf{45.2}
+% \\
+% DISEASE  & 30.7 & 30.7 & 35.3 & \textbf{36.6}
+% \\
+% PART  & 28.5 & \textbf{33.8} & 35.4 & \textbf{38.6}
+% \\
+% STRUCT & 27.4 & \textbf{31.8} & 30.5 & \textbf{37.0}
+% \\
+% ASSET & 25.9 & \textbf{35.8} & 27.2 & \textbf{44.4}
+% \\
+% EVE & 24.1 & \textbf{28.7} & 28.2 & \textbf{34.4}
+% \\ 
+% LOC  & 23.7 & \textbf{26.5} & 28.9 & \textbf{31.7}
+% \\
+% DISCIPLINE  & 23.2 & \textbf{28.1} & 28.8 & \textbf{35.0}
+% \\
+% SUPER  & 23.1 & \textbf{31.3} & 31.3 & \textbf{34.3}
+% \\ 
+% SUB  & 22.3 & \textbf{28.3} & 28.0 & \textbf{34.5}
+% \\
+% MEDIA & 20.6 & \textbf{25.9} & 25.5 & \textbf{32.0}
+% \\
+% PER & 22.3 & \textbf{23.8} & 29.2 & 29.2
+% \\
+% PROPERTY & 22.1 & \textbf{26.6} & 27.2 & \textbf{30.9}
+% \\
+% LANGUAGE ITEM & 17.9 & \textbf{22.9} & 22.9 & \textbf{27.1}
+
+% \\
+% CULT & 20.0 & \textbf{21.0} & 22.1 & \textbf{26.7}
+% \\
+% ORG & 18.8 & \textbf{19.8} & 22.7 & \textbf{27.1}
+% \\
+% RELATION & 18.7 & \textbf{21.5} & \textbf{25.8} & 21.5
+% \\
+% MEASURE & 18.6 & \textbf{21.9} & 25.4 & \textbf{25.6}
+% \\
+% LAW     & 14.6 & \textbf{18.5} & 16.9 & \textbf{24.6} 
+% \\
+% PSY     & 13.3 & \textbf{18.5} & 19.2 & \textbf{20.4} \\
+% \bottomrule
+% \end{tabular}
+% \caption{We report the zero-shot and fine-tuned (ft) SigLIP models across all semantic types presented in \benchmark. Results in \textbf{bold} indicate the best performance per model size.}
+% \label{tab:full-siglip-semantic-types}
+% \end{table*}
+
+
+
+\vspace{-2cm}
+
+\begin{center}
+\begin{figure*}[th]
+    \centering
+    \includegraphics[height=0.29\textheight, keepaspectratio]{latex/images/conc_in_21k-2.pdf}
+    \caption{Comparison of CNER category population between \resource~and ImageNet-21k.}
+    \label{fig:21k}
+\end{figure*}
+\end{center}
+
+\vspace{-1cm}
+\begin{figure*}[th]
+    \centering
+    \includegraphics[height=0.29\textheight, keepaspectratio]{latex/images/Cog-1-2.pdf}
+    \caption{Comparison of number of concepts per CNER category between \benchmark~and ImageNet-CoG.}
+    \label{fig:cog1}
+\end{figure*}
+\vspace{-1cm}
+\begin{figure*}[th]
+    \centering
+    \includegraphics[height=0.29\textheight, keepaspectratio]{latex/images/Cog-2-2.pdf}
+    \caption{Comparison of CNER category distribution (\%) between \benchmark~and ImageNet-CoG.}
+    \label{fig:cog2}
+\end{figure*}
+
+
+\begin{figure*}[th]
+    \centering
+    \begin{center}
+    \includegraphics[width=\textwidth, height=0.96\textheight, keepaspectratio]{latex/images/monkey_appendix_process.pdf}
+    % {latex/images/concept-process-2.pdf}
+    \end{center}
+    \caption{Concept-pedia construction process.}
+    \label{fig:concept-construction}
+\end{figure*}
+
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{\textwidth}{lcc>{\raggedright\arraybackslash}X}
+    \toprule
+  & \makecell{\textbf{Concepts} \\ \textbf{(Classes)}} & \makecell{\textbf{Semantic} \\ \textbf{Categories}} & \makecell{\textbf{CNER} \\ \textbf{Categories}} \\
+    \midrule
+  
+\textbf{Food-101} & 102 & 4 & FOOD, BIO, PLANT, SUBSTANCE \\
+\textbf{CIFAR-10} & 10 & 2 & ANIMAL, ARTIFACT \\
+\textbf{Birdsnap} & 500 & 1 & ANIMAL \\
+\textbf{SUN397} & 397 & 3 & LOC, STRUCT, ORG \\
+\textbf{Stanford Cars} & 196 & 1 & ARTIFACT \\
+\textbf{FGVC Aircraft} & 100 & 1 & ARTIFACT \\
+\textbf{Pascal VOC 2007 Classification} & 20 & 4 & ANIMAL, ARTIFACT, PER, PLANT \\
+\textbf{Describable Textures} & 47 & 1 & PROPERTY \\
+\textbf{Oxford-IIIT Pets} & 37 & 1 & ANIMAL \\
+\textbf{Caltech-101} & 102 & 4 & ANIMAL, ARTIFACT, PLANT, PER \\
+\textbf{Oxford Flowers 102}  & 102 & 1 & PLANT \\
+\textbf{MNIST }& 10 & 1 & MEASURE \\
+\textbf{Facial Emotion Recognition 2013} & 8 & 1 & FEELING \\
+\textbf{STL-10} & 10 & 2 & ANIMAL, ARTIFACT \\
+\textbf{EuroSAT} & 10 & 3 & PLANT, STRUCT, LOC \\
+\textbf{GTSRB} & 43 & 3 & ARTIFACT, MEASURE, LAW \\
+\textbf{PatchCamelyon} & 2 & 2 & BIO, DISEASE \\
+\textbf{UCF101} & 101 & 3 & PER, DISCIPLINE, CULTURE \\
+\textbf{Kinetics700} & 700 & 3 & PER, DISCIPLINE, CULTURE \\
+\textbf{CLEVR Counts} & 8 & 2 & MEASURE, ARTIFACT \\
+\textbf{Rendered SST2} & 2 & 2 & PER, CULTURE \\
+\textbf{Hateful Memes} & 2 & 4 & PER, CULTURE, ORG, LAW \\
+\textbf{ObjectNet}  & 312 & 1 & ARTIFACT \\
+\textbf{iNaturalist}  & 8142 & 3 & ANIMAL, PLANT, BIO \\
+\textbf{KITTI} & 4 & 5 & ARTIFACT, PER, STRUCT, LOC, MEASURE \\
+
+\textbf{RESISC45} & 45 & 6 & LOC, STRUCT, ARTIFACT, PLANT, ORG, CULTURE \\
+\textbf{Country211} & 211 & 6 & LOC, STRUCT, CULTURE, PLANT, ANIMAL, PER \\
+\textbf{CIFAR-100} & 100 & 7 & ANIMAL, PLANT, FOOD, ARTIFACT, STRUCT, LOC, PER \\
+\textbf{ImageNet-1k}  & 1000 & 11 & ANIMAL,ARTIFACT, BIO, STRUCT, FOOD, LOC, MEDIA, PER, PLANT, SUB, PROPERTY \\
+  \midrule
+
+     \textbf{Total (combined)} & - & 18 \\
+  \midrule
+   \textbf{Concept-10k} & \textbf{9837} & \textbf{28}\\
+    \bottomrule
+\end{tabularx}
+\caption{Comparison of concept and semantic category coverage between Concept-10K and existing benchmarks. We report the number of unique concepts and semantic categories for each dataset, as well as the total number of distinct semantic categories covered across all the benchmarks (\textbf{Total (combined)}), including those in the CLIP Benchmark. \benchmark{} covers all CNER classes except \textit{DateTime}.
+}
+\label{tab:datasets_summary}
+
+\end{table*}
+% \begin{table}[ht]
+% \centering
+% \label{tab:datasets}
+% \begin{tabular}{|l|c|l|c|}
+% \hline
+% \textbf{Dataset} & \textbf{Classes} & \textbf{CNER Categories} & \textbf{Number} \\
+% \hline
+% Food-101 & 102 & FOOD, BIO, PLANT SUBSTANCE & 4 \\
+% CIFAR-10 & 10 & ANIMAL, ARTIFACT & 2 \\
+% CIFAR-100 & 100 & ANIMAL, PLANT, FOOD, ARTIFACT, STRUCT, LOC, PER & 7 \\
+% Birdsnap & 500 & ANIMAL & 1 \\
+% SUN397 & 397 & LOC, STRUCT, ORG & 3 \\
+% Stanford Cars & 196 & ARTIFACT & 1 \\
+% FGVC Aircraft & 100 & ARTIFACT & 1 \\
+% Pascal VOC 2007 Classification & 20 & ANIMAL, ARTIFACT, PER, PLANT & 4 \\
+% Describable Textures & 47 & PROPERTY & 1 \\
+% Oxford-IIIT Pets & 37 & ANIMAL & 1 \\
+% Caltech-101 & 102 & ANIMAL, ARTIFACT, PLANT, PER & 4 \\
+% Oxford Flowers 102 & 102 & PLANT & 1 \\
+% MNIST & 10 & MEASURE & 1 \\
+% Facial Emotion Recognition 2013 & 8 & PSYCH & 1 \\
+% STL-10 & 10 & ANIMAL, ARTIFACT & 2 \\
+% EuroSAT & 10 & PLANT, STRUCT, LOC & 3 \\
+% RESISC45 & 45 & LOC, STRUCT, ARTIFACT, PLANT, ORG, CULTURE & 6 \\
+% GTSRB & 43 & ARTIFACT, MEASURE, LAW & 3 \\
+% KITTI & 4 & ARTIFACT, PER, STRUCT, LOC, MEASURE & 5 \\
+% Country211 & 211 & LOC, STRUCT, CULTURE, PLANT, ANIMAL, PER & 6 \\
+% PatchCamelyon & 2 & BIO, DISEASE & 2 \\
+% UCF101 & 101 & PER, DISCIPLINE, CULTURE & 3 \\
+% Kinetics700 & 700 & PER, DISCIPLINE, CULTURE & 3 \\
+% CLEVR Counts & 8 & MEASURE, ARTIFACT & 2 \\
+% Hateful Memes & 2 & PER, CULTURE, ORG, LAW & 4 \\
+% Rendered SST2 & 2 & PER, CULTURE & 2 \\
+% \hline
+% \end{tabular}
+% \caption{Overview of Image Classification Datasets and Their CNER Categories}
+% \end{table}
+
+% \clearpage
+\begin{table*}[h]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l|l}
+    \toprule
+    \textbf{Category} & \textbf{Examples} \\
+    \midrule
+    \textsc{Animal} & \textit{Lion, American bison, Orca, Leopard, Reindeer} \\
+    \hline
+    \textsc{Artifact} & \textit{Racing car, Water tower, Monoplane, Wind turbine, Arcade video game} \\
+    \hline
+    \textsc{Asset} & \textit{Stock, Debit card, Mortgage loan, Equity, Health insurance} \\
+    \hline
+    \textsc{Biology} & \textit{Proton, Protein dimer, Collagen} \\
+    \hline
+    \textsc{Celestial} & \textit{Pulsar, Star, Ring galaxy} \\
+    \hline
+    \textsc{Culture} & \textit{Humanism, Sufism, Islam, Pacifism} \\
+    \hline
+    \textsc{Disease} & \textit{Covid-19, Tuberculosis, Malaria, Smallpox, Ebola} \\
+    \hline
+    \textsc{Discipline} & \textit{Entrepreneurship, College football, Mixed martial arts, Professional boxing, Contemporary art} \\
+    \hline
+    \textsc{Event} & \textit{Freestyle swimming, Climate change, Deforestation} \\
+    \hline
+    \textsc{Feeling} & \textit{Love, Nirvana, Hatred, Pride, Sympathy} \\
+    \hline
+    \textsc{Food} & \textit{Chocolate bar, Honey, Mussels, Sushi, Ramen} \\
+    \hline
+    \textsc{Group} & \textit{Brigade, Basketball team, Opera company} \\
+    \hline
+    \textsc{Language} & \textit{Ambigram, Synonym, Vowel} \\
+    \hline
+    \textsc{Law} & \textit{International law, Regulation, Independence} \\
+    \hline
+    \textsc{Loc} & \textit{Vineyards, Playground, Bus stop} \\
+    \hline
+    \textsc{Measure} & \textit{Kilometre, Latitude, Mile} \\
+    \hline
+    \textsc{Media} & \textit{Music video, Self-portrait, Visual novel} \\
+    \hline
+    \textsc{Money} & \textit{Euro, Dirham, Dollar, } \\
+    \hline
+    \textsc{Org} & \textit{Music industry, Democratic Party, Commercial enterprise} \\
+    \hline
+    \textsc{Part} & \textit{Liver, Stomach, Wrist, Retina} \\
+    \hline
+    \textsc{Per} & \textit{Gymnast, Jockey, Ski jumper, Cyclist} \\
+    \hline
+    \textsc{Plant} & \textit{Bamboo, Sugarcane, Bonsai, Wheat} \\
+    \hline
+    \textsc{Property} & \textit{Linear, Dimension, Shape} \\
+    \hline
+    \textsc{Psych} & \textit{Sweetness, Cognition, Attention, Necessity} \\
+    \hline
+    \textsc{Relation} & \textit{approximation, Comparison, Relatedness, Distance (graph theory), Function} \\
+    \hline
+    \textsc{Struct} & \textit{Supermarket, Marina, Hospital} \\
+    \hline
+    \textsc{Substance} & \textit{Aluminium, Silver, Sodium} \\
+    \hline
+    \textsc{Super} & \textit{Unicorn, Zombie, Goblin} \\
+    \bottomrule
+\end{tabular}%
+}
+\caption{Frequent concepts from \texttt{\resource} categorized by CNER groups.}
+\label{tab:cner-examples}
+\end{table*}
+
+% \begin{table}[H]
+% \raggedright
+% \begin{tabular}{|c|c|c|c|c|}
+% \hline
+% \textbf{}        & \multicolumn{2}{c|}{\textbf{Gold Label}} & \multicolumn{2}{c|}{\textbf{Model Pred.}} \\ \hline
+% \textbf{}        & \textbf{in-1k}    & \textbf{Conc-1k}   & \textbf{in-1k}   & \textbf{Conc-1k} \\ \hline
+% \textbf{High}    & 88.4\%            & 95.7\%                & 86.3\%               & 79.0\%                \\ \hline
+% \textbf{Low}     & 83.7\%            & 76.8\%                & 81.3\%              & 64.5\%                  \\ \hline
+% \end{tabular}
+% \caption{Gold label and model prediction accuracy with respect to the manual annotation labels.}
+% \label{tab:conc_vs_in}
+% \end{table}
+
+% \subsubsection{Wikipedia dump}
+
+% \subsubsection{Wikipedia images}
+% % A Wikipedia/Wikimedia custom image downloader tool has been developed. After trying online available tools like CommonsDownloader (\cite{CommonsDownloader}) and img2dataset (\cite{img2dataset}), I've found that none would perform good enough for the requirements of the project. The developed tool in Python 3.11 has the following features:
+% % \begin{itemize}
+% %     \item Checks for image presence in either Wikimedia (first) and Wikipedia
+% %     \item Checks for the presence of a valid license
+% %     \item Checks the header of the image before downloading, limiting the download to acceptable-sized images
+% %     \item Allows online conversion of the downloaded image to a \texttt{jpg} format
+% %     \item Allows online resizing
+% %     \item Allows throughput control
+% %     \item Can be run in multi-processed mode
+% % \end{itemize}
+% % The Wiki servers have a hard limit on the amount of API requests that can be made in a second of around 100 requests per seconds, but, unfortunately I've been able to reach a throughput of around 30/40 images processed per second. Given this requirement, the tool has been used to download $650k$ images in less than two weeks, occupying around 570GB of storage; the images have been all resized to a maximum resolution of around $1$ MP and saved in a lossy \texttt{JPEG} format to save storage space. The wimages downloaded are the ones corresponding to the selected dataset of section \ref{section:quantitative}.
+
+
+
+\end{document}
