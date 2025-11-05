@@ -92,11 +92,11 @@ Our experiments reveal a critical issue: **modern vision-language models are hea
 
 When we evaluate state-of-the-art models on Concept-10k:
 
-| Model | ImageNet Performance | Concept-10k Performance | Drop |
-|-------|---------------------|------------------------|------|
-| CLIP (ViT-L/14) | 75.5% | 42.3% | **-33.2%** |
-| ALIGN | 76.4% | 43.8% | **-32.6%** |
-| OpenCLIP | 78.2% | 45.1% | **-33.1%** |
+| Model           | ImageNet Performance | Concept-10k Performance | Drop       |
+| --------------- | -------------------- | ----------------------- | ---------- |
+| CLIP (ViT-L/14) | 75.5%                | 42.3%                   | **-33.2%** |
+| ALIGN           | 76.4%                | 43.8%                   | **-32.6%** |
+| OpenCLIP        | 78.2%                | 45.1%                   | **-33.1%** |
 
 **Performance drops by over 30 points** when tested on diverse concepts!
 
@@ -205,6 +205,7 @@ Models that leverage semantic structure (like our approach) show better generali
 ### Fine-grained Understanding Lags
 
 Modern models struggle most with:
+
 - **Fine-grained categories** (specific breeds, species, types)
 - **Cultural specificity** (region-specific objects)
 - **Specialized domains** (medical instruments, technical equipment)
@@ -224,11 +225,13 @@ A model with 80% accuracy on ImageNet might have 45% accuracy on real-world visu
 ### Domain Adaptation is Critical
 
 If your application involves:
+
 - Specialized domains (medical, industrial, etc.)
 - Cultural diversity
 - Fine-grained recognition
 
 Standard vision-language models will likely underperform. Consider:
+
 - **Domain-specific fine-tuning**
 - **Semantic augmentation** with knowledge graphs
 - **Evaluation on relevant concepts**, not just ImageNet
