@@ -99,6 +99,7 @@ class KnowledgeDocument(Document):
     question: Optional[str] = None
 
     # Vector embedding (1536 dims for OpenAI text-embedding-3-small)
+    # See: https://platform.openai.com/docs/guides/embeddings
     embedding: Annotated[List[float], VectorField(dimensions=1536)]
 
     source: str = "squad"
@@ -143,7 +144,9 @@ async def ingest_data(api_key: str):
     # Initialize Beanis (one line - handles all Redis indexes automatically)
     await init_beanis(database=redis_client, document_models=[KnowledgeDocument])
 
-    # Load embeddings
+    # Load embeddings (using OpenAI's text-embedding-3-small model)
+    # This model generates 1536-dimensional vectors optimized for semantic search
+    # Alternatives: text-embedding-3-large (3072 dims), text-embedding-ada-002 (1536 dims)
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=api_key)
 
     # Load SQuAD dataset (100 Wikipedia passages about various topics)
@@ -454,12 +457,12 @@ You get stateful agents with persistent memory, vector search, and clean orchest
 
 ### Parallel Retrieval
 
-Run multiple retrievers simultaneously:
+Run multiple search strategies simultaneously for better results:
 
 ```python
 # Add multiple retrieval nodes
-workflow.add_node("retrieve_semantic", self._retrieve_semantic)
-workflow.add_node("retrieve_keyword", self._retrieve_keyword)
+workflow.add_node("retrieve_semantic", self._retrieve_semantic)  # Vector search
+workflow.add_node("retrieve_keyword", self._retrieve_keyword)    # Full-text search
 workflow.add_node("combine_results", self._combine_results)
 
 # Both run in parallel
@@ -469,9 +472,26 @@ workflow.set_entry_point("retrieve_keyword")
 # Merge results
 workflow.add_edge("retrieve_semantic", "combine_results")
 workflow.add_edge("retrieve_keyword", "combine_results")
+
+
+async def _retrieve_keyword(self, state):
+    """Full-text search using Redis FT.SEARCH"""
+    # Beanis also supports full-text search on regular fields
+    results = await KnowledgeDocument.find_many(
+        KnowledgeDocument.context.contains(state["query"]),
+        limit=3
+    )
+    return {**state, "keyword_results": results}
+
+async def _combine_results(self, state):
+    """Merge semantic + keyword results"""
+    all_docs = state["retrieved_docs"] + state["keyword_results"]
+    # Deduplicate and rerank
+    unique_docs = list({doc.id: doc for doc in all_docs}.values())
+    return {**state, "combined_docs": unique_docs[:5]}
 ```
 
-LangGraph handles parallel execution automatically.
+LangGraph handles parallel execution automatically. This hybrid approach (semantic + keyword) often beats pure vector search, especially for technical terms or proper nouns. Learn more about [Redis full-text search](https://redis.io/docs/latest/develop/interact/search-and-query/query/).
 
 ### Conditional Logic
 
@@ -602,11 +622,25 @@ Everything is on [GitHub](https://github.com/andreim14/beanis-examples/tree/main
 
 ## Resources
 
-- [Beanis Documentation](https://andreim14.github.io/beanis/)
-- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
-- [Redis Vector Similarity](https://redis.io/docs/latest/develop/interact/search-and-query/query/vector-search/)
-- [OpenAI Embeddings](https://platform.openai.com/docs/guides/embeddings)
-- [Hugging Face Datasets](https://huggingface.co/docs/datasets/)
+### Documentation
+- [Beanis Documentation](https://andreim14.github.io/beanis/) - Redis ODM with vector search
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Agent orchestration framework
+- [LangChain Python](https://python.langchain.com/docs/introduction/) - LLM application framework
+
+### Redis & Vector Search
+- [Redis Vector Similarity Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/vector-search/) - How Redis handles vector indexes
+- [Redis Full-Text Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/) - Keyword search in Redis
+- [Redis HNSW Algorithm](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/) - Vector indexing details
+
+### Embeddings & Datasets
+- [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings) - text-embedding-3-small and alternatives
+- [OpenAI Embedding Models Comparison](https://platform.openai.com/docs/guides/embeddings/embedding-models) - Performance vs cost tradeoffs
+- [SQuAD Dataset](https://huggingface.co/datasets/rajpurkar/squad) - Stanford Question Answering Dataset
+- [Hugging Face Datasets](https://huggingface.co/docs/datasets/) - 50,000+ datasets for ML
+
+### Related Articles
+- [Build RAG in 50 Lines with Redis + Beanis](/2025/10/24/build-rag-50-lines-beanis-redis.html) - Simpler RAG intro
+- [Redis Geo-Spatial Caching](/2025/10/30/building-restaurant-finder-redis-geopoints.html) - Location-based search with Redis
 
 ---
 
