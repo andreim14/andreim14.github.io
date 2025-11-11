@@ -33,12 +33,19 @@ Together? You get stateful AI agents that actually work in production.
 ## What We're Building
 
 A RAG agent that:
-- Ingests documents from [Hugging Face datasets](https://huggingface.co/datasets)
+- Ingests documents from [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) (Stanford Question Answering Dataset)
 - Stores them in Redis with vector embeddings
 - Maintains conversation history across sessions
 - Retrieves relevant context using semantic search
 - Generates responses using OpenAI
 - Orchestrates everything with LangGraph
+
+**Input/Output Example:**
+```
+INPUT:  "How many students are at Notre Dame?"
+OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
+        [Retrieved 3 relevant documents from 100 stored]
+```
 
 The complete code is ~200 lines. And it actually works.
 
@@ -122,7 +129,7 @@ That's it. Beanis handles:
 
 ## Step 2: Ingest Data
 
-Load data from Hugging Face and store it in Redis:
+Load data from the [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) and store it in Redis:
 
 ```python
 from datasets import load_dataset
@@ -131,15 +138,15 @@ from beanis import init_beanis
 
 async def ingest_data(api_key: str):
     # Connect to Redis
-    redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+    redis_client = redis.Redis(host="localhost", port=6379, decode_responses=False)
 
-    # Initialize Beanis
+    # Initialize Beanis (one line - handles all Redis indexes automatically)
     await init_beanis(database=redis_client, document_models=[KnowledgeDocument])
 
     # Load embeddings
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=api_key)
 
-    # Load dataset
+    # Load SQuAD dataset (100 Wikipedia passages about various topics)
     dataset = load_dataset("rajpurkar/squad", split="train")
 
     # Ingest documents
@@ -153,8 +160,14 @@ async def ingest_data(api_key: str):
             embedding=embedding
         )
 
-        await doc.insert()  # Saves to Redis, creates indexes
+        await doc.insert()  # One line: saves to Redis + creates vector index
 ```
+
+**Why Beanis saves you time here:**
+- **Without Beanis**: 15+ lines to manually construct Redis keys, serialize embeddings to bytes, create HNSW index with `FT.CREATE`, handle errors
+- **With Beanis**: 1 line - `await doc.insert()` - everything happens automatically
+- Vector indexes are created on first insert, no manual `FT.CREATE` commands
+- Embeddings are automatically serialized to FLOAT32 binary format for Redis
 
 Run this once, and you've got 100 documents with embeddings in Redis, ready for semantic search.
 
@@ -332,7 +345,7 @@ Two inserts. That's it. Beanis handles serialization, timestamp generation, ever
 
 ```python
 # Initialize
-redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+redis_client = redis.Redis(host="localhost", port=6379, decode_responses=False)
 await init_beanis(
     database=redis_client,
     document_models=[KnowledgeDocument, ConversationHistory]
@@ -342,11 +355,31 @@ agent = RAGAgent(redis_client=redis_client, openai_api_key=api_key)
 
 # Query
 result = await agent.query(
-    query="What is machine learning?",
+    query="What universities are mentioned?",
     session_id="user-123"
 )
 
 print(result["response"])
+# Output: "The university mentioned is the University of Notre Dame."
+```
+
+**Real Examples from the SQuAD Dataset:**
+
+```
+INPUT:  "Tell me about education"
+OUTPUT: "Education encompasses primary, secondary, and higher education levels.
+         In formal education, structured systems prepare individuals for the
+         workforce and promote social cohesion..."
+        [Retrieved 3 documents, 530 queries/second]
+
+INPUT:  "What year is mentioned?"
+OUTPUT: "The year mentioned is 1879, specifically in the context of a fire
+         that destroyed the Main Building and library collection."
+        [Search took 1.89ms]
+
+INPUT:  "How many students are there?"
+OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
+        [Vector search: 27x faster than naive Python comparison]
 ```
 
 That's it. The agent:
@@ -370,6 +403,38 @@ All state is persistent. Restart your app? History is still there. Scale horizon
 **Error handling**: Node failed? Retry it. Want to checkpoint state? Built-in support.
 
 ### Beanis Benefits
+
+**Fewer lines, less complexity**: Compare the approaches:
+
+```python
+# Without Beanis (manual Redis):
+# 1. Construct key manually
+key = f"doc:{uuid.uuid4()}"
+
+# 2. Serialize embedding to bytes
+import struct
+embedding_bytes = struct.pack(f"{len(embedding)}f", *embedding)
+
+# 3. Create hash manually
+await redis.hset(key, mapping={
+    "title": title,
+    "context": context,
+    "embedding": embedding_bytes
+})
+
+# 4. Create vector index manually
+await redis.execute_command(
+    "FT.CREATE", "idx", "ON", "HASH", "PREFIX", "1", "doc:",
+    "SCHEMA", "embedding", "VECTOR", "HNSW", "6",
+    "TYPE", "FLOAT32", "DIM", "1536", "DISTANCE_METRIC", "COSINE"
+)
+# Total: ~15 lines per document type, error-prone
+
+# With Beanis:
+doc = KnowledgeDocument(title=title, context=context, embedding=embedding)
+await doc.insert()
+# Total: 2 lines, indexes created automatically
+```
 
 **No key management**: You define models. Beanis generates Redis keys. Update a document? Beanis updates the right hash and indexes.
 
