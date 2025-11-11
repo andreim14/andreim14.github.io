@@ -60,21 +60,17 @@ I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the
 
 ## What's Wrong with Traditional WSD?
 
-**Word Sense Disambiguation (WSD)** has been studied for decades. It achieves great benchmark scores. But it struggles to find real-world applications.
+**Word Sense Disambiguation (WSD)** has been around for decades. The benchmark scores look great. But when you try to actually use it in a real application, you hit a wall.
 
-**Why?** It operates in a sandbox:
+The problem? Traditional WSD operates in a sandbox. It assumes you've already done most of the hard work:
 
-1. **Assumes you already know which words to disambiguate** - Someone must manually mark "bank" and "cover" first
-2. **Assumes candidate senses are provided** - You must tell it "bank has 2 meanings: financial/riverbank"
-3. **Doesn't work on real, unrestricted text** - Only on pre-processed examples
+First, you need to manually identify which words in your text are ambiguous. In our example sentence, you'd have to mark "bank" and "cover" as words that need disambiguation. Already a problem - how do you know which words are ambiguous without understanding context?
 
-This is like having a translator who needs you to:
+Second, you need to provide candidate meanings. You have to tell the system "bank could mean: financial institution, riverbank, or slope" and "cover could mean: pay for, place over, include, or protect." Again, this assumes you already know what senses exist for each word.
 
-- Mark which words need translation
-- Provide a list of possible translations for each word
-- Only then pick the right one
+Only then does WSD do its job - picking the right sense from your provided list.
 
-Not very useful!
+It's like having a translator who needs you to first identify which words need translating, then give them a dictionary of possible translations, and only then they'll pick the right one. If you can do all that, you probably don't need the translator.
 
 ### A Concrete Example: WSD vs WSL
 
@@ -273,32 +269,13 @@ The model learns to:
 
 ## Comparison: WSL vs Traditional WSD
 
-<div class="row mt-3 mb-3">
-    <div class="col-sm-6">
-        <div class="alert alert-danger" role="alert" style="background-color: #f8d7da !important; border: 2px solid #842029 !important; color: #842029 !important;">
-            <h5 style="color: #842029 !important; font-weight: bold;">❌ Traditional WSD</h5>
-            <ul style="color: #842029 !important; margin-bottom: 0;">
-                <li style="color: #842029 !important;">Requires pre-marked spans</li>
-                <li style="color: #842029 !important;">Needs candidate senses provided</li>
-                <li style="color: #842029 !important;">Works only on prepared examples</li>
-                <li style="color: #842029 !important;">Manual preprocessing required</li>
-                <li style="color: #842029 !important;">Limited real-world applicability</li>
-            </ul>
-        </div>
-    </div>
-    <div class="col-sm-6">
-        <div class="alert alert-success" role="alert" style="background-color: #d1e7dd !important; border: 2px solid #0a3622 !important; color: #0a3622 !important;">
-            <h5 style="color: #0a3622 !important; font-weight: bold;">✅ Word Sense Linking</h5>
-            <ul style="color: #0a3622 !important; margin-bottom: 0;">
-                <li style="color: #0a3622 !important;">Automatic span detection</li>
-                <li style="color: #0a3622 !important;">Automatic candidate retrieval</li>
-                <li style="color: #0a3622 !important;">Works on any text</li>
-                <li style="color: #0a3622 !important;">Zero preprocessing needed</li>
-                <li style="color: #0a3622 !important;">Ready for production use</li>
-            </ul>
-        </div>
-    </div>
-</div>
+The key difference comes down to what you need to provide as input.
+
+Traditional WSD needs you to do the hard parts first: identify ambiguous words, provide candidate senses, and prepare your text in a specific format. It then picks the right sense from your candidates. This works fine for academic benchmarks where everything is pre-annotated, but it's impractical for real applications where you're processing arbitrary text.
+
+Word Sense Linking does all of that automatically. You throw raw text at it - anything from tweets to research papers - and it figures out which spans are ambiguous, retrieves candidate senses from WordNet, and links everything to the correct meanings. No preprocessing, no manual annotation, no candidate lists.
+
+That's why we're seeing actual adoption in production systems. WSL doesn't require you to build annotation pipelines or maintain sense inventories. It just works on whatever text you have.
 
 ## A Complete Example
 
