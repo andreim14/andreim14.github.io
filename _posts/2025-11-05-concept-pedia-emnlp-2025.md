@@ -31,7 +31,7 @@ We built a massive dataset with **165,000+ semantically-annotated concepts** and
 
 ## The ImageNet Problem
 
-For over a decade, **ImageNet** has been the gold standard for computer vision. Its 1,000 categories became THE benchmark everyone optimized for.
+For over a decade, **[ImageNet](https://image-net.org/)** has been the gold standard for computer vision. Its 1,000 categories became THE benchmark everyone optimized for.
 
 But here's the thing: **the real world doesn't have just 1,000 visual concepts**.
 
@@ -64,7 +64,7 @@ I'm thrilled to share our paper **"Concept-pedia: A Wide-coverage Semantically-a
 
 ### We're talking 165,000+ concepts with actual semantic structure
 
-Unlike most datasets that just throw images and labels together, we built Concept-pedia on top of BabelNet - the world's largest multilingual semantic network. What does that mean practically? Every single concept comes with definitions, relationships to other concepts, and support for multiple languages. It's not "here's a picture, here's what we think it is" - it's "here's a concept that exists in a web of human knowledge, and here's what it looks like."
+Unlike most datasets that just throw images and labels together, we built Concept-pedia on top of [BabelNet](https://babelnet.org/) - the world's largest multilingual semantic network. What does that mean practically? Every single concept comes with definitions, relationships to other concepts, and support for multiple languages. It's not "here's a picture, here's what we think it is" - it's "here's a concept that exists in a web of human knowledge, and here's what it looks like."
 
 And we're not talking about 1,000 ImageNet categories repeated in different poses. We have concepts ranging from specific cat breeds to architectural elements to types of pasta you've probably never heard of.
 
@@ -78,7 +78,7 @@ We had expert annotators verify every single image. Multiple rounds. We made sur
 
 Most vision-language datasets give you image-text pairs. Cool. We give you that PLUS the semantic relationships. Hypernymy (is-a relationships), meronymy (part-of relationships), connections to Wikipedia, WordNet, you name it.
 
-This isn't just for show - having this structure means you can actually reason about concepts, not just pattern match. Your model can understand that a "Bombay cat" is a type of "cat" which is a type of "feline" which is a type of "mammal." Try doing that with CLIP trained on web-scraped captions.
+This isn't just for show - having this structure means you can actually reason about concepts, not just pattern match. Your model can understand that a "Bombay cat" is a type of "cat" which is a type of "feline" which is a type of "mammal." Try doing that with [CLIP](https://openai.com/index/clip/) trained on web-scraped captions.
 
 ## The ImageNet Anchor Problem
 

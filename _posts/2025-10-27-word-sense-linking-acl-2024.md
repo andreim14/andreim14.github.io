@@ -47,7 +47,7 @@ Humans get this instantly from context. But how do we teach machines to do the s
 
 ## Our ACL 2024 Research
 
-I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the Sandbox"**, published at **ACL 2024 (Findings)** - the Association for Computational Linguistics, the top venue in NLP research.
+I'm excited to share our paper **"Word Sense Linking: Disambiguating Outside the Sandbox"**, published at **[ACL 2024](https://2024.aclweb.org/) (Findings)** - the Association for Computational Linguistics, the top venue in NLP research.
 
 <div class="alert alert-info" role="alert" style="background-color: #cfe2ff !important; border: 2px solid #084298 !important; color: #084298 !important;">
 <strong style="color: #084298 !important;">📄 Published at ACL 2024</strong><br>
@@ -117,7 +117,7 @@ Our solution: **Word Sense Linking (WSL)** removes these constraints.
 WSL does two things automatically:
 
 1. **Span Identification**: Finds which text spans need disambiguation
-2. **Sense Linking**: Links them to the correct meaning from WordNet
+2. **Sense Linking**: Links them to the correct meaning from [WordNet](https://wordnet.princeton.edu/)
 
 **No manual preprocessing. No candidate provision. Just real text in, meanings out.**
 
@@ -185,7 +185,7 @@ WSLOutput(
 **Notice**: It automatically:
 
 - Identified which spans need disambiguation ("Bus drivers", "drive", "busses", "living")
-- Linked them to the correct WordNet senses
+- Linked them to the correct [WordNet](https://wordnet.princeton.edu/) senses
 - Provided human-readable definitions
 
 ## Real-World Applications

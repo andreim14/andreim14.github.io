@@ -14,7 +14,7 @@ author: Andrei Stefan Bejgu
 
 ## The Problem
 
-You're building an AI app that needs semantic search for RAG. Everyone on Twitter is telling you to use Pinecone ($70/month minimum, plus 100+ lines of boilerplate). Or Weaviate (yet another service to manage and monitor). Or pgvector (slow queries and complex tuning).
+You're building an AI app that needs semantic search for RAG. Everyone on Twitter is telling you to use [Pinecone](https://www.pinecone.io/) ($70/month minimum, plus 100+ lines of boilerplate). Or [Weaviate](https://weaviate.io/) (yet another service to manage and monitor). Or [pgvector](https://github.com/pgvector/pgvector) (slow queries and complex tuning).
 
 Meanwhile, you already have Redis running. You're using it for caching, session storage, maybe job queues. It's just sitting there, being fast and reliable.
 
@@ -74,7 +74,7 @@ First, vector indexes are now created automatically when you call `init_beanis()
 
 Let's be real: Pinecone is a great product. But it's solving a problem you might not have.
 
-Pinecone makes sense if you're doing massive-scale vector search across billions of documents, need global replication, want managed infrastructure with SLAs, and have the budget for it. If that's you, use Pinecone.
+Pinecone makes sense if you're doing massive-scale vector search across billions of documents, need global replication, want managed infrastructure with SLAs, and [have the budget for it](https://www.pinecone.io/pricing/). If that's you, use Pinecone.
 
 But most apps don't need that. You've got maybe 10K-1M documents. You already run Redis. You're okay with self-hosting. And you really don't want another monthly bill.
 
@@ -146,7 +146,7 @@ pip install beanis transformers redis
 docker run -d -p 6379:6379 redis/redis-stack:latest
 ```
 
-Use `redis-stack` (includes RediSearch module for vector search).
+Use [`redis-stack`](https://redis.io/docs/latest/operate/oss_and_stack/stack/) (includes RediSearch module for vector search).
 
 ### 3. Define Your Model
 
@@ -175,7 +175,7 @@ import redis.asyncio as redis
 from beanis import init_beanis
 
 # Load open-source embedding model (no API key!)
-model = AutoModel.from_pretrained('jinaai/jina-embeddings-v4', trust_remote_code=True)
+model = AutoModel.from_pretrained('jinaai/jina-embeddings-v4', trust_remote_code=True)  # https://huggingface.co/jinaai/jina-embeddings-v4
 
 async def ingest_text(text: str):
     # Generate embedding
@@ -296,7 +296,7 @@ The cost savings alone ($70-500/month depending on Pinecone tier) probably justi
 
 Once you've got the basics working, there are some cool extensions worth knowing about.
 
-**Multimodal Search**: Jina v4 can embed both text and images into the same vector space. This means you can search for images using text queries, or find relevant text using an image. It's the same `model.encode()` API, just pass an image instead:
+**Multimodal Search**: [Jina v4](https://huggingface.co/jinaai/jina-embeddings-v4) can embed both text and images into the same vector space. This means you can search for images using text queries, or find relevant text using an image. It's the same `model.encode()` API, just pass an image instead:
 
 ```python
 from PIL import Image

@@ -22,7 +22,7 @@ author: Andrei Stefan Bejgu
 
 Let's say you're building a food delivery app. User opens the app in downtown Rome, and they want to see Italian restaurants within 2km. Simple enough, right?
 
-Here's your PostgreSQL query with PostGIS (the standard geo-spatial extension):
+Here's your PostgreSQL query with [PostGIS](https://postgis.net/) (the standard geo-spatial extension for PostgreSQL):
 
 ```sql
 SELECT *,
@@ -49,7 +49,7 @@ Your app has 10,000 concurrent users during lunch rush. Each one opening the app
 
 PostgreSQL can handle maybe 150 of these geo-spatial queries per second on decent hardware. You need 830 queries per second. Your database is now 5.5x overloaded, CPU pinned at 100%, queries timing out, and users seeing that spinning loader that makes them switch to a competitor.
 
-The problem? PostGIS calculations are computationally expensive. For every single query, it's:
+The problem? [PostGIS calculations](https://postgis.net/docs/ST_Distance.html) are computationally expensive. For every single query, it's:
 - Calculating spherical distances (earth isn't flat, sorry)
 - Checking each of your 50,000 restaurants
 - Sorting by distance
@@ -69,7 +69,7 @@ There's a better way, and it doesn't involve explaining to your CTO why the data
 
 Cache the hot queries in Redis. Not the data - the actual geo-spatial indexes.
 
-Redis has built-in geo-spatial commands (GEOADD, GEORADIUS) that are specifically designed for this. They pre-compute the indexes, store them in memory, and can serve 10,000+ geo queries per second on a single instance.
+Redis has built-in [geo-spatial commands](https://redis.io/docs/latest/develop/data-types/geospatial/) (`GEOADD`, `GEORADIUS`) that are specifically designed for this. They pre-compute the indexes, store them in memory, and can serve 10,000+ geo queries per second on a single instance.
 
 Here's what changes:
 - **Response time**: 750ms → 12ms (62x faster)
@@ -123,7 +123,7 @@ If Redis doesn't have the data (cache miss), you fall back to PostgreSQL, get th
 This tutorial shows you how to:
 - Use Beanis's `GeoPoint` type to handle geo-spatial indexing automatically
 - Implement cache-first strategy with PostgreSQL fallback
-- Import real restaurant data from OpenStreetMap
+- Import real restaurant data from [OpenStreetMap](https://www.openstreetmap.org/)
 - Build a production-ready FastAPI app that handles 10,000+ concurrent users
 
 The key insight: Redis isn't trying to be your database. It's your speed layer. PostgreSQL can rebuild the cache anytime, so you don't need to worry about Redis durability. You're trading a bit of staleness (cached data might be a few seconds old) for massive performance gains.
@@ -494,6 +494,8 @@ async def find_nearby_with_metrics(...):
 - Average response time (cache: < 10ms, db: 50-100ms)
 - Cache memory usage
 - Stale entry count
+
+For production monitoring, consider using [Redis monitoring tools](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/memory-optimization/) and set up alerts for cache hit rates and memory usage.
 
 ---
 
