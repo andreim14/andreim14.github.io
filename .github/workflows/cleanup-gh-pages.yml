@@ -1,0 +1,28 @@
+name: Cleanup gh-pages history
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Squash to single orphan commit
+        run: |
+          git checkout --orphan clean-gh-pages
+          git add -A
+          git commit -m "Deploying to gh-pages 🚀"
+          git branch -D gh-pages
+          git branch -m gh-pages
+
+      - name: Force push clean history
+        run: git push --force origin gh-pages
