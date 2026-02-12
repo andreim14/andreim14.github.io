@@ -146,7 +146,7 @@ pip install beanis transformers redis
 docker run -d -p 6379:6379 redis/redis-stack:latest
 ```
 
-Use [`redis-stack`](https://redis.io/docs/latest/operate/oss_and_stack/stack/) (includes RediSearch module for vector search).
+Use [`redis-stack`](https://redis.io/about/redis-stack/) (includes RediSearch module for vector search).
 
 ### 3. Define Your Model
 

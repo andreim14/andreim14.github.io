@@ -634,7 +634,7 @@ Everything is on [GitHub](https://github.com/andreim14/beanis-examples/tree/main
 
 ### Embeddings & Datasets
 - [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings) - text-embedding-3-small and alternatives
-- [OpenAI Embedding Models Comparison](https://platform.openai.com/docs/guides/embeddings/embedding-models) - Performance vs cost tradeoffs
+- [OpenAI Embedding Models Comparison](https://platform.openai.com/docs/guides/embeddings) - Performance vs cost tradeoffs
 - [SQuAD Dataset](https://huggingface.co/datasets/rajpurkar/squad) - Stanford Question Answering Dataset
 - [Hugging Face Datasets](https://huggingface.co/docs/datasets/) - 50,000+ datasets for ML
 
