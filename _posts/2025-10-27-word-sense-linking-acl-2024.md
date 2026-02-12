@@ -117,7 +117,7 @@ Our solution: **Word Sense Linking (WSL)** removes these constraints.
 WSL does two things automatically:
 
 1. **Span Identification**: Finds which text spans need disambiguation
-2. **Sense Linking**: Links them to the correct meaning from [WordNet](https://wordnet.princeton.edu/)
+2. **Sense Linking**: Links them to the correct meaning from [WordNet](https://en.wikipedia.org/wiki/WordNet)
 
 **No manual preprocessing. No candidate provision. Just real text in, meanings out.**
 
@@ -185,7 +185,7 @@ WSLOutput(
 **Notice**: It automatically:
 
 - Identified which spans need disambiguation ("Bus drivers", "drive", "busses", "living")
-- Linked them to the correct [WordNet](https://wordnet.princeton.edu/) senses
+- Linked them to the correct [WordNet](https://en.wikipedia.org/wiki/WordNet) senses
 - Provided human-readable definitions
 
 ## Real-World Applications
