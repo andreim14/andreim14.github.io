@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-**Word Sense Linking** presented at **ACL 2024** — disambiguating word meaning on real, in-the-wild text.
+**Word Sense Linking** presented at **ACL 2024**: disambiguating word meaning on real, in-the-wild text.

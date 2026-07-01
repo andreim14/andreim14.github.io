@@ -12,7 +12,7 @@ profile:
   align: right
   image: prof_pic.png
   image_circular: false # crops the image to make it circular
-  image_alt: "Andrei Stefan Bejgu — Senior AI Applied Scientist working on agent orchestration, governance and memory"
+  image_alt: "Andrei Stefan Bejgu, Senior AI Applied Scientist working on agent orchestration, governance and memory"
   more_info: false
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
@@ -33,9 +33,9 @@ latest_posts:
 
 <div class="hero-intro animated-section" markdown="1">
 
-I build AI agents that hold up in production. At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded** — orchestration, guardrails, memory and tooling — so an agent reasons over a real company instead of hallucinating its way through it.
+I build AI agents that hold up in production. At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
 
-Before this, a **Ph.D. in AI** at Sapienza's [NLP group](https://nlp.uniroma1.it/), on how machines pin down what words actually *mean* in context — work that landed at ACL 2024 and EMNLP 2025.
+Before this, a **Ph.D. in AI** at Sapienza's [NLP group](https://nlp.uniroma1.it/), on how machines pin down what words actually *mean* in context. That work landed at ACL 2024 and EMNLP 2025.
 
 </div>
 
@@ -58,22 +58,22 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
   <div class="now-card">
     <div class="now-kicker">orchestration</div>
     <h3>Agent orchestration &amp; governance</h3>
-    <p>Planner / replanner loops, failure handling, and grounding guards — confidence and citation grading so an agent cites what it knows and refuses what it doesn't, instead of fabricating an answer.</p>
+    <p>Planner / replanner loops, failure handling, and grounding guards. Confidence and citation grading so an agent cites what it knows and refuses what it doesn't, instead of fabricating an answer.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">memory</div>
     <h3>Agentic context engineering &amp; memory</h3>
-    <p>Shaping behaviour through evolving context and durable memory — what an agent carries between turns is what makes it reliable.</p>
+    <p>Shaping behaviour through evolving context and durable memory. What an agent carries between turns is what makes it reliable.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">protocol</div>
     <h3>MCP &amp; tool execution</h3>
-    <p>Building Model Context Protocol servers and a sandboxed code-interpreter agent, so agents can run code and call real tools safely — with the human still in the loop.</p>
+    <p>Building Model Context Protocol servers and a sandboxed code-interpreter agent, so agents can run code and call real tools safely, with the human still in the loop.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">human-in-loop</div>
     <h3>Continuous improvement</h3>
-    <p>Subject-matter experts correct an agent once; those corrections become durable, governed knowledge the whole system learns from — no retraining cycle required.</p>
+    <p>Subject-matter experts correct an agent once; those corrections become durable, governed knowledge the whole system learns from. No retraining cycle required.</p>
   </div>
 </div>
 
@@ -97,15 +97,15 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
 
 <div class="project-highlight" markdown="1">
 
-**Word Sense Linking** — ACL 2024
+**Word Sense Linking** · ACL 2024
 
-Disambiguating word meaning on real, messy text — not just curated benchmarks. The hard part isn't the dictionary; it's deciding *which* sense a sentence actually triggers.
+Disambiguating word meaning on real, messy text, not just curated benchmarks. The hard part isn't the dictionary; it's deciding *which* sense a sentence actually triggers.
 
 </div>
 
 <div class="project-highlight" markdown="1">
 
-**ConceptPedia** — EMNLP 2025
+**ConceptPedia** · EMNLP 2025
 
 A large-scale resource connecting concepts across languages, built to give models a shared semantic backbone instead of a per-language patchwork.
 
@@ -113,7 +113,7 @@ A large-scale resource connecting concepts across languages, built to give model
 
 <div class="project-highlight" markdown="1">
 
-**[Beanis](https://pypi.org/project/beanis/)** — Redis ODM for Python
+**[Beanis](https://pypi.org/project/beanis/)** · Redis ODM for Python
 
 A Pydantic-style typed ODM for Redis: ~70% less boilerplate, performance within 8% of raw Redis. For people who want type safety without giving up speed.
 
@@ -123,7 +123,7 @@ A Pydantic-style typed ODM for Redis: ~70% less boilerplate, performance within 
 
 <div class="callout-box animated-section" markdown="1">
 
-I like the seam between research and production — taking something that works in a paper and making it survive contact with messy data and tight latency budgets. When I'm not on that, I'm writing it up or shipping it as open source.
+I like the seam between research and production: taking something that works in a paper and making it survive contact with messy data and tight latency budgets. When I'm not on that, I'm writing it up or shipping it as open source.
 
 </div>
 

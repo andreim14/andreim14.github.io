@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-Building SylloTips' **governed agent runtime** — orchestration, Model Context Protocol tooling, and agent memory that keeps reasoning grounded and supervisable.
+Building SylloTips' **governed agent runtime**: orchestration, Model Context Protocol tooling, and agent memory that keeps reasoning grounded and supervisable.
