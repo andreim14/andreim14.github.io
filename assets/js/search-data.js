@@ -96,16 +96,17 @@ ninja.data = [{
           window.location.href = "/blog/2025/introducing-beanis/";
         
       },
-    },{id: "news-a-simple-inline-announcement",
-          title: 'A simple inline announcement.',
+    },{id: "news-word-sense-linking-presented-at-acl-2024-disambiguating-word-meaning-on-real-in-the-wild-text",
+          title: 'Word Sense Linking presented at ACL 2024 — disambiguating word meaning on real,...',
           description: "",
-          section: "News",},{id: "news-a-long-announcement-with-details",
-          title: 'A long announcement with details',
+          section: "News",},{id: "news-released-beanis-a-typed-redis-odm-for-python-70-less-boilerplate-performance-within-8-of-raw-redis",
+          title: 'Released Beanis — a typed Redis ODM for Python: ~70% less boilerplate, performance...',
           description: "",
-          section: "News",handler: () => {
-              window.location.href = "/news/announcement_2/";
-            },},{id: "news-a-simple-inline-announcement-with-markdown-emoji-sparkles-smile",
-          title: 'A simple inline announcement with Markdown emoji! :sparkles: :smile:',
+          section: "News",},{id: "news-conceptpedia-accepted-at-emnlp-2025-a-large-scale-cross-lingual-concept-resource-for-grounding-semantic-understanding",
+          title: 'ConceptPedia accepted at EMNLP 2025 — a large-scale, cross-lingual concept resource for grounding...',
+          description: "",
+          section: "News",},{id: "news-building-syllotips-governed-agent-runtime-orchestration-model-context-protocol-tooling-and-agent-memory-that-keeps-reasoning-grounded-and-supervisable",
+          title: 'Building SylloTips’ governed agent runtime — orchestration, Model Context Protocol tooling, and agent...',
           description: "",
           section: "News",},{id: "projects-project-1",
           title: 'project 1',
