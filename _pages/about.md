@@ -35,7 +35,7 @@ latest_posts:
 
 I build AI agents that hold up in production. At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
 
-Before this, a **Ph.D. in AI** at Sapienza's [NLP group](https://nlp.uniroma1.it/), on how machines pin down what words actually *mean* in context. That work landed at ACL 2024 and EMNLP 2025.
+Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually *mean* in context. That work landed at ACL 2024 and EMNLP 2025.
 
 </div>
 
