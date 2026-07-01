@@ -39,13 +39,6 @@ Before this, a **Ph.D. in AI** at Sapienza's [NLP group](https://nlp.uniroma1.it
 
 </div>
 
-<div class="cred-row animated-section">
-  <div class="cred"><span class="cred-num">Ph.D.</span><span class="cred-label">AI · Sapienza</span></div>
-  <div class="cred"><span class="cred-num">ACL '24</span><span class="cred-label">Word Sense Linking</span></div>
-  <div class="cred"><span class="cred-num">EMNLP '25</span><span class="cred-label">ConceptPedia</span></div>
-  <div class="cred"><span class="cred-num">Beanis</span><span class="cred-label">open source · PyPI</span></div>
-</div>
-
 <div class="section-card animated-section" markdown="1">
 
 <p class="eyebrow">Currently</p>

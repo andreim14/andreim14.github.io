@@ -96,40 +96,6 @@ article .post-title {
   }
 }
 
-/* ---- Credential / stat row ----------------------------------------------- */
-.cred-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin: 0 0 2.5rem;
-  border: 1px solid var(--global-divider-color);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.cred {
-  flex: 1 1 130px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1.05rem 1.2rem;
-  border-right: 1px solid var(--global-divider-color);
-  transition: background 0.3s ease;
-
-  &:last-child { border-right: none; }
-  &:hover { background: rgba(var(--global-theme-color-rgb), 0.05); }
-}
-.cred-num {
-  font-family: var(--mono-stack);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--global-theme-color);
-}
-.cred-label {
-  font-size: 0.8rem;
-  opacity: 0.65;
-}
-
 /* ---- Content cards ------------------------------------------------------- */
 .section-card {
   position: relative;
@@ -385,9 +351,6 @@ html { scroll-behavior: smooth; }
 @media (max-width: 768px) {
   .about .profile img { margin-bottom: 2rem; }
   .now-grid { grid-template-columns: 1fr; }
-  .cred-row { flex-direction: column; }
-  .cred { border-right: none; border-bottom: 1px solid var(--global-divider-color); }
-  .cred:last-child { border-bottom: none; }
   .hero-intro { font-size: 1.06rem; }
   .section-card { padding: 1.5rem 1.3rem; }
 }
