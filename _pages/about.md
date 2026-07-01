@@ -51,7 +51,7 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
   <div class="now-card">
     <div class="now-kicker">orchestration</div>
     <h3>Agent orchestration &amp; governance</h3>
-    <p>Planner / replanner loops, failure handling, and grounding guards. Confidence and citation grading so an agent cites what it knows and refuses what it doesn't, instead of fabricating an answer.</p>
+    <p>Agents that plan multi-step work, recover when a step fails, and stay grounded: they cite what they actually know and say so when they don't, instead of making things up.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">memory</div>
