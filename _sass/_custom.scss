@@ -99,6 +99,7 @@ article .post-title {
 /* ---- Content cards ------------------------------------------------------- */
 .section-card {
   position: relative;
+  clear: both; /* don't wrap the floated profile image */
   border-radius: 14px;
   padding: 1.9rem 2rem;
   margin-bottom: 2.4rem;
