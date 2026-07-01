@@ -1,113 +1,189 @@
-/* Custom styles for a more personalized and modern homepage */
+/* ==========================================================================
+   Custom styles — homepage / about page
+   Honors the al-folio system: one accent (--global-theme-color), the theme's
+   own faces, a monospace utility voice for labels. Restrained, production-minded.
+   Scoped to .about so blog / cv / publications keep their default look.
+   ========================================================================== */
 
-/* Custom color variables for personalization */
 :root {
   --global-theme-color-rgb: 0, 118, 223;
+  --mono-stack: "SFMono-Regular", "JetBrains Mono", "Fira Code", ui-monospace, "Menlo", monospace;
 }
 
-/* Hero Section Styling */
+/* ---- Engineered dot-grid backdrop (injected on the about page only) ------ */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(var(--global-theme-color-rgb), 0.07) 1px, transparent 1.4px);
+  background-size: 26px 26px;
+  /* fade out toward the edges so it never reads as a flat wallpaper */
+  -webkit-mask-image: radial-gradient(120% 90% at 70% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(120% 90% at 70% 0%, #000 0%, transparent 72%);
+}
+html[data-theme="dark"] .bg-grid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1.4px);
+}
+
+/* ---- Monospace eyebrow / label voice ------------------------------------- */
+.about .eyebrow,
+.now-kicker {
+  font-family: var(--mono-stack);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--global-theme-color);
+}
+
+/* ---- Profile image ------------------------------------------------------- */
 .about {
-  .profile {
-    position: relative;
+  .profile img {
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--global-divider-color);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 
-    img {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-      border: 4px solid var(--global-theme-color);
-
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-      }
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
     }
   }
-
-  /* Animated gradient background for the header */
-  .post-description {
-    position: relative;
-    padding: 1.5rem;
-    border-radius: 12px;
-    background: linear-gradient(
-      135deg,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.05) 0%,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.1) 100%
-    );
-    margin-bottom: 2rem;
-    border-left: 4px solid var(--global-theme-color);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  }
 }
 
-/* Enhanced Typography - Only for about page title */
+/* ---- Title + subtitle ---------------------------------------------------- */
 .about .post-title {
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--global-theme-color), var(--global-hover-color, #0056b3));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1rem;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--global-text-color);
+  margin-bottom: 0.5rem;
+}
+.about .desc {
+  font-size: 0.98rem;
+  opacity: 0.75;
 }
 
-/* Keep blog post titles normal */
+/* keep blog/article titles default */
 .post-list .post-title,
 article .post-title {
   color: var(--global-text-color);
-  background: none;
-  -webkit-text-fill-color: initial;
 }
 
-/* Section Headers with Decorative Elements - Only on about page */
+/* ---- Section headers ----------------------------------------------------- */
+/* Heading sits right under its monospace eyebrow — the eyebrow is the marker,
+   so no decorative underline rule here. */
 .about h2 {
-  position: relative;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
+  margin: 0.15rem 0 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.about .eyebrow + h2 { margin-top: 0.35rem; }
 
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--global-theme-color), transparent);
-    border-radius: 2px;
+/* ---- Hero intro ---------------------------------------------------------- */
+.hero-intro {
+  font-size: 1.22rem;
+  line-height: 1.7;
+  max-width: 60ch;
+  margin-bottom: 2rem;
+
+  strong {
+    font-weight: 700;
+    color: var(--global-text-color);
+    box-shadow: inset 0 -0.42em 0 rgba(var(--global-theme-color-rgb), 0.12);
   }
 }
 
-/* Modern Card Design for Content Sections */
-.section-card {
-  background: transparent;
+/* ---- Credential / stat row ----------------------------------------------- */
+.cred-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 2.5rem;
+  border: 1px solid var(--global-divider-color);
   border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.1);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+  overflow: hidden;
+}
+.cred {
+  flex: 1 1 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.05rem 1.2rem;
+  border-right: 1px solid var(--global-divider-color);
+  transition: background 0.3s ease;
+
+  &:last-child { border-right: none; }
+  &:hover { background: rgba(var(--global-theme-color-rgb), 0.05); }
+}
+.cred-num {
+  font-family: var(--mono-stack);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--global-theme-color);
+}
+.cred-label {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+/* ---- Content cards ------------------------------------------------------- */
+.section-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 1.9rem 2rem;
+  margin-bottom: 2.4rem;
+  border: 1px solid var(--global-divider-color);
+  background: rgba(var(--global-theme-color-rgb), 0.015);
+  transition: border-color 0.3s ease, box-shadow 0.4s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border-color: rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.3);
+    border-color: rgba(var(--global-theme-color-rgb), 0.28);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
+  }
+}
+html[data-theme="dark"] .section-card {
+  background: rgba(255, 255, 255, 0.015);
+  &:hover { box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4); }
+}
+
+/* ---- "What I'm building" grid -------------------------------------------- */
+.now-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin: 1.5rem 0 0;
+}
+.now-card {
+  padding: 1.3rem 1.4rem;
+  border-radius: 10px;
+  border: 1px solid var(--global-divider-color);
+  background: var(--global-bg-color);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(var(--global-theme-color-rgb), 0.4);
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    margin: 0.5rem 0 0.5rem;
+    color: var(--global-text-color);
+  }
+  p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    opacity: 0.78;
+    margin: 0;
   }
 }
 
-html[data-theme="dark"] {
-  .section-card {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-
-    &:hover {
-      border-color: rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.5);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-  }
-}
-
-/* Styled Lists with Custom Bullets - Only for content area */
+/* ---- Lists (content area only) ------------------------------------------- */
 .post,
 .about .post-content,
 article {
@@ -117,23 +193,22 @@ article {
 
     li {
       position: relative;
-      padding-left: 1.8rem;
-      margin-bottom: 0.8rem;
+      padding-left: 1.6rem;
+      margin-bottom: 0.7rem;
       line-height: 1.7;
 
       &::before {
-        content: "▸";
+        content: "›";
         position: absolute;
         left: 0;
         color: var(--global-theme-color);
-        font-weight: bold;
-        font-size: 1.2em;
+        font-weight: 700;
       }
     }
   }
 }
 
-/* Enhanced Link Styling - Only for content links, not navigation */
+/* ---- Content link underline animation ------------------------------------ */
 .post,
 .about,
 article {
@@ -147,22 +222,16 @@ article {
       bottom: -2px;
       left: 0;
       width: 0;
-      height: 2px;
+      height: 1.5px;
       background: var(--global-theme-color);
       transition: width 0.3s ease;
     }
 
-    &:hover {
-      text-decoration: none;
-
-      &::after {
-        width: 100%;
-      }
-    }
+    &:hover::after { width: 100%; }
   }
 }
 
-/* Ensure navigation items don't get custom arrows or underlines */
+/* keep nav clean */
 .navbar,
 .nav,
 .navbar-nav,
@@ -171,216 +240,160 @@ article {
   li {
     list-style: none;
     padding-left: 0;
-
-    &::before {
-      display: none !important;
-      content: none !important;
-    }
+    &::before { display: none !important; content: none !important; }
   }
-
-  a::after {
-    display: none !important;
-  }
+  a::after { display: none !important; }
 }
 
-/* Skills/Focus Areas with Tags */
+/* ---- Focus-area tags ----------------------------------------------------- */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
+  gap: 0.5rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
 
   .tag {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(
-      135deg,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.1),
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.05)
-    );
-    border: 1px solid rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.3);
-    border-radius: 20px;
-    font-size: 0.9rem;
+    padding: 0.4rem 0.85rem;
+    font-family: var(--mono-stack);
+    font-size: 0.8rem;
     font-weight: 500;
-    transition: all 0.3s ease;
+    letter-spacing: 0.01em;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 6px;
+    cursor: default;
+    transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
 
     &:hover {
-      transform: translateY(-2px);
-      background: var(--global-theme-color);
-      color: white;
-      box-shadow: 0 4px 12px rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.3);
+      border-color: var(--global-theme-color);
+      color: var(--global-theme-color);
+      background: rgba(var(--global-theme-color-rgb), 0.05);
     }
   }
 }
 
-/* Project Highlights with Better Spacing */
+/* ---- Project highlights -------------------------------------------------- */
 .project-highlight {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.03), rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.08));
-  border-radius: 12px;
-  border-left: 4px solid var(--global-theme-color);
-  transition: all 0.3s ease;
+  margin: 1rem 0;
+  padding: 1.2rem 1.4rem;
+  border-left: 2px solid rgba(var(--global-theme-color-rgb), 0.4);
+  transition: border-color 0.3s ease, padding-left 0.3s ease;
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.08),
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.12)
-    );
-    transform: translateX(5px);
+    border-left-color: var(--global-theme-color);
+    padding-left: 1.6rem;
   }
 
-  h3,
-  h4 {
-    margin-top: 0;
-    color: var(--global-theme-color);
-    font-weight: 600;
-  }
+  strong { color: var(--global-text-color); }
 }
 
-/* Social Icons Enhancement */
+/* ---- Callout ------------------------------------------------------------- */
+.callout-box {
+  padding: 1.3rem 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  border: 1px solid var(--global-divider-color);
+  background: rgba(var(--global-theme-color-rgb), 0.03);
+}
+
+/* ---- Social icons -------------------------------------------------------- */
 .social {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
 
   a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 45px;
-    height: 45px;
-    margin: 0 0.5rem;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    margin: 0 0.35rem;
+    border-radius: 10px;
     background: var(--global-bg-color);
-    border: 2px solid var(--global-divider-color);
-    transition: all 0.3s ease;
+    border: 1px solid var(--global-divider-color);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease;
 
     &:hover {
-      transform: translateY(-5px);
+      transform: translateY(-4px);
       background: var(--global-theme-color);
       border-color: var(--global-theme-color);
-      box-shadow: 0 8px 20px rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.3);
-
-      i {
-        color: white;
-      }
+      i { color: #fff; }
     }
-
-    &::after {
-      display: none; // Remove default underline animation
-    }
+    &::after { display: none; }
   }
 }
 
-/* Selected Papers Enhancement */
-.publications {
-  .bibliography {
-    li {
-      background: var(--global-card-bg-color, #fff);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
+/* ---- Publications + latest posts ----------------------------------------- */
+.publications .bibliography li {
+  background: var(--global-card-bg-color, #fff);
+  border-radius: 12px;
+  padding: 1.4rem;
+  margin-bottom: 1.4rem;
+  border: 1px solid var(--global-divider-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      }
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+  &::before { display: none; }
+}
+.latest-posts .post-item {
+  background: var(--global-card-bg-color, #fff);
+  border-radius: 12px;
+  padding: 1.4rem;
+  margin-bottom: 1.4rem;
+  border: 1px solid var(--global-divider-color);
+  border-left: 3px solid var(--global-theme-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-      &::before {
-        display: none; // Remove custom bullet for bibliography
-      }
-    }
+  &:hover {
+    transform: translateX(6px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
   }
 }
 
-/* Latest Posts Section */
-.latest-posts {
-  .post-item {
-    background: var(--global-card-bg-color, #fff);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-    border-left: 4px solid var(--global-theme-color);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateX(8px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
-  }
-}
-
-/* Responsive Design Enhancements */
-@media (max-width: 768px) {
-  .about .profile img {
-    margin-bottom: 2rem;
-  }
-
-  .tags-container {
-    justify-content: center;
-  }
-
-  .about h2::after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
-
-/* Smooth Animations */
+/* ---- Scroll reveal (progressive — only active when JS adds .has-reveal) --- */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animated-section { animation: fadeInUp 0.55s ease-out; }
+
+html.has-reveal .animated-section {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: none;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.has-reveal .animated-section.in-view {
+  opacity: 1;
+  transform: none;
 }
 
-.animated-section {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-/* Additional Dark Mode Enhancements */
-html[data-theme="dark"] {
-  .about .post-description {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.08) 0%,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.15) 100%
-    );
-    border-left-color: var(--global-theme-color);
-  }
-
-  .project-highlight {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.1),
-      rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.15)
-    );
-  }
-}
-
-/* Additional Personalization */
+/* ---- Helpers ------------------------------------------------------------- */
 .highlight-text {
   color: var(--global-theme-color);
   font-weight: 600;
 }
+html { scroll-behavior: smooth; }
 
-.callout-box {
-  background: linear-gradient(135deg, rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.05), rgba(var(--global-theme-color-rgb, 0, 118, 223), 0.1));
-  border-left: 4px solid var(--global-theme-color);
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 1.5rem 0;
+/* ---- Responsive ---------------------------------------------------------- */
+@media (max-width: 768px) {
+  .about .profile img { margin-bottom: 2rem; }
+  .now-grid { grid-template-columns: 1fr; }
+  .cred-row { flex-direction: column; }
+  .cred { border-right: none; border-bottom: 1px solid var(--global-divider-color); }
+  .cred:last-child { border-bottom: none; }
+  .hero-intro { font-size: 1.06rem; }
+  .section-card { padding: 1.5rem 1.3rem; }
 }
 
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
+/* ---- Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html.has-reveal .animated-section { opacity: 1; transform: none; transition: none; }
+  * { scroll-behavior: auto; }
 }

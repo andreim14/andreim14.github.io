@@ -225,6 +225,12 @@ defaults:
       path: "googlea2a501e9f13dfcbc.html"
     values:
       sitemap: false
+  # Template-placeholder demo projects — keep them out of the sitemap
+  - scope:
+      path: ""
+      type: projects
+    values:
+      sitemap: false
 
 sass:
   style: compressed
