@@ -174,26 +174,31 @@ article {
   }
 }
 
-/* ---- Content link underline animation ------------------------------------ */
+/* ---- Content links: highlight sweep + bolding underline ------------------ */
 .post,
 .about,
 article {
   a:not(.no-underline):not(.navbar-brand):not(.nav-link) {
+    color: var(--global-theme-color);
     text-decoration: none;
-    position: relative;
+    font-weight: 600;
+    padding: 0.05em 0.12em;
+    border-radius: 3px;
+    /* resting: thin accent underline drawn with a background gradient so it
+       can animate independently of the sweep highlight */
+    background-image:
+      linear-gradient(rgba(var(--global-theme-color-rgb), 0.14), rgba(var(--global-theme-color-rgb), 0.14)),
+      linear-gradient(var(--global-theme-color), var(--global-theme-color));
+    background-repeat: no-repeat;
+    background-size: 0% 100%, 100% 1.5px;
+    background-position: 0 0, 0 100%;
+    transition: background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
 
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 1.5px;
-      background: var(--global-theme-color);
-      transition: width 0.3s ease;
+    &:hover,
+    &:focus-visible {
+      color: var(--global-theme-color);
+      background-size: 100% 100%, 100% 2px; /* highlight fills, underline bolds */
     }
-
-    &:hover::after { width: 100%; }
   }
 }
 
