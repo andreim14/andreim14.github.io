@@ -1,2 +1,5 @@
 linkedin.com
 reddit.com
+# Valid links that block crawlers or 500 intermittently
+direct.mit.edu
+ubuntu.com
