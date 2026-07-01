@@ -50,6 +50,7 @@ Your app has 10,000 concurrent users during lunch rush. Each one opening the app
 PostgreSQL can handle maybe 150 of these geo-spatial queries per second on decent hardware. You need 830 queries per second. Your database is now 5.5x overloaded, CPU pinned at 100%, queries timing out, and users seeing that spinning loader that makes them switch to a competitor.
 
 The problem? [PostGIS calculations](https://postgis.net/docs/ST_Distance.html) are computationally expensive. For every single query, it's:
+
 - Calculating spherical distances (earth isn't flat, sorry)
 - Checking each of your 50,000 restaurants
 - Sorting by distance
@@ -72,6 +73,7 @@ Cache the hot queries in Redis. Not the data - the actual geo-spatial indexes.
 Redis has built-in [geo-spatial commands](https://redis.io/docs/latest/develop/data-types/geospatial/) (`GEOADD`, `GEORADIUS`) that are specifically designed for this. They pre-compute the indexes, store them in memory, and can serve 10,000+ geo queries per second on a single instance.
 
 Here's what changes:
+
 - **Response time**: 750ms → 12ms (62x faster)
 - **Database load**: 100% CPU → basically idle
 - **Concurrent users**: 150/sec limit → 10,000+/sec easily
@@ -106,11 +108,13 @@ The magic? Redis's `GEOADD` and `GEORADIUS` commands. They're specifically built
 ### How it Works in Practice
 
 When you save a restaurant to Redis through Beanis, it automatically:
+
 1. Creates a Redis hash with all the restaurant data
 2. Adds the location to a geo-spatial index (GEOADD under the hood)
 3. Creates sorted sets for your filters (cuisine, rating, price, etc.)
 
 When a user queries nearby restaurants:
+
 1. Redis GEORADIUS finds all restaurants within the radius (< 5ms)
 2. You filter by cuisine/rating using the sorted sets (< 2ms)
 3. You fetch the full documents and return them (< 5ms)
@@ -121,6 +125,7 @@ If Redis doesn't have the data (cache miss), you fall back to PostgreSQL, get th
 ### What You're Building
 
 This tutorial shows you how to:
+
 - Use Beanis's `GeoPoint` type to handle geo-spatial indexing automatically
 - Implement cache-first strategy with PostgreSQL fallback
 - Import real restaurant data from [OpenStreetMap](https://www.openstreetmap.org/)
@@ -302,19 +307,25 @@ That's it! Beanis will:
 I tested this with a real Paris dataset - 2,600+ restaurants imported from OpenStreetMap. Here's what actually happened (not theoretical numbers, actual measurements):
 
 ### Cold Start (First Query)
+
 PostgreSQL does its thing: 850ms to calculate distances and sort results. Then we cache those results in Redis (adds another 120ms). Total: ~970ms. Not great, but it only happens once per cache region.
 
 ### Warm Cache (Every Query After)
+
 PostgreSQL would still take 750ms every time (it has to recalculate everything). Redis? 12ms. Same query, 62x faster.
 
 ### With Filters
+
 Add a cuisine filter and minimum rating. PostgreSQL now takes 820ms (more work to do). Redis? 15ms. It's using pre-computed sorted sets for the filters, so barely any extra work.
 
 ### Smaller Dataset
+
 Tested with just 1,030 restaurants. PostgreSQL: 380ms (half the data, but still expensive calculations). Redis: 8ms.
 
 ### 100 Concurrent Users
+
 This is where it gets fun. Simulated 100 users each making 10 queries (1,000 total queries):
+
 - **PostgreSQL**: 75 seconds total. Database was struggling, CPU pinned, queries queuing up.
 - **Redis**: 1.2 seconds total. Basically instant.
 
@@ -424,6 +435,7 @@ GET /restaurants/nearby?lat=41.8902&lon=12.4922&radius=3&cuisine=italian&min_rat
 ### If the Cache is Warm (99% of requests)
 
 Your app hits Redis first. Behind the scenes, Beanis runs:
+
 1. `GEORADIUS` to find all restaurants within 3km (~4ms)
 2. Filters by cuisine using the sorted set (~1ms)
 3. Filters by rating using another sorted set (~1ms)

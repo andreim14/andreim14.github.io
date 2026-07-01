@@ -79,6 +79,7 @@ Pinecone makes sense if you're doing massive-scale vector search across billions
 But most apps don't need that. You've got maybe 10K-1M documents. You already run Redis. You're okay with self-hosting. And you really don't want another monthly bill.
 
 Here's what changes when you use Beanis + Redis instead:
+
 - **Setup**: No API keys, no account creation. Docker run and you're live.
 - **Code**: 50 lines instead of 100+. Beanis handles serialization, indexing, search - you just define models.
 - **Cost**: $0 if you're already running Redis. Pinecone starts at $70/month and scales from there.
@@ -276,12 +277,14 @@ Here's the thing: if you're running a modern web app, you're probably already us
 Now you can add vector search to that list. Same service, same monitoring, same deployment pipeline. No new infrastructure to learn.
 
 Before, your architecture looked like this:
+
 - Redis (caching and sessions)
 - PostgreSQL (user data)
 - Pinecone (vectors, $70+/month)
 - Your app
 
 After:
+
 - Redis (caching, sessions, AND vectors)
 - PostgreSQL (user data)
 - Your app

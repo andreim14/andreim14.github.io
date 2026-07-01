@@ -35,7 +35,7 @@ latest_posts:
 
 I build AI agents that hold up in production. At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
 
-Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually *mean* in context. That work landed at ACL 2024 and EMNLP 2025.
+Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and EMNLP 2025.
 
 </div>
 
@@ -92,7 +92,7 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
 
 **[LLM-OASIS](https://direct.mit.edu/coli/article/52/1/1/133509)** · Computational Linguistics 2026
 
-Co-first author on the largest resource for *end-to-end factuality evaluation*: can a system tell whether generated text is actually faithful to its sources, not just fluent? The grounding problem behind every agent I build now.
+Co-first author on the largest resource for _end-to-end factuality evaluation_: can a system tell whether generated text is actually faithful to its sources, not just fluent? The grounding problem behind every agent I build now.
 
 </div>
 
@@ -100,7 +100,7 @@ Co-first author on the largest resource for *end-to-end factuality evaluation*: 
 
 **Word Sense Linking** · ACL 2024
 
-Disambiguating word meaning on real, messy text, not just curated benchmarks. The hard part isn't the dictionary; it's deciding *which* sense a sentence actually triggers.
+Disambiguating word meaning on real, messy text, not just curated benchmarks. The hard part isn't the dictionary; it's deciding _which_ sense a sentence actually triggers.
 
 </div>
 

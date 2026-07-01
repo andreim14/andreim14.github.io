@@ -273,11 +273,13 @@ The entire Concept-pedia ecosystem is now available on Hugging Face, making it d
 We've released three fine-tuned SigLIP models and two comprehensive datasets:
 
 **Models (Vision-Language):**
+
 - `sapienzanlp/siglip-base-patch16-256-ft-concept-pedia` (0.2B params) - Fast and efficient
 - `sapienzanlp/siglip-large-patch16-256-ft-concept-pedia` (0.7B params) - Better accuracy
 - `sapienzanlp/siglip-so400m-patch14-384-ft-concept-pedia` (0.9B params) - Best performance
 
 **Datasets:**
+
 - `sapienzanlp/Concept-10k` - Text annotations and metadata (34.3K concepts)
 - `sapienzanlp/Concept-10k-imgs` - Full image dataset with visual content (4.26 GB)
 
@@ -598,6 +600,7 @@ Even our models struggle with extremely rare or ambiguous visual concepts. They'
 ### Integration with Popular Frameworks
 
 **LangChain Integration:**
+
 ```python
 from langchain.tools import Tool
 from transformers import AutoModel, AutoProcessor
@@ -624,6 +627,7 @@ def create_concept_classifier_tool():
 ```
 
 **FastAPI Endpoint:**
+
 ```python
 from fastapi import FastAPI, File, UploadFile
 from typing import List
@@ -675,10 +679,12 @@ async def classify_image(
 Everything is freely available for research and commercial use:
 
 **Hugging Face Resources:**
+
 - 🤗 Models: [sapienzanlp on Hugging Face](https://huggingface.co/sapienzanlp)
 - 🤗 Datasets: [Concept-10k](https://huggingface.co/datasets/sapienzanlp/Concept-10k) & [Concept-10k-imgs](https://huggingface.co/datasets/sapienzanlp/Concept-10k-imgs)
 
 **Paper:**
+
 - 📄 [ACL Anthology](https://aclanthology.org/2025.emnlp-main.1745/)
 - 📄 [Download PDF](https://aclanthology.org/2025.emnlp-main.1745.pdf)
 

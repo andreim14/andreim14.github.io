@@ -33,6 +33,7 @@ Together? You get stateful AI agents that actually work in production.
 ## What We're Building
 
 A RAG agent that:
+
 - Ingests documents from [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) (Stanford Question Answering Dataset)
 - Stores them in Redis with vector embeddings
 - Maintains conversation history across sessions
@@ -41,6 +42,7 @@ A RAG agent that:
 - Orchestrates everything with LangGraph
 
 **Input/Output Example:**
+
 ```
 INPUT:  "How many students are at Notre Dame?"
 OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
@@ -123,6 +125,7 @@ class ConversationHistory(Document):
 ```
 
 That's it. Beanis handles:
+
 - Serialization to Redis hashes
 - Vector index creation (`GEOADD` under the hood)
 - Type validation (via Pydantic)
@@ -167,6 +170,7 @@ async def ingest_data(api_key: str):
 ```
 
 **Why Beanis saves you time here:**
+
 - **Without Beanis**: 15+ lines to manually construct Redis keys, serialize embeddings to bytes, create HNSW index with `FT.CREATE`, handle errors
 - **With Beanis**: 1 line - `await doc.insert()` - everything happens automatically
 - Vector indexes are created on first insert, no manual `FT.CREATE` commands
@@ -386,6 +390,7 @@ OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
 ```
 
 That's it. The agent:
+
 1. Retrieves relevant docs from Redis (vector search)
 2. Loads conversation history from Redis
 3. Generates response with context
@@ -591,6 +596,7 @@ python main.py
 ```
 
 The example includes:
+
 - Data ingestion from SQuAD dataset
 - Full RAG agent with conversation memory
 - Interactive CLI
@@ -599,6 +605,7 @@ The example includes:
 ## When to Use This Stack
 
 **Good fit:**
+
 - You need stateful agents (conversation history, multi-step workflows)
 - You want semantic search over documents
 - You're already using Redis (or willing to)
@@ -606,6 +613,7 @@ The example includes:
 - You need to scale horizontally
 
 **Not a fit:**
+
 - Simple single-turn Q&A (just use LangChain directly)
 - You need on-device embedding (Redis is server-side)
 - Your documents don't fit in Redis memory (use a disk-based vector DB)
@@ -623,22 +631,26 @@ Everything is on [GitHub](https://github.com/andreim14/beanis-examples/tree/main
 ## Resources
 
 ### Documentation
+
 - [Beanis Documentation](https://andreim14.github.io/beanis/) - Redis ODM with vector search
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Agent orchestration framework
 - [LangChain Python](https://python.langchain.com/docs/introduction/) - LLM application framework
 
 ### Redis & Vector Search
+
 - [Redis Vector Similarity Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/vector-search/) - How Redis handles vector indexes
 - [Redis Full-Text Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/) - Keyword search in Redis
 - [Redis HNSW Algorithm](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/) - Vector indexing details
 
 ### Embeddings & Datasets
+
 - [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings) - text-embedding-3-small and alternatives
 - [OpenAI Embedding Models Comparison](https://platform.openai.com/docs/guides/embeddings) - Performance vs cost tradeoffs
 - [SQuAD Dataset](https://huggingface.co/datasets/rajpurkar/squad) - Stanford Question Answering Dataset
 - [Hugging Face Datasets](https://huggingface.co/docs/datasets/) - 50,000+ datasets for ML
 
 ### Related Articles
+
 - [Build RAG in 50 Lines with Redis + Beanis](/2025/10/24/build-rag-50-lines-beanis-redis.html) - Simpler RAG intro
 - [Redis Geo-Spatial Caching](/2025/10/30/building-restaurant-finder-redis-geopoints.html) - Location-based search with Redis
 

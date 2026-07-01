@@ -43,7 +43,9 @@ html[data-theme="dark"] .bg-grid {
     border-radius: 6px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--global-divider-color);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.4s ease;
 
     &:hover {
       transform: translateY(-5px);
@@ -80,7 +82,9 @@ article .post-title {
   font-weight: 700;
   letter-spacing: -0.02em;
 }
-.about .eyebrow + h2 { margin-top: 0.35rem; }
+.about .eyebrow + h2 {
+  margin-top: 0.35rem;
+}
 
 /* ---- Hero intro ---------------------------------------------------------- */
 .hero-intro {
@@ -105,7 +109,9 @@ article .post-title {
   margin-bottom: 2.4rem;
   border: 1px solid var(--global-divider-color);
   background: rgba(var(--global-theme-color-rgb), 0.015);
-  transition: border-color 0.3s ease, box-shadow 0.4s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.4s ease;
 
   &:hover {
     border-color: rgba(var(--global-theme-color-rgb), 0.28);
@@ -114,7 +120,9 @@ article .post-title {
 }
 html[data-theme="dark"] .section-card {
   background: rgba(255, 255, 255, 0.015);
-  &:hover { box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4); }
+  &:hover {
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* ---- "What I'm building" grid -------------------------------------------- */
@@ -129,7 +137,9 @@ html[data-theme="dark"] .section-card {
   border-radius: 10px;
   border: 1px solid var(--global-divider-color);
   background: var(--global-bg-color);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
 
   &:hover {
     transform: translateY(-4px);
@@ -187,18 +197,25 @@ article {
     border-radius: 3px;
     /* resting: thin accent underline drawn with a background gradient so it
        can animate independently of the sweep highlight */
-    background-image:
-      linear-gradient(rgba(var(--global-theme-color-rgb), 0.14), rgba(var(--global-theme-color-rgb), 0.14)),
+    background-image: linear-gradient(rgba(var(--global-theme-color-rgb), 0.14), rgba(var(--global-theme-color-rgb), 0.14)),
       linear-gradient(var(--global-theme-color), var(--global-theme-color));
     background-repeat: no-repeat;
-    background-size: 0% 100%, 100% 1.5px;
-    background-position: 0 0, 0 100%;
-    transition: background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+    background-size:
+      0% 100%,
+      100% 1.5px;
+    background-position:
+      0 0,
+      0 100%;
+    transition:
+      background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.3s ease;
 
     &:hover,
     &:focus-visible {
       color: var(--global-theme-color);
-      background-size: 100% 100%, 100% 2px; /* highlight fills, underline bolds */
+      background-size:
+        100% 100%,
+        100% 2px; /* highlight fills, underline bolds */
     }
   }
 }
@@ -225,9 +242,14 @@ article .publications a {
   li {
     list-style: none;
     padding-left: 0;
-    &::before { display: none !important; content: none !important; }
+    &::before {
+      display: none !important;
+      content: none !important;
+    }
   }
-  a::after { display: none !important; }
+  a::after {
+    display: none !important;
+  }
 }
 
 /* ---- Focus-area tags ----------------------------------------------------- */
@@ -249,7 +271,10 @@ article .publications a {
     border: 1px solid var(--global-divider-color);
     border-radius: 6px;
     cursor: default;
-    transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease,
+      background 0.25s ease;
 
     &:hover {
       border-color: var(--global-theme-color);
@@ -264,14 +289,18 @@ article .publications a {
   margin: 1rem 0;
   padding: 1.2rem 1.4rem;
   border-left: 2px solid rgba(var(--global-theme-color-rgb), 0.4);
-  transition: border-color 0.3s ease, padding-left 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    padding-left 0.3s ease;
 
   &:hover {
     border-left-color: var(--global-theme-color);
     padding-left: 1.6rem;
   }
 
-  strong { color: var(--global-text-color); }
+  strong {
+    color: var(--global-text-color);
+  }
 }
 
 /* ---- Callout ------------------------------------------------------------- */
@@ -299,15 +328,22 @@ article .publications a {
     border-radius: 10px;
     background: var(--global-bg-color);
     border: 1px solid var(--global-divider-color);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease;
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      background 0.3s ease;
 
     &:hover {
       transform: translateY(-4px);
       background: var(--global-theme-color);
       border-color: var(--global-theme-color);
-      i { color: #fff; }
+      i {
+        color: #fff;
+      }
     }
-    &::after { display: none; }
+    &::after {
+      display: none;
+    }
   }
 }
 
@@ -318,13 +354,17 @@ article .publications a {
   padding: 1.4rem;
   margin-bottom: 1.4rem;
   border: 1px solid var(--global-divider-color);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
-  &::before { display: none; }
+  &::before {
+    display: none;
+  }
 }
 .latest-posts .post-item {
   background: var(--global-card-bg-color, #fff);
@@ -333,7 +373,9 @@ article .publications a {
   margin-bottom: 1.4rem;
   border: 1px solid var(--global-divider-color);
   border-left: 3px solid var(--global-theme-color);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   &:hover {
     transform: translateX(6px);
@@ -343,16 +385,26 @@ article .publications a {
 
 /* ---- Scroll reveal (progressive — only active when JS adds .has-reveal) --- */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animated-section { animation: fadeInUp 0.55s ease-out; }
+.animated-section {
+  animation: fadeInUp 0.55s ease-out;
+}
 
 html.has-reveal .animated-section {
   opacity: 0;
   transform: translateY(24px);
   animation: none;
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.has-reveal .animated-section.in-view {
   opacity: 1;
@@ -364,18 +416,34 @@ html.has-reveal .animated-section.in-view {
   color: var(--global-theme-color);
   font-weight: 600;
 }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 /* ---- Responsive ---------------------------------------------------------- */
 @media (max-width: 768px) {
-  .about .profile img { margin-bottom: 2rem; }
-  .now-grid { grid-template-columns: 1fr; }
-  .hero-intro { font-size: 1.06rem; }
-  .section-card { padding: 1.5rem 1.3rem; }
+  .about .profile img {
+    margin-bottom: 2rem;
+  }
+  .now-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-intro {
+    font-size: 1.06rem;
+  }
+  .section-card {
+    padding: 1.5rem 1.3rem;
+  }
 }
 
 /* ---- Reduced motion ------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
-  html.has-reveal .animated-section { opacity: 1; transform: none; transition: none; }
-  * { scroll-behavior: auto; }
+  html.has-reveal .animated-section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  * {
+    scroll-behavior: auto;
+  }
 }
