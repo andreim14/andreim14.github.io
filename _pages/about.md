@@ -90,6 +90,14 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
 
 <div class="project-highlight" markdown="1">
 
+**[LLM-OASIS](https://direct.mit.edu/coli/article/52/1/1/133509)** · Computational Linguistics 2026
+
+Co-first author on the largest resource for *end-to-end factuality evaluation*: can a system tell whether generated text is actually faithful to its sources, not just fluent? The grounding problem behind every agent I build now.
+
+</div>
+
+<div class="project-highlight" markdown="1">
+
 **Word Sense Linking** · ACL 2024
 
 Disambiguating word meaning on real, messy text, not just curated benchmarks. The hard part isn't the dictionary; it's deciding *which* sense a sentence actually triggers.
