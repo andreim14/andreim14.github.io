@@ -61,7 +61,7 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
   <div class="now-card">
     <div class="now-kicker">protocol</div>
     <h3>MCP &amp; tool execution</h3>
-    <p>Building Model Context Protocol servers and a sandboxed code-interpreter agent, so agents can run code and call real tools safely, with the human still in the loop.</p>
+    <p>Building Model Context Protocol servers, and running agent-written code in sandboxed environments so agents can read, transform and generate complex files, then call real tools safely with the human still in the loop.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">human-in-loop</div>
