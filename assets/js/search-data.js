@@ -23,66 +23,73 @@ ninja.data = [{
           handler: () => {
             window.location.href = "/publications/";
           },
-        },{id: "post-build-stateful-ai-agents-with-langgraph-beanis-rag-with-memory-in-200-lines",
+        },{id: "nav-open-source",
+          title: "open source",
+          description: "Code I maintain in the open: a typed Redis ODM, and the research systems behind my papers.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/repositories/";
+          },
+        },{id: "post-stateful-ai-agents-with-langgraph-and-beanis-rag-with-persistent-memory-on-redis",
       
-        title: "Build Stateful AI Agents with LangGraph + Beanis: RAG with Memory in 200...",
+        title: "Stateful AI Agents with LangGraph and Beanis: RAG with Persistent Memory on Redis...",
       
-      description: "Stop fighting with agent state management. Build production-ready AI agents with LangGraph for orchestration and Beanis for persistent memory and vector search - all backed by Redis",
+      description: "A tutorial on building a stateful RAG agent with LangGraph for orchestration and Beanis for persistent memory and vector search, all backed by Redis, in about 200 lines of Python.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/build-ai-agents-langgraph-beanis/";
         
       },
-    },{id: "post-concept-pedia-breaking-free-from-imagenet-39-s-shadow-in-multimodal-ai",
+    },{id: "post-concept-pedia-a-multimodal-concept-dataset-and-benchmark-beyond-imagenet-emnlp-2025",
       
-        title: "Concept-pedia: Breaking Free from ImageNet&#39;s Shadow in Multimodal AI",
+        title: "Concept-pedia: A Multimodal Concept Dataset and Benchmark Beyond ImageNet (EMNLP 2025)",
       
-      description: "Concept-pedia is a massive multimodal dataset with 165K+ semantically-annotated concepts on Hugging Face. Learn how to use SigLIP models fine-tuned on Concept-10k for zero-shot visual classification beyond ImageNet. Includes Python code examples, dataset guide, and practical integration tutorials.",
+      description: "Concept-pedia is a wide-coverage, semantically-annotated multimodal dataset of 165K+ visual concepts built on BabelNet, with the Concept-10k benchmark and SigLIP models on Hugging Face for evaluating vision-language models beyond ImageNet.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/concept-pedia-emnlp-2025/";
         
       },
-    },{id: "post-using-redis-as-a-geo-spatial-cache-building-a-restaurant-finder-with-beanis",
+    },{id: "post-redis-geo-spatial-cache-build-a-restaurant-finder-with-beanis-and-postgresql",
       
-        title: "Using Redis as a Geo-Spatial Cache: Building a Restaurant Finder with Beanis",
+        title: "Redis Geo-Spatial Cache: Build a Restaurant Finder with Beanis and PostgreSQL",
       
-      description: "Learn how to use Redis/Beanis as a lightning-fast cache layer for geo-spatial queries, with PostgreSQL as your source of truth and OpenStreetMap as your data source",
+      description: "How to use Redis (via the Beanis ODM) as a geo-spatial cache in front of PostgreSQL/PostGIS, with OpenStreetMap data, to serve nearby-restaurant queries in about 12ms.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/building-restaurant-finder-redis-geopoints/";
         
       },
-    },{id: "post-word-sense-linking-making-nlp-understand-what-you-really-mean",
+    },{id: "post-word-sense-linking-word-sense-disambiguation-on-real-text-acl-2024",
       
-        title: "Word Sense Linking: Making NLP Understand What You Really Mean",
+        title: "Word Sense Linking: Word Sense Disambiguation on Real Text (ACL 2024)",
       
-      description: "Our ACL 2024 paper introduces Word Sense Linking - automatic disambiguation that works on real text, not just sandboxed examples. Learn how to use it.",
+      description: "Word Sense Linking (WSL) is a model that finds the ambiguous words in raw text and links each to its correct WordNet sense, no pre-marked spans or candidate lists required. Published at ACL 2024 (Findings) by Babelscape and Sapienza. Includes the model, results, and Python usage.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/word-sense-linking-acl-2024/";
         
       },
-    },{id: "post-build-a-rag-system-in-50-lines-with-redis-beanis-no-vector-db-needed",
+    },{id: "post-rag-with-redis-and-beanis-build-vector-search-in-50-lines-no-separate-vector-db",
       
-        title: "Build a RAG System in 50 Lines with Redis + Beanis (No Vector...",
+        title: "RAG with Redis and Beanis: Build Vector Search in ~50 Lines (No Separate...",
       
-      description: "Stop paying for Pinecone. If you already use Redis, you already have a vector database. Build production RAG in 50 lines of Python.",
+      description: "Build a RAG pipeline in about 50 lines of Python using Redis vector search and the Beanis ODM, without adding a separate vector database like Pinecone.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/build-rag-50-lines-beanis-redis/";
         
       },
-    },{id: "post-beanis-stop-fighting-redis-start-building-with-it",
+    },{id: "post-beanis-a-typed-redis-odm-for-python-with-pydantic-v2",
       
-        title: "Beanis: Stop Fighting Redis, Start Building with It",
+        title: "Beanis: A Typed Redis ODM for Python with Pydantic v2",
       
-      description: "How I built a Redis ODM that makes working with Redis feel like magic - cutting boilerplate by 70% while keeping performance within 8% of raw Redis",
+      description: "Beanis is an async, Pydantic v2 object-document mapper for vanilla Redis. It cuts serialization boilerplate by about 70% and stays within roughly 8% of raw redis-py performance.",
       section: "Posts",
       handler: () => {
         
