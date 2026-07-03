@@ -737,4 +737,4 @@ If you use Concept-pedia in your research, please cite our paper:
 
 _Published at EMNLP 2025 - Conference on Empirical Methods in Natural Language Processing, Suzhou, China_
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_

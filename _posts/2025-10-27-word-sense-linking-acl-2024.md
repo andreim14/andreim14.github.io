@@ -467,4 +467,4 @@ If you use Word Sense Linking in your research or applications, please cite our 
 
 _Published at ACL 2024 (Findings) - Association for Computational Linguistics, Bangkok, Thailand_
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_

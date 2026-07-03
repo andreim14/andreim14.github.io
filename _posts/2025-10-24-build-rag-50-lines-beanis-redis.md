@@ -445,4 +445,4 @@ In the next post, I'll show you how to build a **multimodal RAG system** that se
 
 ---
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_

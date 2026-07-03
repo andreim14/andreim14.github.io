@@ -904,4 +904,4 @@ Happy coding! 🚀
 
 _Beanis is inspired by [Beanie](https://github.com/roman-right/beanie) by Roman Right. Standing on the shoulders of giants._
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_

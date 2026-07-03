@@ -656,4 +656,4 @@ Everything is on [GitHub](https://github.com/andreim14/beanis-examples/tree/main
 
 ---
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [SylloTips](https://syllotips.com)_
+_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_
