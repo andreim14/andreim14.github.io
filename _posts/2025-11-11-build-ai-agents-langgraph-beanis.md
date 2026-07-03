@@ -1,47 +1,27 @@
 ---
 layout: post
-title: "Build Stateful AI Agents with LangGraph + Beanis: RAG with Memory in 200 Lines"
+title: "Stateful AI Agents with LangGraph and Beanis: RAG with Persistent Memory on Redis"
 date: 2025-11-11 08:00:00
-description: "Stop fighting with agent state management. Build production-ready AI agents with LangGraph for orchestration and Beanis for persistent memory and vector search - all backed by Redis"
-tags: python langgraph beanis redis AI agents RAG vector-search state-management
+description: "A tutorial on building a stateful RAG agent with LangGraph for orchestration and Beanis for persistent memory and vector search, all backed by Redis, in about 200 lines of Python."
+tags: python langgraph beanis redis rag vector-search
 categories: tutorials
 giscus_comments: true
-related_posts: false
+related_posts: true
 thumbnail: assets/img/langgraph-beanis.png
-keywords: LangGraph, Beanis, Redis, AI agents, RAG, state management, vector search, conversation memory, agent orchestration, Python AI, stateful agents
+keywords: LangGraph, Beanis, Redis, AI agents, RAG, vector search, conversation memory, agent orchestration, stateful agents
 author: Andrei Stefan Bejgu
 ---
 
-## The Problem: Agent State is a Mess
+## TL;DR
 
-You're building an AI agent. Not just a simple chatbot - a real agent that needs to remember conversations, search through knowledge bases, and maintain state across multiple steps.
+A **stateful RAG agent** is an agent that retrieves documents, remembers past turns, and keeps its state across restarts instead of starting fresh on every request. This tutorial builds one with [LangGraph](https://langchain-ai.github.io/langgraph/) for orchestration and [Beanis](https://andreim14.github.io/beanis/), a Redis-backed ODM with vector search, for memory and storage.
 
-Here's what usually happens: You start with a simple script. Then you need conversation history. So you add a list. Then you need to search documents. So you add another data structure. Then you need to persist state across restarts. So you add a database. Then you realize your code is a tangled mess of state management, database calls, and business logic all mixed together.
-
-Sound familiar?
-
-## The Solution: LangGraph + Beanis
-
-Here's a better approach: use [LangGraph](https://langchain-ai.github.io/langgraph/) for agent orchestration and [Beanis](https://andreim14.github.io/beanis/) for state management and vector storage.
-
-**LangGraph** gives you a clean way to define agent workflows as graphs. Each step is a node. State flows between nodes. You can visualize it, debug it, and modify it without rewriting everything.
-
-**Beanis** gives you a Redis-backed ODM (Object Document Mapper) with built-in vector search. Store documents, embeddings, conversation history, and agent state in Redis with a clean Python API. No manual serialization, no key management headaches.
-
-Together? You get stateful AI agents that actually work in production.
-
-## What We're Building
-
-A RAG agent that:
-
-- Ingests documents from [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) (Stanford Question Answering Dataset)
-- Stores them in Redis with vector embeddings
-- Maintains conversation history across sessions
-- Retrieves relevant context using semantic search
-- Generates responses using OpenAI
-- Orchestrates everything with LangGraph
-
-**Input/Output Example:**
+- **Stack:** LangGraph (workflow graph) + Beanis (Redis ODM + vector search) + OpenAI (embeddings and generation)
+- **What it does:** ingests documents, stores embeddings in Redis, retrieves context by semantic search, keeps conversation history, generates answers
+- **Data:** 100 passages from the [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad)
+- **Size:** about 200 lines of Python
+- **Code:** [github.com/andreim14/beanis-examples](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent)
+- **Docs:** [Beanis](https://andreim14.github.io/beanis/), [LangGraph](https://langchain-ai.github.io/langgraph/)
 
 ```
 INPUT:  "How many students are at Notre Dame?"
@@ -49,7 +29,34 @@ OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
         [Retrieved 3 relevant documents from 100 stored]
 ```
 
-The complete code is ~200 lines. And it actually works.
+## The problem: agent state gets messy fast
+
+A real agent, not just a single-turn chatbot, needs to remember conversations, search a knowledge base, and hold state across multiple steps.
+
+The usual progression: you start with a script. Then you need conversation history, so you add a list. Then you need document search, so you add another structure. Then you need state to survive a restart, so you add a database. By the end, state management, database calls, and business logic are tangled together in the same functions.
+
+The fix is to separate the two concerns. LangGraph owns the orchestration. Beanis owns the state and storage.
+
+## Why LangGraph plus Beanis
+
+**LangGraph** lets you define an agent workflow as a graph. Each step is a node, state flows between nodes, and you can visualize, debug, and modify the flow without rewriting everything.
+
+**Beanis** is a Redis-backed ODM (Object Document Mapper) with built-in vector search. You store documents, embeddings, conversation history, and agent state in Redis through a Python API, with no manual serialization and no key management.
+
+Together they give you stateful agents whose memory persists in Redis, which you are likely already running.
+
+## What we are building
+
+A RAG agent that:
+
+- Ingests documents from the [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) (Stanford Question Answering Dataset)
+- Stores them in Redis with vector embeddings
+- Maintains conversation history across sessions
+- Retrieves relevant context using semantic search
+- Generates responses with OpenAI
+- Orchestrates every step with LangGraph
+
+The complete code is about 200 lines.
 
 ## Architecture
 
@@ -81,11 +88,11 @@ User Query
 └─────────────────────────────────────┘
 ```
 
-Each node runs independently. State flows through the graph. If a node fails, you can retry it. Want to add a new step? Add a node and wire it up. No spaghetti code.
+Each node runs independently and state flows through the graph. If a node fails, you can retry it. To add a step, add a node and wire it up.
 
-## Step 1: Define Your Data Models
+## Step 1: Define your data models
 
-With Beanis, you define models like Pydantic classes. The magic? Vector fields and automatic indexing.
+With Beanis you define models like Pydantic classes. The additions are vector fields and automatic indexing.
 
 ```python
 from beanis import Document, VectorField
@@ -124,14 +131,14 @@ class ConversationHistory(Document):
         name = "conversations"
 ```
 
-That's it. Beanis handles:
+Beanis handles the rest:
 
 - Serialization to Redis hashes
 - Vector index creation (`GEOADD` under the hood)
 - Type validation (via Pydantic)
 - Async operations
 
-## Step 2: Ingest Data
+## Step 2: Ingest data
 
 Load data from the [SQuAD dataset](https://huggingface.co/datasets/rajpurkar/squad) and store it in Redis:
 
@@ -169,18 +176,16 @@ async def ingest_data(api_key: str):
         await doc.insert()  # One line: saves to Redis + creates vector index
 ```
 
-**Why Beanis saves you time here:**
+What Beanis removes here:
 
-- **Without Beanis**: 15+ lines to manually construct Redis keys, serialize embeddings to bytes, create HNSW index with `FT.CREATE`, handle errors
-- **With Beanis**: 1 line - `await doc.insert()` - everything happens automatically
-- Vector indexes are created on first insert, no manual `FT.CREATE` commands
-- Embeddings are automatically serialized to FLOAT32 binary format for Redis
+- **Manual Redis:** roughly 15 lines to construct keys, serialize embeddings to bytes, create the HNSW index with `FT.CREATE`, and handle errors
+- **With Beanis:** one line, `await doc.insert()`
+- Vector indexes are created on first insert, with no manual `FT.CREATE`
+- Embeddings are serialized to FLOAT32 binary format automatically
 
-Run this once, and you've got 100 documents with embeddings in Redis, ready for semantic search.
+Run it once and you have 100 documents with embeddings in Redis, ready for semantic search.
 
-## Step 3: Build the LangGraph Agent
-
-Now for the interesting part - the agent workflow:
+## Step 3: Build the LangGraph agent
 
 ```python
 from langgraph.graph import StateGraph, END
@@ -225,11 +230,11 @@ class RAGAgent:
         return workflow.compile()
 ```
 
-Clean, right? Each node is a method. State flows through the graph. Want to add a fact-checking step? Add a node between `generate_response` and `save_history`. Want to run multiple retrievers in parallel? Make multiple entry points and combine results in a merge node.
+Each node is a method and state flows through the graph. To add a fact-checking step, add a node between `generate_response` and `save_history`. To run multiple retrievers in parallel, set multiple entry points and combine results in a merge node.
 
-## Step 4: Implement the Nodes
+## Step 4: Implement the nodes
 
-### Vector Search Node
+### Vector search node
 
 ```python
 async def _retrieve_context(self, state: RAGAgentState) -> RAGAgentState:
@@ -266,9 +271,9 @@ async def _retrieve_context(self, state: RAGAgentState) -> RAGAgentState:
     }
 ```
 
-Beanis handles the Redis `FT.SEARCH` commands for you. You just call `find_by_vector_similarity` and get results. No manual index management, no raw Redis commands.
+Beanis issues the Redis `FT.SEARCH` commands for you. You call `find_by_vector_similarity` and get results back, with no manual index management and no raw Redis commands.
 
-### Conversation History Node
+### Conversation history node
 
 ```python
 async def _load_conversation_history(self, state: RAGAgentState) -> RAGAgentState:
@@ -289,9 +294,9 @@ async def _load_conversation_history(self, state: RAGAgentState) -> RAGAgentStat
     return {**state, "conversation_history": conversation_history}
 ```
 
-This is just querying Redis, but Beanis makes it look like an ORM. Filter by session_id, sort by timestamp, limit results. Clean API, no manual key construction.
+This is a Redis query behind an ORM-style API: filter by `session_id`, sort by timestamp, limit results, no manual key construction.
 
-### Generation Node
+### Generation node
 
 ```python
 async def _generate_response(self, state: RAGAgentState) -> RAGAgentState:
@@ -318,9 +323,9 @@ Answer based on this context: {state["retrieved_context"]}""")
     return {**state, "final_response": response.content}
 ```
 
-Standard LangChain stuff. The key is that state flows naturally through the graph.
+Standard LangChain generation, with state flowing through the graph.
 
-### Persistence Node
+### Persistence node
 
 ```python
 async def _save_conversation(self, state: RAGAgentState) -> RAGAgentState:
@@ -346,9 +351,9 @@ async def _save_conversation(self, state: RAGAgentState) -> RAGAgentState:
     return state
 ```
 
-Two inserts. That's it. Beanis handles serialization, timestamp generation, everything.
+Two inserts. Beanis handles serialization and timestamp generation.
 
-## Step 5: Use the Agent
+## Step 5: Use the agent
 
 ```python
 # Initialize
@@ -370,7 +375,7 @@ print(result["response"])
 # Output: "The university mentioned is the University of Notre Dame."
 ```
 
-**Real Examples from the SQuAD Dataset:**
+Examples from the SQuAD data:
 
 ```
 INPUT:  "Tell me about education"
@@ -389,30 +394,20 @@ OUTPUT: "In 2014, the Notre Dame student body consisted of 12,179 students."
         [Vector search: 27x faster than naive Python comparison]
 ```
 
-That's it. The agent:
+On each query the agent retrieves docs from Redis by vector search, loads conversation history, generates a response with context, then saves everything back. State is persistent: restart the app and history is still there; run multiple instances and they share the same Redis.
 
-1. Retrieves relevant docs from Redis (vector search)
-2. Loads conversation history from Redis
-3. Generates response with context
-4. Saves everything back to Redis
+## Why this approach works
 
-All state is persistent. Restart your app? History is still there. Scale horizontally? Multiple instances share the same Redis.
+### LangGraph
 
-## Why This Approach Works
+- **Visualizable workflow:** the agent logic is a graph you can draw, hand to a new teammate, or trace when debugging.
+- **Easy to extend:** add a node for a fact-checking step, parallel entry points for multi-source retrieval, or conditional edges for branching logic.
+- **Stateful by design:** LangGraph manages state flow between nodes, so no global variables and no dictionaries threaded through ten functions.
+- **Error handling:** retry a failed node, and checkpoint state with built-in support.
 
-### LangGraph Benefits
+### Beanis
 
-**Clear workflow visualization**: You can literally draw your agent's logic as a graph. New team member? Show them the graph. Debugging? Trace through the graph.
-
-**Easy to extend**: Want to add a fact-checking step? Add a node. Want parallel retrieval from multiple sources? Add parallel entry points. Want conditional logic? Add conditional edges.
-
-**Stateful by design**: LangGraph manages state flow between nodes. No global variables, no passing dictionaries through 10 functions.
-
-**Error handling**: Node failed? Retry it. Want to checkpoint state? Built-in support.
-
-### Beanis Benefits
-
-**Fewer lines, less complexity**: Compare the approaches:
+**Fewer lines.** Compare the two paths:
 
 ```python
 # Without Beanis (manual Redis):
@@ -444,25 +439,19 @@ await doc.insert()
 # Total: 2 lines, indexes created automatically
 ```
 
-**No key management**: You define models. Beanis generates Redis keys. Update a document? Beanis updates the right hash and indexes.
+- **No key management:** you define models, Beanis generates the Redis keys and updates the right hash and indexes on write.
+- **Vector search included:** call `find_by_vector_similarity` instead of writing raw `FT.SEARCH` commands.
+- **Type safety:** Pydantic validation runs before data hits Redis.
+- **Async native:** no blocking calls, no thread pools.
+- **Just Redis:** no RedisJSON module required. Works with vanilla Redis or Redis Stack.
 
-**Vector search included**: Other Redis libraries? You're writing raw `FT.SEARCH` commands. Beanis? Call `find_by_vector_similarity`.
+Together you get stateful agents with persistent memory, vector search, and clean orchestration, all backed by Redis.
 
-**Type safety**: Pydantic validation on all fields. Try to insert invalid data? Fails before hitting Redis.
+## Real-world extensions
 
-**Async native**: Everything is async. No blocking calls, no thread pools.
+### Parallel retrieval
 
-**Just Redis**: No RedisJSON module needed. No RediSearch setup (though it uses it). Works with vanilla Redis or Redis Stack.
-
-### Together
-
-You get stateful agents with persistent memory, vector search, and clean orchestration. All backed by Redis, which you're probably already running.
-
-## Real-World Extensions
-
-### Parallel Retrieval
-
-Run multiple search strategies simultaneously for better results:
+Run multiple search strategies at once:
 
 ```python
 # Add multiple retrieval nodes
@@ -496,9 +485,9 @@ async def _combine_results(self, state):
     return {**state, "combined_docs": unique_docs[:5]}
 ```
 
-LangGraph handles parallel execution automatically. This hybrid approach (semantic + keyword) often beats pure vector search, especially for technical terms or proper nouns. Learn more about [Redis full-text search](https://redis.io/docs/latest/develop/interact/search-and-query/query/).
+LangGraph handles the parallel execution. A hybrid of semantic and keyword search often beats pure vector search, especially for technical terms and proper nouns. See [Redis full-text search](https://redis.io/docs/latest/develop/interact/search-and-query/query/).
 
-### Conditional Logic
+### Conditional logic
 
 Add decision points:
 
@@ -519,9 +508,9 @@ workflow.add_conditional_edges(
 )
 ```
 
-Route based on state.
+Routes based on state.
 
-### Agent Checkpointing
+### Agent checkpointing
 
 Save intermediate state:
 
@@ -542,34 +531,32 @@ async def _checkpoint_state(self, state):
     await checkpoint.insert()
 ```
 
-Restart from any point.
+Resume from any point.
 
-## Performance Notes
+## Performance notes
 
-Benchmarked on M1 Mac with 100 documents:
+Benchmarked on an M1 Mac with 100 documents:
 
-- **Vector search**: 10-20ms (Redis in-memory)
-- **History load**: 5ms (indexed by session_id)
-- **LLM call**: 500-800ms (OpenAI API latency)
-- **Total per query**: ~1 second
+| Operation       | Time                           |
+| --------------- | ------------------------------ |
+| Vector search   | 10-20ms (Redis in-memory)      |
+| History load    | 5ms (indexed by session_id)    |
+| LLM call        | 500-800ms (OpenAI API latency) |
+| Total per query | ~1 second                      |
 
-The Redis operations are negligible. The bottleneck is the LLM call, which is unavoidable.
+The Redis operations are negligible; the LLM call is the bottleneck and is unavoidable.
 
-**Memory**: ~4KB per document with embeddings. 100 docs = ~400KB. 10K docs = ~40MB. Redis can easily handle millions.
+**Memory:** about 4KB per document with embeddings. 100 docs is about 400KB, 10K docs is about 40MB. Redis handles millions.
 
-## Common Pitfalls
+## Common pitfalls
 
-**Forgetting to initialize Beanis**: You need to call `init_beanis()` before using document models. Do it once at app startup.
+- **Forgetting to initialize Beanis.** Call `init_beanis()` once at app startup before using any document models.
+- **Wrong embedding dimensions.** Your `VectorField(dimensions=...)` must match your embedding model. OpenAI `text-embedding-3-small` is 1536 dimensions.
+- **Mixing sync and async.** Everything in Beanis and LangGraph is async. Use `await` and run inside `asyncio.run()`.
+- **Loading too much history.** For long conversations, cap what you load. Passing 100 messages to the LLM is slow and expensive.
+- **Vector search returning nothing.** Embed the query with the same model you used for the documents. A different model means a different vector space and no matches.
 
-**Wrong embedding dimensions**: Make sure your `VectorField(dimensions=...)` matches your embedding model. OpenAI text-embedding-3-small is 1536 dimensions.
-
-**Not handling async properly**: Everything in Beanis and LangGraph is async. Use `await`, run in `asyncio.run()`, don't mix sync and async.
-
-**Stale conversation history**: If your conversations get really long, limit what you load. Don't pass 100 messages to the LLM - it's expensive and slow.
-
-**Vector search returning nothing**: Your query needs to be embedded with the same model you used for documents. Different model = different vector space = no matches.
-
-## Try It Yourself
+## Run it yourself
 
 Full working example: [github.com/andreim14/beanis-examples/tree/main/langgraph-agent](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent)
 
@@ -595,65 +582,58 @@ python ingest_data.py
 python main.py
 ```
 
-The example includes:
+The example includes data ingestion from SQuAD, the full RAG agent with conversation memory, an interactive CLI, and a production-ready structure.
 
-- Data ingestion from SQuAD dataset
-- Full RAG agent with conversation memory
-- Interactive CLI
-- Production-ready structure
-
-## When to Use This Stack
+## When to use this stack
 
 **Good fit:**
 
 - You need stateful agents (conversation history, multi-step workflows)
 - You want semantic search over documents
-- You're already using Redis (or willing to)
+- You already use Redis, or are willing to
 - You want to visualize and debug agent logic
 - You need to scale horizontally
 
 **Not a fit:**
 
-- Simple single-turn Q&A (just use LangChain directly)
-- You need on-device embedding (Redis is server-side)
-- Your documents don't fit in Redis memory (use a disk-based vector DB)
+- Simple single-turn Q&A (use LangChain directly)
+- On-device embedding (Redis is server-side)
+- Documents that do not fit in Redis memory (use a disk-based vector database)
 
-## The Bottom Line
+## FAQ
 
-Building stateful AI agents doesn't have to be messy. LangGraph gives you clean workflow orchestration. Beanis gives you persistent state and vector search with a clean API. Together, they let you build production-ready agents in a few hundred lines of code.
+**What is a stateful AI agent?**
+It is an agent that persists its memory and working state, such as conversation history and retrieved context, across steps and restarts, rather than starting from scratch on each request.
 
-No manual state management. No key construction. No serialization headaches. Just define your workflow, define your models, and write your business logic.
+**What is Beanis?**
+Beanis is a Redis-backed ODM (Object Document Mapper) with built-in vector search. You define models like Pydantic classes, and it handles Redis serialization, key management, index creation, and vector similarity queries.
 
-Everything is on [GitHub](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent). The code works. Try it.
+**How is LangGraph different from plain LangChain?**
+LangGraph models an agent as a graph of nodes with explicit state flow, which makes multi-step and branching workflows easier to visualize, debug, and extend. Plain LangChain is a better fit for simple single-turn calls.
 
----
+**Do I need Redis Stack or extra modules?**
+No RedisJSON module is required. The stack works with vanilla Redis or Redis Stack, and Beanis creates the vector indexes for you on first insert.
+
+**Which embedding model does this use?**
+OpenAI `text-embedding-3-small`, which produces 1536-dimensional vectors. If you switch models, update `VectorField(dimensions=...)` to match and re-embed both documents and queries with the same model.
+
+**How fast is it?**
+On an M1 Mac with 100 documents, vector search runs in 10-20ms and history loads in about 5ms. The LLM call at 500-800ms dominates total latency of roughly one second per query.
+
+**When should I not use this stack?**
+Skip it for simple single-turn Q&A, when you need on-device embedding, or when your documents will not fit in Redis memory, in which case a disk-based vector database is a better fit.
 
 ## Resources
 
-### Documentation
-
-- [Beanis Documentation](https://andreim14.github.io/beanis/) - Redis ODM with vector search
-- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Agent orchestration framework
-- [LangChain Python](https://python.langchain.com/docs/introduction/) - LLM application framework
-
-### Redis & Vector Search
-
-- [Redis Vector Similarity Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/vector-search/) - How Redis handles vector indexes
-- [Redis Full-Text Search](https://redis.io/docs/latest/develop/interact/search-and-query/query/) - Keyword search in Redis
-- [Redis HNSW Algorithm](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/) - Vector indexing details
-
-### Embeddings & Datasets
-
-- [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings) - text-embedding-3-small and alternatives
-- [OpenAI Embedding Models Comparison](https://platform.openai.com/docs/guides/embeddings) - Performance vs cost tradeoffs
-- [SQuAD Dataset](https://huggingface.co/datasets/rajpurkar/squad) - Stanford Question Answering Dataset
-- [Hugging Face Datasets](https://huggingface.co/docs/datasets/) - 50,000+ datasets for ML
-
-### Related Articles
-
-- [Build RAG in 50 Lines with Redis + Beanis](/2025/10/24/build-rag-50-lines-beanis-redis.html) - Simpler RAG intro
-- [Redis Geo-Spatial Caching](/2025/10/30/building-restaurant-finder-redis-geopoints.html) - Location-based search with Redis
-
----
-
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_
+- **Beanis Documentation:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis/)
+- **LangGraph Documentation:** [langchain-ai.github.io/langgraph](https://langchain-ai.github.io/langgraph/)
+- **LangChain Python:** [python.langchain.com](https://python.langchain.com/docs/introduction/)
+- **Example code:** [github.com/andreim14/beanis-examples](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent)
+- **Redis Vector Search:** [redis.io vector search docs](https://redis.io/docs/latest/develop/interact/search-and-query/query/vector-search/)
+- **Redis Full-Text Search:** [redis.io query docs](https://redis.io/docs/latest/develop/interact/search-and-query/query/)
+- **Redis HNSW Vectors:** [redis.io vector concepts](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/)
+- **OpenAI Embeddings Guide:** [platform.openai.com embeddings](https://platform.openai.com/docs/guides/embeddings)
+- **SQuAD Dataset:** [huggingface.co/datasets/rajpurkar/squad](https://huggingface.co/datasets/rajpurkar/squad)
+- **Hugging Face Datasets:** [huggingface.co/docs/datasets](https://huggingface.co/docs/datasets/)
+- **Build RAG in 50 Lines with Redis + Beanis:** [related tutorial](/2025/10/24/build-rag-50-lines-beanis-redis.html)
+- **Redis Geo-Spatial Caching:** [related tutorial](/2025/10/30/building-restaurant-finder-redis-geopoints.html)

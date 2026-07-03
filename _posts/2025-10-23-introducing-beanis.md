@@ -1,33 +1,54 @@
 ---
 layout: post
-title: "Beanis: Stop Fighting Redis, Start Building with It"
+title: "Beanis: A Typed Redis ODM for Python with Pydantic v2"
 date: 2025-10-23 23:00:00
-description: "How I built a Redis ODM that makes working with Redis feel like magic - cutting boilerplate by 70% while keeping performance within 8% of raw Redis"
+description: "Beanis is an async, Pydantic v2 object-document mapper for vanilla Redis. It cuts serialization boilerplate by about 70% and stays within roughly 8% of raw redis-py performance."
 tags: python redis database odm pydantic open-source
 categories: projects
 giscus_comments: true
-related_posts: false
+related_posts: true
 thumbnail: assets/img/beanis-social.png
-keywords: Redis ODM, Python Redis, Pydantic Redis, Redis object mapper, async Redis Python, Redis database Python, type-safe Redis, Redis serialization, Redis performance, Redis indexing
+keywords: Redis ODM, Python Redis, Pydantic Redis, Redis object mapper, async Redis, type-safe Redis, Redis serialization, Redis indexing
 author: Andrei Stefan Bejgu
 ---
 
-Picture this: You're building a high-performance API. You need Redis for caching and fast queries, but you're drowning in boilerplate code. Every simple operation requires 15-20 lines of manual serialization, type conversion, and key management. Your codebase is littered with `json.dumps()`, `json.loads()`, and fragile string manipulation.
+## TL;DR
 
-**There had to be a better way.**
+**Beanis** is an object-document mapper (ODM) for Redis that maps Pydantic v2 models to Redis hashes, handles serialization and indexing for you, and keeps an async-first, Beanie-style API. It runs on vanilla Redis with no RedisJSON or RediSearch modules required.
 
-That's why I built [Beanis](https://github.com/andreim14/beanis) - a Redis ODM that brings the elegance of modern ORMs to Redis, without sacrificing the speed that makes Redis special.
-
-## The "Aha!" Moment
-
-I was working on a real-time recommendation system that needed to query thousands of products per second. Redis was the obvious choice for speed, but the code was becoming unmaintainable:
+- **Package:** `pip install beanis` ([PyPI](https://pypi.org/project/beanis/))
+- **Code:** [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
+- **Docs:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
+- **Boilerplate:** roughly 70% less code than raw `redis-py` for typical CRUD plus queries
+- **Overhead:** about 8% slower than raw Redis for the cost of validation, type conversion, and index maintenance
 
 ```python
-# The old way - painful and error-prone
+from beanis import Document, Indexed, init_beanis
+import redis.asyncio as redis
+
+class User(Document):
+    username: str
+    email: Indexed[str]
+    score: Indexed[int] = 0
+
+client = redis.Redis(decode_responses=True)
+await init_beanis(database=client, document_models=[User])
+
+user = User(username="john", email="john@example.com")
+await user.insert()
+
+top_users = await User.find(score__gte=100)
+```
+
+## The problem: Redis is fast, the code around it is not
+
+Redis is the obvious pick when you need caching and fast key lookups. The application code around it is where things get tedious. Every read and write turns into manual serialization, type conversion, and key management. A typical hash read looks like this:
+
+```python
+# Manual read: type conversion for every field
 product_key = f"Product:{product_id}"
 data = await redis.hgetall(product_key)
 
-# Manual type conversion for EVERY field
 product = {
     'name': data.get('name', ''),
     'price': float(data.get('price', 0)) if data.get('price') else 0.0,
@@ -35,67 +56,44 @@ product = {
     'tags': json.loads(data.get('tags', '[]')),
     'metadata': json.loads(data.get('metadata', '{}')),
 }
-
-# And that's just reading ONE document!
 ```
 
-I wanted to write code that looked like this instead:
+That is one document, read only, no validation. I wanted the read to look like this instead:
 
 ```python
-# The Beanis way - clean and type-safe
 product = await Product.get(product_id)
 ```
 
-**Spoiler: I made it happen.** And it's only 8% slower than raw Redis.
+Beanis is what makes that second line work, at about 8% overhead over raw Redis.
 
----
+## Why build another Redis library
 
-## Why Build Another Redis Library?
+I have spent years working with databases in AI and ML projects, and I like MongoDB ODMs such as [Beanie](https://github.com/roman-right/beanie): a clean API, Pydantic integration, and less CRUD boilerplate. That comfort disappears when you drop down to Redis for performance and end up back in manual serialization and key management.
 
-I've spent years working with databases in AI/ML projects. I love MongoDB's ODMs like Beanie - the clean API, Pydantic integration, and how they let you focus on business logic instead of CRUD boilerplate. But when you need Redis-level performance, you're stuck with manual serialization and key management.
+The existing Redis libraries each had a gap for my use case:
 
-**The existing Redis libraries weren't cutting it:**
+- **Redis OM:** good, but requires the RedisJSON and RediSearch modules, which are not always available.
+- **Walrus:** no async support, predates Pydantic v2.
+- **Raw redis-py:** fast but verbose, no type safety.
 
-- **Redis OM** - Excellent, but requires RedisJSON/RediSearch modules (not always available)
-- **Walrus** - No async support, predates Pydantic v2
-- **Raw redis-py** - Fast but verbose, no type safety
+I wanted vanilla Redis compatibility (no modules), Pydantic v2 validation, a Beanie-like API, async-first design, and minimal overhead. Beanis is that combination.
 
-I wanted something that combined:
+## Example: a product catalog with raw Redis vs Beanis
 
-- ✅ Vanilla Redis compatibility (no modules required)
-- ✅ Pydantic v2 validation and type safety
-- ✅ Beanie-like clean API
-- ✅ Async-first design
-- ✅ Minimal performance overhead
+A product catalog needs fast lookups by ID, range queries on price, category filtering, stock updates, and audit trails.
 
-When I couldn't find it, I built it. Beanis is what I wish existed when I started working with Redis.
+### Raw redis-py
 
----
-
-## Real-World Example: Building a Product Catalog
-
-Let's build something real: a product catalog for an e-commerce platform. You need:
-
-- Fast lookups by ID
-- Range queries on price
-- Category filtering
-- Real-time stock updates
-- Audit trails
-
-### Traditional Redis Approach
-
-With raw redis-py, you'd write something like this for a single product insert:
+A single insert plus one range query, with manual indexing on both sides:
 
 ```python
 import json
 import redis.asyncio as redis
 
 async def create_product(redis_client, product_data):
-    # Generate unique ID
     product_id = await redis_client.incr("product:id:counter")
     product_key = f"Product:{product_id}"
 
-    # Manually serialize complex types
     redis_data = {
         'id': str(product_id),
         'name': product_data['name'],
@@ -106,17 +104,15 @@ async def create_product(redis_client, product_data):
         'metadata': json.dumps(product_data.get('metadata', {}))
     }
 
-    # Save to hash
     await redis_client.hset(product_key, mapping=redis_data)
 
-    # Manually maintain indexes for queries
+    # Maintain indexes by hand
     await redis_client.zadd(f"Product:idx:price", {product_key: product_data['price']})
     await redis_client.sadd(f"Product:idx:category:{product_data['category']}", product_key)
     await redis_client.sadd("Product:all", product_key)
 
     return product_id
 
-# Query by price range - also manual
 async def find_products_by_price(redis_client, min_price, max_price):
     keys = await redis_client.zrangebyscore(
         "Product:idx:price",
@@ -127,7 +123,6 @@ async def find_products_by_price(redis_client, min_price, max_price):
     products = []
     for key in keys:
         data = await redis_client.hgetall(key)
-        # Manual deserialization for each product
         products.append({
             'id': data['id'],
             'name': data['name'],
@@ -140,17 +135,11 @@ async def find_products_by_price(redis_client, min_price, max_price):
     return products
 ```
 
-**That's over 50 lines** for basic CRUD + one query. And we haven't even added:
+That is over 50 lines for basic CRUD plus one query, and it still has no input validation, error handling, type safety, audit trails, or cascade deletes.
 
-- Input validation
-- Error handling
-- Type safety
-- Audit trails
-- Cascade deletes
+### Beanis
 
-### The Beanis Approach
-
-Here's the same functionality with Beanis:
+The same functionality, with validation, audit fields, and automatic indexing built in:
 
 ```python
 from beanis import Document, Indexed, init_beanis
@@ -169,7 +158,6 @@ class Product(Document):
     tags: Set[str] = set()
     metadata: dict = {}
 
-    # Audit fields - automatically managed
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
@@ -184,11 +172,9 @@ class Product(Document):
     class Settings:
         key_prefix = "Product"
 
-# Initialize once
 client = redis.Redis(decode_responses=True)
 await init_beanis(database=client, document_models=[Product])
 
-# Create - with validation!
 product = Product(
     name="MacBook Pro M3",
     price=2499.99,
@@ -199,17 +185,15 @@ product = Product(
 )
 await product.insert()
 
-# Query - indexes handled automatically
+# Indexes are handled automatically
 expensive = await Product.find(
     category="electronics",
     price__gte=1000,
     price__lte=3000
 )
 
-# Update - type-safe
 await product.update(stock=45, price=2299.99)
 
-# Complex queries
 out_of_stock = await Product.find(stock=0)
 premium_laptops = await Product.find(
     category="electronics",
@@ -217,22 +201,20 @@ premium_laptops = await Product.find(
 )
 ```
 
-**That's about 30 lines** - including validation, audit trails, and automatic indexing. A **70% reduction** in code.
+That is about 30 lines including validation, audit trails, and automatic indexing: roughly a 70% reduction in code.
 
----
+## What Beanis gives you
 
-## What Makes Beanis Different?
+### Pydantic v2 integration
 
-### 🎯 Full Pydantic v2 Integration
-
-Beanis isn't just wrapping Redis - it's bringing Pydantic's power to your data layer:
+Beanis brings Pydantic validation to the data layer, so bad data is rejected before it reaches Redis:
 
 ```python
 from pydantic import EmailStr, HttpUrl, validator
 from decimal import Decimal
 
 class User(Document):
-    email: EmailStr  # Automatic email validation
+    email: EmailStr
     username: str = Field(min_length=3, max_length=20, pattern="^[a-zA-Z0-9_]+$")
     age: int = Field(ge=13, le=120)
     website: Optional[HttpUrl] = None
@@ -244,30 +226,29 @@ class User(Document):
             raise ValueError('Username must be alphanumeric')
         return v.lower()
 
-# This will raise validation errors BEFORE hitting Redis
+# Raises validation errors before hitting Redis
 try:
     user = User(
-        email="not-an-email",  # ❌ Invalid
-        username="ab",  # ❌ Too short
-        age=200  # ❌ Too old
+        email="not-an-email",
+        username="ab",
+        age=200
     )
 except ValidationError as e:
     print(e)
 ```
 
-### 🚀 Smart Indexing that Just Works
+### Automatic indexing
 
-No more manually maintaining sorted sets and managing index consistency:
+Mark a field `Indexed[...]` and Beanis maintains the backing sorted set for you:
 
 ```python
 class Article(Document):
     title: str
-    views: Indexed[int]  # Sorted set automatically maintained
-    published_at: Indexed[datetime]  # Time-based queries
-    author: Indexed[str]  # Categorical filtering
-    score: Indexed[float]  # Range queries
+    views: Indexed[int]
+    published_at: Indexed[datetime]
+    author: Indexed[str]
+    score: Indexed[float]
 
-# All these queries use optimized indexes under the hood
 trending = await Article.find(views__gte=10000)
 recent = await Article.find(
     published_at__gte=datetime.now() - timedelta(days=7)
@@ -278,23 +259,17 @@ popular_by_author = await Article.find(
 )
 ```
 
-**Behind the scenes**, Beanis:
+Behind the scenes Beanis maintains a Redis sorted set per indexed field, updates indexes on insert, update, and delete, picks the best index for a query, and cleans up indexes when documents are deleted.
 
-- Maintains Redis sorted sets for each indexed field
-- Automatically updates indexes on insert/update/delete
-- Optimizes queries by choosing the best index
-- Handles index cleanup when documents are deleted
+### Custom encoders for any type
 
-### 🎨 Custom Encoders for Any Type
-
-Working with complex types? Beanis has you covered:
+Register encoders and decoders for types Redis does not store natively:
 
 ```python
 import numpy as np
 from PIL import Image
 from beanis.odm.custom_encoders import register_custom_encoder, register_custom_decoder
 
-# NumPy arrays
 @register_custom_encoder(np.ndarray)
 def encode_numpy(arr: np.ndarray) -> str:
     return arr.tobytes().hex()
@@ -303,7 +278,6 @@ def encode_numpy(arr: np.ndarray) -> str:
 def decode_numpy(data: str, dtype=np.float32) -> np.ndarray:
     return np.frombuffer(bytes.fromhex(data), dtype=dtype)
 
-# PIL Images
 @register_custom_encoder(Image.Image)
 def encode_image(img: Image.Image) -> str:
     buffer = io.BytesIO()
@@ -312,11 +286,10 @@ def encode_image(img: Image.Image) -> str:
 
 class MLModel(Document):
     name: str
-    weights: np.ndarray  # Seamlessly stored and retrieved
+    weights: np.ndarray
     bias: np.ndarray
     thumbnail: Image.Image
 
-# It just works!
 model = MLModel(
     name="sentiment-classifier",
     weights=np.random.rand(100, 50),
@@ -325,9 +298,9 @@ model = MLModel(
 await model.insert()
 ```
 
-### 🌍 Geo-Spatial Queries Out of the Box
+### Geo-spatial queries
 
-Building location-based features? We got you:
+Store a `GeoPoint` and query by radius:
 
 ```python
 from beanis import GeoPoint
@@ -335,10 +308,9 @@ from beanis import GeoPoint
 class Restaurant(Document):
     name: str
     cuisine: Indexed[str]
-    location: GeoPoint  # Lat/lon with automatic geo-indexing
+    location: GeoPoint
     rating: Indexed[float]
 
-# Find restaurants
 italian_nearby = await Restaurant.find_near(
     location=GeoPoint(lat=41.9028, lon=12.4964),  # Rome, Italy
     radius=2000,  # 2km
@@ -346,7 +318,6 @@ italian_nearby = await Restaurant.find_near(
     rating__gte=4.0
 )
 
-# Get distance to each result
 for restaurant in italian_nearby:
     distance = restaurant.location.distance_to(
         GeoPoint(lat=41.9028, lon=12.4964)
@@ -354,9 +325,9 @@ for restaurant in italian_nearby:
     print(f"{restaurant.name}: {distance:.2f}m away")
 ```
 
-### 🔄 Lifecycle Hooks for Business Logic
+### Lifecycle hooks
 
-Implement audit trails, cache invalidation, or notifications:
+Use `before_event` and `after_event` hooks for audit trails, notifications, and cleanup:
 
 ```python
 class Order(Document):
@@ -364,7 +335,6 @@ class Order(Document):
     total: Decimal
     status: str = "pending"
 
-    # Audit trail
     created_at: datetime
     updated_at: datetime
     status_history: list = []
@@ -378,7 +348,6 @@ class Order(Document):
     @before_event(Update)
     async def track_changes(self):
         self.updated_at = datetime.now()
-        # Track status changes
         if hasattr(self, '_original_status') and self.status != self._original_status:
             self.status_history.append({
                 'from': self._original_status,
@@ -393,47 +362,38 @@ class Order(Document):
 
     @after_event(Delete)
     async def cleanup(self):
-        # Clean up related data
         await OrderItem.delete_many(order_id=self.id)
 ```
 
----
+## Performance
 
-## Performance: Fast Enough for Production
+Benchmarked against raw `redis-py` over 10,000 operations:
 
-I benchmarked Beanis against raw redis-py with 10,000 operations:
-
-| Operation          | Raw Redis | Beanis | Overhead | Why?                |
+| Operation          | Raw Redis | Beanis | Overhead | Reason              |
 | ------------------ | --------- | ------ | -------- | ------------------- |
-| Insert             | 0.45ms    | 0.49ms | **+8%**  | Pydantic validation |
-| Get by ID          | 0.38ms    | 0.41ms | **+8%**  | Type conversion     |
-| Range Query        | 0.52ms    | 0.56ms | **+7%**  | Index optimization  |
-| Batch Insert (100) | 42ms      | 47ms   | **+12%** | Validation batching |
+| Insert             | 0.45ms    | 0.49ms | +8%      | Pydantic validation |
+| Get by ID          | 0.38ms    | 0.41ms | +8%      | Type conversion     |
+| Range Query        | 0.52ms    | 0.56ms | +7%      | Index optimization  |
+| Batch Insert (100) | 42ms      | 47ms   | +12%     | Validation batching |
 
-**The verdict:** ~8% overhead for features you'd have to build anyway (validation, serialization, type safety).
+The overhead pays for validation, serialization, and type safety you would otherwise write by hand.
 
-### When NOT to Use Beanis
+### When not to use Beanis
 
-Be honest about trade-offs:
+Reach for something else when you have:
 
-❌ **Ultra-low latency requirements** (< 1ms per operation)
-❌ **Simple key-value caching** (use raw redis-py)
-❌ **You need RedisJSON/RediSearch modules** (use Redis OM instead)
-❌ **Prototyping with unpredictable schema** (use raw Redis first)
+- Ultra-low latency requirements (under 1ms per operation)
+- Simple key-value caching (use raw `redis-py`)
+- A hard dependency on RedisJSON or RediSearch (use Redis OM)
+- Prototyping with an unpredictable schema (start with raw Redis)
 
-✅ **Building production APIs with complex data models**
-✅ **Need type safety and validation**
-✅ **Working with teams who value clean code**
-✅ **Migrating from MongoDB/Postgres but need Redis speed**
+Beanis fits when you are building production APIs with complex data models, need type safety and validation, work on teams that value clean code, or are moving from MongoDB or Postgres but need Redis speed.
 
----
+## Use cases
 
-## Real-World Use Cases
-
-### E-Commerce Product Catalog
+### E-commerce product catalog
 
 ```python
-# 10,000+ products, 1000+ queries/second
 products = await Product.find(
     category="electronics",
     price__gte=100,
@@ -442,7 +402,7 @@ products = await Product.find(
 )
 ```
 
-### Session Management
+### Session management
 
 ```python
 class Session(Document):
@@ -450,11 +410,10 @@ class Session(Document):
     token: str
     expires_at: Indexed[datetime]
 
-# Auto-cleanup expired sessions
 await Session.delete_many(expires_at__lt=datetime.now())
 ```
 
-### Real-time Leaderboards
+### Real-time leaderboards
 
 ```python
 class Score(Document):
@@ -462,19 +421,16 @@ class Score(Document):
     score: Indexed[int]
     achieved_at: datetime
 
-# Top 10 globally
 top_players = await Score.find(score__gte=1000).sort('-score').limit(10)
 ```
 
----
+## Migrating from raw Redis
 
-## Migrating from Raw Redis: A Step-by-Step Guide
+You can migrate an existing Redis codebase incrementally without breaking production.
 
-Already have a Redis codebase? Here's how to migrate incrementally without breaking production.
+### Step 1: Identify your data models
 
-### Step 1: Identify Your Data Models
-
-Look at your existing Redis keys and group them:
+Group your existing keys into documents:
 
 ```python
 # Current Redis structure
@@ -483,7 +439,6 @@ Look at your existing Redis keys and group them:
 # User:idx:email -> sorted set
 # User:all -> set
 
-# This becomes a Beanis document
 class User(Document):
     name: str
     email: Indexed[str]
@@ -493,35 +448,34 @@ class User(Document):
         key_prefix = "User"
 ```
 
-### Step 2: Add Validation Gradually
+### Step 2: Add validation gradually
 
-Start with basic types, add constraints later:
+Start with plain types, then tighten constraints:
 
 ```python
-# Phase 1: Just types
+# Phase 1: just types
 class Product(Document):
     name: str
     price: float
     stock: int
 
-# Phase 2: Add validation
+# Phase 2: add validation
 class Product(Document):
     name: str = Field(min_length=1, max_length=200)
-    price: float = Field(gt=0)  # Must be positive
-    stock: int = Field(ge=0)  # Can't be negative
+    price: float = Field(gt=0)
+    stock: int = Field(ge=0)
 ```
 
-### Step 3: Dual-Write During Migration
+### Step 3: Dual-write during migration
 
-Run both systems in parallel:
+Run both systems in parallel while you build confidence:
 
 ```python
 async def create_product_safe(data):
-    # Write to Beanis
     product = Product(**data)
     await product.insert()
 
-    # Still write to old Redis (for rollback safety)
+    # Keep writing to old Redis for rollback safety
     await redis_client.hset(
         f"Product:{product.id}",
         mapping=legacy_serialize(data)
@@ -529,37 +483,30 @@ async def create_product_safe(data):
 
     return product
 
-# After 1-2 weeks of dual-write, stop reading from old keys
-# After 1 month, stop dual-writing
+# Stop reading old keys after a week or two, stop dual-writing after a month
 ```
 
-### Step 4: Verify Data Consistency
+### Step 4: Verify data consistency
 
 ```python
 async def verify_migration():
-    """Compare old vs new data"""
     old_keys = await redis_client.keys("Product:*")
 
     for key in old_keys:
         product_id = key.split(":")[1]
 
-        # Get from both systems
         old_data = await redis_client.hgetall(key)
         new_product = await Product.get(product_id)
 
-        # Compare
         assert old_data['name'] == new_product.name
         assert float(old_data['price']) == new_product.price
-        # ... verify all fields
 ```
 
----
+## Patterns and best practices
 
-## Advanced Patterns and Best Practices
+### Caching with TTL
 
-### Pattern 1: Caching with TTL
-
-Beanis doesn't have built-in TTL yet, but you can implement it:
+Beanis has no built-in TTL yet, so implement it in the model:
 
 ```python
 class CachedResult(Document):
@@ -574,16 +521,13 @@ class CachedResult(Document):
         age = (datetime.now() - self.created_at).total_seconds()
         return age > ttl_seconds
 
-# Usage
 async def get_with_cache(query: str, ttl: int = 300):
     query_hash = hashlib.md5(query.encode()).hexdigest()
 
-    # Check cache
     cached = await CachedResult.find_one(query_hash=query_hash)
     if cached and not await cached.is_expired(ttl):
         return cached.result_data
 
-    # Compute and cache
     result = await expensive_operation(query)
     await CachedResult(
         query_hash=query_hash,
@@ -593,9 +537,9 @@ async def get_with_cache(query: str, ttl: int = 300):
     return result
 ```
 
-### Pattern 2: Optimistic Locking
+### Optimistic locking
 
-Prevent race conditions with version numbers:
+Guard against race conditions with a version number, or use a Redis transaction:
 
 ```python
 class BankAccount(Document):
@@ -604,25 +548,13 @@ class BankAccount(Document):
     version: int = 0
 
     async def withdraw(self, amount: Decimal):
-        # Read current version
-        original_version = self.version
-
-        # Check balance
         if self.balance < amount:
             raise InsufficientFunds()
 
-        # Update
         self.balance -= amount
         self.version += 1
+        await self.save()
 
-        try:
-            await self.save()
-        except Exception:
-            # In a real implementation, check if version changed
-            # and retry or raise ConcurrentModificationError
-            raise
-
-# Better: Use Redis transactions
 async def atomic_withdraw(account_id: str, amount: Decimal):
     async with redis_client.pipeline(transaction=True) as pipe:
         account = await BankAccount.get(account_id)
@@ -631,47 +563,42 @@ async def atomic_withdraw(account_id: str, amount: Decimal):
             await account.save()
 ```
 
-### Pattern 3: Batch Operations for Performance
+### Batch operations
 
-Process thousands of records efficiently:
+Fetch and insert in bulk instead of one call per item:
 
 ```python
-# ❌ Slow: One query per item
+# Slow: one query per item
 products = []
 for product_id in product_ids:
     product = await Product.get(product_id)
     products.append(product)
 
-# ✅ Fast: Batch fetch
+# Fast: batch fetch
 products = await Product.find(
     id__in=product_ids
 ).to_list()
 
-# ✅ Even faster: Pipeline for insertions
+# Bulk insert uses a Redis pipeline internally
 async def bulk_insert_products(product_data_list):
     products = [Product(**data) for data in product_data_list]
-
-    # Validate all first (fails fast)
     for p in products:
         p.model_validate(p)
-
-    # Bulk insert (uses Redis pipeline internally)
     await Product.insert_many(products)
 ```
 
-### Pattern 4: Computed Fields and Denormalization
+### Denormalization
 
-Redis favors denormalization - embrace it:
+Redis favors denormalization, so copy fields you query often:
 
 ```python
 class Order(Document):
     user_id: str
     items: list[dict]  # [{product_id, quantity, price}]
 
-    # Denormalized fields for fast queries
     total_amount: Decimal
     item_count: int
-    user_email: str  # Copied from User
+    user_email: str  # copied from User
 
     @classmethod
     async def create_order(cls, user: User, items: list):
@@ -682,110 +609,80 @@ class Order(Document):
             items=items,
             total_amount=total,
             item_count=len(items),
-            user_email=user.email  # Denormalize for queries
+            user_email=user.email
         )
         await order.insert()
         return order
 
-# Now you can query orders by email without joining
+# Query orders by email without a join
 expensive_orders = await Order.find(
     user_email="vip@example.com",
     total_amount__gte=1000
 )
 ```
 
----
+## Common pitfalls
 
-## Common Pitfalls and How to Avoid Them
+### Over-indexing
 
-### Pitfall 1: Over-Indexing
-
-**Problem:** Every indexed field creates a sorted set. Too many = memory bloat.
+Every indexed field creates a sorted set, so indexing everything bloats memory. Index only the fields you query on:
 
 ```python
-# ❌ Bad: 10 indexes = 10 sorted sets per document
-class User(Document):
-    name: Indexed[str]
-    email: Indexed[str]
-    age: Indexed[int]
-    created_at: Indexed[datetime]
-    last_login: Indexed[datetime]
-    status: Indexed[str]
-    role: Indexed[str]
-    department: Indexed[str]
-    manager_id: Indexed[str]
-    salary: Indexed[Decimal]
-
-# ✅ Good: Only index what you query
 class User(Document):
     name: str
-    email: Indexed[str]  # Frequent lookups
+    email: Indexed[str]  # frequent lookups
     age: int
-    created_at: Indexed[datetime]  # Time-range queries
-    last_login: datetime  # Don't need to query this
-    status: Indexed[str]  # Filter by active/inactive
-    role: str  # Can filter client-side
+    created_at: Indexed[datetime]  # time-range queries
+    last_login: datetime
+    status: Indexed[str]  # filter by active/inactive
+    role: str
     department: str
     manager_id: str
-    salary: Decimal  # Sensitive, don't index
+    salary: Decimal  # sensitive, do not index
 ```
 
-### Pitfall 2: Forgetting Async/Await
+### Forgetting async/await
 
 ```python
-# ❌ This will fail silently or hang
-user = User.get(user_id)  # Missing await!
+# Wrong: missing await
+user = User.get(user_id)
 
-# ✅ Always await
+# Right
 user = await User.get(user_id)
 
-# ✅ Use async comprehensions
-users = [await User.get(uid) for uid in user_ids]
-
-# ✅ Even better: batch fetch
+# Batch fetch instead of a loop of awaits
 users = await User.find(id__in=user_ids).to_list()
 ```
 
-### Pitfall 3: N+1 Query Problem
+### N+1 queries
 
 ```python
-# ❌ N+1 queries (slow!)
+# N+1 queries
 orders = await Order.find_all()
 for order in orders:
-    user = await User.get(order.user_id)  # N queries!
+    user = await User.get(order.user_id)  # one query per order
     print(f"{user.name}: ${order.total}")
 
-# ✅ Denormalize (recommended for Redis)
+# Denormalize (recommended for Redis)
 class Order(Document):
     user_id: str
-    user_name: str  # Denormalized
+    user_name: str  # denormalized
     total: Decimal
 
-orders = await Order.find_all()
-for order in orders:
-    print(f"{order.user_name}: ${order.total}")  # No extra query!
-
-# ✅ Or batch fetch users
+# Or batch fetch the users once
 orders = await Order.find_all()
 user_ids = {order.user_id for order in orders}
 users = {u.id: u for u in await User.find(id__in=user_ids)}
-
-for order in orders:
-    user = users[order.user_id]
-    print(f"{user.name}: ${order.total}")
 ```
 
----
+## Performance tuning
 
-## Performance Tuning Tips
-
-### 1. Use Connection Pooling
+### Connection pooling
 
 ```python
 import redis.asyncio as redis
 from redis.asyncio.connection import ConnectionPool
 
-# ✅ Reuse connections
 pool = ConnectionPool.from_url(
     "redis://localhost",
     max_connections=50,
@@ -796,13 +693,11 @@ client = redis.Redis(connection_pool=pool)
 await init_beanis(database=client, document_models=[Product, User])
 ```
 
-### 2. Batch Validation
+### Batch validation
 
 ```python
-# If inserting many documents, validate in bulk
 products_data = [...]  # 1000 products
 
-# ✅ Validate all first (parallel)
 from concurrent.futures import ThreadPoolExecutor
 
 with ThreadPoolExecutor() as executor:
@@ -811,27 +706,21 @@ with ThreadPoolExecutor() as executor:
         products_data
     ))
 
-# Then insert (uses pipeline automatically)
 await Product.insert_many(validated)
 ```
 
-### 3. Query Optimization
+### Filter in Redis, not in Python
 
 ```python
-# ❌ Fetching everything then filtering in Python
+# Fetch everything then filter in Python
 all_products = await Product.find_all()
 cheap = [p for p in all_products if p.price < 100]
 
-# ✅ Filter in Redis
+# Filter in Redis instead
 cheap = await Product.find(price__lt=100)
-
-# ✅ Use projections (when implemented)
-# cheap = await Product.find(price__lt=100).project(['name', 'price'])
 ```
 
----
-
-## Getting Started in 60 Seconds
+## Getting started
 
 ```bash
 pip install beanis
@@ -851,57 +740,61 @@ class User(Document):
 client = redis.Redis(decode_responses=True)
 await init_beanis(database=client, document_models=[User])
 
-# 3. Use it!
+# 3. Use it
 user = User(username="john", email="john@example.com")
 await user.insert()
 
-# Find users
 top_users = await User.find(score__gte=100)
 ```
 
-**Full documentation:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
+Full documentation is at [andreim14.github.io/beanis](https://andreim14.github.io/beanis).
 
----
+## Project status and roadmap
 
-## What's Next?
+Current state:
 
-Beanis is **production-ready today** with:
+- 150+ tests passing
+- 56% code coverage
+- Full CI/CD pipeline
+- Documentation site
 
-- ✅ 150+ tests passing
-- ✅ 56% code coverage
-- ✅ Full CI/CD pipeline
-- ✅ Comprehensive docs
+Roadmap:
 
-**Roadmap:**
+- Relationship support (OneToOne, OneToMany)
+- Aggregation pipeline
+- Field-level encryption
+- Connection pooling optimizations
+- Query analytics and slow-query detection
 
-- 🔄 Relationship support (OneToOne, OneToMany)
-- 📊 Aggregation pipeline
-- 🔐 Field-level encryption
-- ⚡ Connection pooling optimizations
-- 📈 Query analytics and slow query detection
+## FAQ
 
----
+### What is Beanis?
 
-## Try It, Star It, Break It
+Beanis is an async object-document mapper for Redis. You define Pydantic v2 models, and Beanis maps them to Redis hashes, validates data, serializes and deserializes fields, and maintains indexes for queries.
 
-I built Beanis to scratch my own itch, and now I'm sharing it with the world. If you:
+### How is Beanis different from Redis OM?
 
-- Want cleaner Redis code
-- Value type safety
-- Need fast queries without the boilerplate
+Redis OM depends on the RedisJSON and RediSearch modules. Beanis runs on vanilla Redis with no modules, so it works on managed Redis instances and standard installs where those modules are not available.
 
-**Give Beanis a try:**
+### How much overhead does Beanis add over raw redis-py?
 
-- 📦 PyPI: `pip install beanis`
-- ⭐ GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
-- 📚 Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
+About 7% to 8% on single-document reads, writes, and range queries, and around 12% on batch inserts, measured over 10,000 operations. That cost covers validation, type conversion, and index maintenance.
 
-Found a bug? Have a feature request? Open an issue - I read and respond to everything.
+### Does Beanis support async?
 
-Happy coding! 🚀
+Yes. Beanis is async-first and built on `redis.asyncio`. Document operations such as `insert`, `get`, `find`, `update`, and `delete` are awaited.
 
----
+### When should I not use Beanis?
 
-_Beanis is inspired by [Beanie](https://github.com/roman-right/beanie) by Roman Right. Standing on the shoulders of giants._
+Skip it for sub-1ms latency requirements, plain key-value caching, workloads that need RedisJSON or RediSearch, or throwaway prototypes with an unstable schema. In those cases raw `redis-py` or Redis OM is a better fit.
 
-_Built with ❤️ by Andrei Stefan Bejgu - AI Applied Scientist @ [Syllotips](https://syllotips.com)_
+### How do I install Beanis?
+
+Run `pip install beanis`. It requires Python with Pydantic v2 and `redis-py` (async client).
+
+## Resources
+
+- **PyPI:** [pypi.org/project/beanis](https://pypi.org/project/beanis/)
+- **Code:** [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
+- **Docs:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
+- **Inspired by:** [Beanie](https://github.com/roman-right/beanie) by Roman Right
