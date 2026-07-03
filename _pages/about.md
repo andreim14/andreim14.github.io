@@ -38,7 +38,7 @@ latest_posts:
 
 <p class="thesis">I build AI agents that stay <span class="mark-strong">grounded</span> in production.</p>
 
-At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
+At [SylloTips](https://www.syllotips.com) I work on the **harness that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
 
 Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and in Computational Linguistics.
 

@@ -16,35 +16,36 @@
   --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
   --mono-stack: var(--mono);
 
-  --mark: #ffce3d;
-  --mark-soft: rgba(255, 206, 61, 0.42);
+  --mark: #aecbff;
+  --mark-soft: rgba(93, 135, 246, 0.28);
+  --mark-ink: #0e131f;
 }
 
-/* ---- Warm palette: retheme al-folio's globals (applies to every page) ---- */
+/* ---- Cool palette: retheme al-folio's globals (applies to every page) ---- */
 :root {
-  --global-bg-color: #fbfaf6;
-  --global-text-color: #1a1712;
-  --global-text-color-light: #5b554d;
-  --global-theme-color: #8a5b00;
-  --global-hover-color: #6e4800;
-  --global-theme-color-rgb: 138, 91, 0;
-  --global-divider-color: rgba(26, 23, 18, 0.13);
+  --global-bg-color: #f5f7fa;
+  --global-text-color: #10131a;
+  --global-text-color-light: #545c6b;
+  --global-theme-color: #2f5cf0;
+  --global-hover-color: #1f45c9;
+  --global-theme-color-rgb: 47, 92, 240;
+  --global-divider-color: rgba(16, 19, 26, 0.12);
   --global-card-bg-color: #ffffff;
-  --global-code-bg-color: #f3f0e8;
+  --global-code-bg-color: #eef1f7;
 }
 html[data-theme="dark"] {
-  --global-bg-color: #15130e;
-  --global-text-color: #f1ece2;
-  --global-text-color-light: #9e978a;
-  --global-theme-color: #ffd24a;
-  --global-hover-color: #ffde7a;
-  --global-theme-color-rgb: 255, 210, 74;
-  --global-divider-color: rgba(241, 236, 226, 0.14);
-  --global-card-bg-color: #1d1a14;
-  --global-code-bg-color: #201c15;
+  --global-bg-color: #0e1116;
+  --global-text-color: #e7eaf1;
+  --global-text-color-light: #8b93a4;
+  --global-theme-color: #7ea2ff;
+  --global-hover-color: #a3bcff;
+  --global-theme-color-rgb: 126, 162, 255;
+  --global-divider-color: rgba(231, 234, 241, 0.13);
+  --global-card-bg-color: #161b23;
+  --global-code-bg-color: #171d27;
 
-  --mark: #ffd24a;
-  --mark-soft: rgba(255, 210, 74, 0.2);
+  --mark: #9dc0ff;
+  --mark-soft: rgba(126, 162, 255, 0.22);
 }
 
 /* ---- Global typography (wins over MDB's Roboto: main.css loads last) ----- */
@@ -67,7 +68,7 @@ h6,
 .mark-strong {
   display: inline-block;
   background: var(--mark);
-  color: #1a1712;
+  color: var(--mark-ink);
   padding: 0.02em 0.16em;
   border-radius: 2px;
   transform: rotate(-0.6deg);
@@ -100,13 +101,13 @@ h6,
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(26, 23, 18, 0.05) 1.1px, transparent 1.4px);
+  background-image: radial-gradient(circle, rgba(16, 19, 26, 0.05) 1.1px, transparent 1.4px);
   background-size: 24px 24px;
   -webkit-mask-image: radial-gradient(130% 80% at 78% -5%, #000 0%, transparent 70%);
   mask-image: radial-gradient(130% 80% at 78% -5%, #000 0%, transparent 70%);
 }
 html[data-theme="dark"] .bg-grid {
-  background-image: radial-gradient(circle, rgba(241, 236, 226, 0.045) 1.1px, transparent 1.4px);
+  background-image: radial-gradient(circle, rgba(231, 234, 241, 0.045) 1.1px, transparent 1.4px);
 }
 
 /* ---- Navbar + footer ----------------------------------------------------- */
@@ -361,15 +362,17 @@ article {
   }
 }
 /* Modules that render their own chrome keep the prose-link treatment off. */
-.about .publications a,
-.about .repositories a,
-.about .social a,
+.publications a,
+.repositories a,
+.contact-icons a,
+.social a,
 .post .publications a,
 article .publications a {
   font-weight: inherit;
   padding: 0;
   border-radius: 0;
-  background-image: none;
+  background-image: none !important;
+  background-size: auto !important;
 }
 
 /* ---- Content-area list markers ------------------------------------------- */
@@ -422,8 +425,11 @@ article {
     width: 44px;
     height: 44px;
     margin: 0 0.35rem;
+    padding: 0 !important;
     border-radius: 10px;
-    background: var(--global-card-bg-color);
+    background: var(--global-card-bg-color) !important;
+    background-image: none !important;
+    background-size: auto !important;
     border: 1px solid var(--global-divider-color);
     transition:
       transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
@@ -431,10 +437,10 @@ article {
       background 0.3s ease;
     &:hover {
       transform: translateY(-4px);
-      background: var(--mark);
+      background: var(--mark) !important;
       border-color: var(--mark);
       i {
-        color: #1a1712;
+        color: var(--mark-ink);
       }
     }
     &::after {
