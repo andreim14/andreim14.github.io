@@ -103,7 +103,7 @@ Co-first author on the largest resource for _end-to-end factuality evaluation_: 
 
 <div class="project-highlight" markdown="1">
 
-**Word Sense Linking** · ACL 2024
+**[Word Sense Linking](https://github.com/Babelscape/WSL)** · ACL 2024
 
 Disambiguating word meaning on real, messy text, not just curated benchmarks. The hard part isn't the dictionary; it's deciding _which_ sense a sentence actually triggers.
 
@@ -111,7 +111,7 @@ Disambiguating word meaning on real, messy text, not just curated benchmarks. Th
 
 <div class="project-highlight" markdown="1">
 
-**ConceptPedia** · EMNLP 2025
+**[ConceptPedia](https://aclanthology.org/2025.emnlp-main.1745/)** · EMNLP 2025
 
 A large-scale resource connecting concepts across languages, built to give models a shared semantic backbone instead of a per-language patchwork.
 
