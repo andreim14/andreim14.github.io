@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Senior AI Applied Scientist @ <a href="https://www.syllotips.com">SylloTips</a> · Ph.D. in Artificial Intelligence @ <a href="https://nlp.uniroma1.it/">Sapienza University of Rome</a>
+subtitle: AI Applied Scientist · Ph.D. in Artificial Intelligence
 
 # Sitemap settings
 priority: 1.0
@@ -12,8 +12,11 @@ profile:
   align: right
   image: prof_pic.png
   image_circular: false # crops the image to make it circular
-  image_alt: "Andrei Stefan Bejgu, Senior AI Applied Scientist working on agent orchestration, governance and memory"
-  more_info: false
+  image_alt: "Andrei Stefan Bejgu, AI Applied Scientist working on agent orchestration, governance and memory"
+  more_info: >
+    Rome, Italy<br>
+    → grounded agents<br>
+    → meaning &amp; factuality
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true # includes social icons at the bottom of the page
@@ -33,9 +36,11 @@ latest_posts:
 
 <div class="hero-intro animated-section" markdown="1">
 
-I build AI agents that hold up in production. At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
+<p class="thesis">I build AI agents that stay <span class="mark-strong">grounded</span> in production.</p>
 
-Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and EMNLP 2025.
+At [SylloTips](https://www.syllotips.com) I work on the **runtime that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
+
+Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and in Computational Linguistics.
 
 </div>
 
@@ -45,7 +50,7 @@ Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.
 
 ## What I'm building now
 
-Most "AI agents" demo well and fall apart the moment a real workflow touches them. My job is the unglamorous middle: making an agent's reasoning trustworthy, repeatable, and supervisable.
+Most "AI agents" demo well and fall apart the moment a real workflow touches them. My job is the harness around the model: the unglamorous middle that makes an agent's reasoning trustworthy, repeatable, and supervisable.
 
 <div class="now-grid">
   <div class="now-card">

@@ -1,204 +1,347 @@
 /* ==========================================================================
-   Custom styles — homepage / about page
-   Honors the al-folio system: one accent (--global-theme-color), the theme's
-   own faces, a monospace utility voice for labels. Restrained, production-minded.
-   Scoped to .about so blog / cv / publications keep their default look.
+   "Grounded" — identity for andreim14.github.io
+
+   One idea runs through the research and the product work: grounding, the gap
+   between what a model says and what is actually true and cited. The signature
+   is a highlighter marker sweep, echoing how the research annotates meaning in
+   text. Monochrome warm paper / ink with a single amber highlighter as the only
+   chroma. Type: Bricolage Grotesque (display), Hanken Grotesk (text),
+   JetBrains Mono (labels + annotation voice).
    ========================================================================== */
 
+/* ---- Type + brand tokens ------------------------------------------------- */
 :root {
-  --global-theme-color-rgb: 0, 118, 223;
-  --mono-stack: "SFMono-Regular", "JetBrains Mono", "Fira Code", ui-monospace, "Menlo", monospace;
+  --disp: "Bricolage Grotesque", Georgia, serif;
+  --sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+  --mono-stack: var(--mono);
+
+  --mark: #ffce3d;
+  --mark-soft: rgba(255, 206, 61, 0.42);
 }
 
-/* ---- Engineered dot-grid backdrop (injected on the about page only) ------ */
+/* ---- Warm palette: retheme al-folio's globals (applies to every page) ---- */
+:root {
+  --global-bg-color: #fbfaf6;
+  --global-text-color: #1a1712;
+  --global-text-color-light: #5b554d;
+  --global-theme-color: #8a5b00;
+  --global-hover-color: #6e4800;
+  --global-theme-color-rgb: 138, 91, 0;
+  --global-divider-color: rgba(26, 23, 18, 0.13);
+  --global-card-bg-color: #ffffff;
+  --global-code-bg-color: #f3f0e8;
+}
+html[data-theme="dark"] {
+  --global-bg-color: #15130e;
+  --global-text-color: #f1ece2;
+  --global-text-color-light: #9e978a;
+  --global-theme-color: #ffd24a;
+  --global-hover-color: #ffde7a;
+  --global-theme-color-rgb: 255, 210, 74;
+  --global-divider-color: rgba(241, 236, 226, 0.14);
+  --global-card-bg-color: #1d1a14;
+  --global-code-bg-color: #201c15;
+
+  --mark: #ffd24a;
+  --mark-soft: rgba(255, 210, 74, 0.2);
+}
+
+/* ---- Global typography (wins over MDB's Roboto: main.css loads last) ----- */
+body {
+  font-family: var(--sans);
+  letter-spacing: -0.01em;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.post-title {
+  font-family: var(--disp);
+  letter-spacing: -0.025em;
+}
+
+/* ---- The signature: highlighter marker ----------------------------------- */
+.mark-strong {
+  display: inline-block;
+  background: var(--mark);
+  color: #1a1712;
+  padding: 0.02em 0.16em;
+  border-radius: 2px;
+  transform: rotate(-0.6deg);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.mark {
+  background: linear-gradient(104deg, transparent 0.5%, var(--mark-soft) 1.5%, var(--mark-soft) 98%, transparent 99.5%);
+  padding: 0.02em 0.12em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* ---- Monospace eyebrow / label voice ------------------------------------- */
+.eyebrow,
+.now-kicker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--global-theme-color);
+  margin: 0 0 0.3rem;
+}
+
+/* ---- Faded provenance grid (about page only) ----------------------------- */
 .bg-grid {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(var(--global-theme-color-rgb), 0.07) 1px, transparent 1.4px);
-  background-size: 26px 26px;
-  /* fade out toward the edges so it never reads as a flat wallpaper */
-  -webkit-mask-image: radial-gradient(120% 90% at 70% 0%, #000 0%, transparent 72%);
-  mask-image: radial-gradient(120% 90% at 70% 0%, #000 0%, transparent 72%);
+  background-image: radial-gradient(circle, rgba(26, 23, 18, 0.05) 1.1px, transparent 1.4px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(130% 80% at 78% -5%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(130% 80% at 78% -5%, #000 0%, transparent 70%);
 }
 html[data-theme="dark"] .bg-grid {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1.4px);
+  background-image: radial-gradient(circle, rgba(241, 236, 226, 0.045) 1.1px, transparent 1.4px);
 }
 
-/* ---- Monospace eyebrow / label voice ------------------------------------- */
-.about .eyebrow,
-.now-kicker {
-  font-family: var(--mono-stack);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--global-theme-color);
+/* ---- Navbar + footer ----------------------------------------------------- */
+.navbar-brand,
+.navbar .navbar-brand {
+  font-family: var(--disp);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
-
-/* ---- Profile image ------------------------------------------------------- */
-.about {
-  .profile img {
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--global-divider-color);
-    transition:
-      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.4s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
-    }
+footer.fixed-bottom,
+footer.sticky-bottom {
+  background: transparent;
+  border-top: 1px solid var(--global-divider-color);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--global-text-color-light);
+  a {
+    color: var(--global-text-color-light);
+    text-decoration: underline;
+    text-decoration-color: var(--global-divider-color);
   }
 }
 
-/* ---- Title + subtitle ---------------------------------------------------- */
+/* ---- Hero ---------------------------------------------------------------- */
 .about .post-title {
   font-weight: 800;
-  font-size: clamp(2.4rem, 6vw, 3.4rem);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
   color: var(--global-text-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.55rem;
 }
 .about .desc {
-  font-size: 0.98rem;
-  opacity: 0.75;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--global-theme-color);
+  opacity: 1;
 }
-
-/* keep blog/article titles default */
 .post-list .post-title,
 article .post-title {
   color: var(--global-text-color);
 }
 
-/* ---- Section headers ----------------------------------------------------- */
-/* Heading sits right under its monospace eyebrow — the eyebrow is the marker,
-   so no decorative underline rule here. */
-.about h2 {
-  margin: 0.15rem 0 1.4rem;
-  font-weight: 700;
+.about .thesis {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: clamp(1.55rem, 3.4vw, 2.15rem);
+  line-height: 1.24;
   letter-spacing: -0.02em;
+  color: var(--global-text-color);
+  max-width: 22ch;
+  margin: 1.4rem 0 1.3rem;
 }
-.about .eyebrow + h2 {
-  margin-top: 0.35rem;
-}
-
-/* ---- Hero intro ---------------------------------------------------------- */
 .hero-intro {
-  font-size: 1.22rem;
-  line-height: 1.7;
-  max-width: 60ch;
-  margin-bottom: 2rem;
+  font-size: 1.08rem;
+  line-height: 1.68;
+  max-width: 56ch;
+  margin-bottom: 1rem;
 
+  p {
+    color: var(--global-text-color-light);
+  }
   strong {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--global-text-color);
-    box-shadow: inset 0 -0.42em 0 rgba(var(--global-theme-color-rgb), 0.12);
   }
 }
 
-/* ---- Content cards ------------------------------------------------------- */
-.section-card {
-  position: relative;
-  clear: both; /* don't wrap the floated profile image */
-  border-radius: 14px;
-  padding: 1.9rem 2rem;
-  margin-bottom: 2.4rem;
+/* ---- Profile image + annotation ------------------------------------------ */
+.about .profile img {
+  border-radius: 10px;
   border: 1px solid var(--global-divider-color);
-  background: rgba(var(--global-theme-color-rgb), 0.015);
+  box-shadow: 0 14px 34px rgba(26, 23, 18, 0.14);
+  filter: grayscale(0.15);
   transition:
-    border-color 0.3s ease,
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.4s ease;
-
   &:hover {
-    border-color: rgba(var(--global-theme-color-rgb), 0.28);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26, 23, 18, 0.2);
   }
 }
-html[data-theme="dark"] .section-card {
-  background: rgba(255, 255, 255, 0.015);
+.about .more-info {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--global-text-color-light);
+  margin-top: 0.9rem;
+}
+
+/* ---- Sections: quiet top-rule separators, not nested boxes --------------- */
+.section-card,
+.section-head {
+  clear: both;
+  border: 0;
+  border-top: 1px solid var(--global-divider-color);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.section-card {
+  padding: 2.6rem 0 0.4rem;
+  margin: 2.8rem 0 0;
   &:hover {
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+    box-shadow: none;
+    border-color: var(--global-divider-color);
   }
+}
+.section-head {
+  padding-top: 2.6rem;
+  margin: 2.8rem 0 1.3rem;
+  h2 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.75rem;
+  }
+}
+.about h2 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0.2rem 0 1.3rem;
 }
 
 /* ---- "What I'm building" grid -------------------------------------------- */
 .now-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.9rem;
-  margin: 1.5rem 0 0;
+  gap: 0.85rem;
+  margin: 1.4rem 0 0;
 }
 .now-card {
-  padding: 1.3rem 1.4rem;
-  border-radius: 10px;
+  padding: 1.3rem 1.35rem;
+  border-radius: 12px;
   border: 1px solid var(--global-divider-color);
-  background: var(--global-bg-color);
+  background: var(--global-card-bg-color);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.3s ease;
-
   &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(var(--global-theme-color-rgb), 0.4);
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--mark) 60%, var(--global-divider-color));
   }
-
   h3 {
-    font-size: 1.02rem;
-    font-weight: 700;
-    margin: 0.5rem 0 0.5rem;
+    font-family: var(--disp);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0.5rem 0 0.45rem;
     color: var(--global-text-color);
   }
   p {
     font-size: 0.92rem;
-    line-height: 1.6;
-    opacity: 0.78;
+    line-height: 1.56;
+    color: var(--global-text-color-light);
     margin: 0;
   }
 }
 
-/* ---- Lists (content area only) ------------------------------------------- */
-.post,
-.about .post-content,
-article {
-  ul:not(.tags-container):not(.social-icons) {
-    list-style: none;
-    padding-left: 0;
+/* ---- Focus-area tags ----------------------------------------------------- */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
 
-    li {
-      position: relative;
-      padding-left: 1.6rem;
-      margin-bottom: 0.7rem;
-      line-height: 1.7;
-
-      &::before {
-        content: "›";
-        position: absolute;
-        left: 0;
-        color: var(--global-theme-color);
-        font-weight: 700;
-      }
+  .tag {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 500;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 6px;
+    color: var(--global-text-color-light);
+    cursor: default;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease;
+    &:hover {
+      border-color: var(--mark);
+      color: var(--global-text-color);
     }
   }
 }
 
-/* ---- Content links: highlight sweep + bolding underline ------------------ */
+/* ---- Research + open source (annotation list) ---------------------------- */
+.project-highlight {
+  margin: 0;
+  padding: 1.15rem 0 1.15rem 1.4rem;
+  border-left: 2px solid var(--global-divider-color);
+  border-bottom: 0;
+  transition:
+    border-color 0.3s ease,
+    padding-left 0.3s ease;
+  &:hover {
+    border-left-color: var(--mark);
+    padding-left: 1.7rem;
+  }
+  p:first-child {
+    font-size: 1.05rem;
+  }
+  strong {
+    color: var(--global-text-color);
+  }
+}
+
+/* ---- Callout ------------------------------------------------------------- */
+.callout-box {
+  border: 0;
+  border-left: 3px solid var(--mark);
+  border-radius: 0;
+  background: none;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  margin: 2.6rem 0 0;
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: clamp(1.15rem, 2.2vw, 1.42rem);
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  color: var(--global-text-color);
+}
+
+/* ---- Prose links: thin underline that fills on hover --------------------- */
 .post,
 .about,
 article {
   a:not(.no-underline):not(.navbar-brand):not(.nav-link):not(.badge):not(.btn) {
-    color: var(--global-theme-color);
+    color: var(--global-text-color);
     text-decoration: none;
-    font-weight: 600;
-    padding: 0.05em 0.12em;
-    border-radius: 3px;
-    /* resting: thin accent underline drawn with a background gradient so it
-       can animate independently of the sweep highlight */
-    background-image: linear-gradient(rgba(var(--global-theme-color-rgb), 0.14), rgba(var(--global-theme-color-rgb), 0.14)),
-      linear-gradient(var(--global-theme-color), var(--global-theme-color));
+    font-weight: 500;
+    background-image: linear-gradient(var(--mark-soft), var(--mark-soft)), linear-gradient(var(--mark), var(--mark));
     background-repeat: no-repeat;
     background-size:
       0% 100%,
@@ -206,22 +349,18 @@ article {
     background-position:
       0 0,
       0 100%;
-    transition:
-      background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-      color 0.3s ease;
-
+    padding: 0.02em 0.06em;
+    border-radius: 2px;
+    transition: background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     &:hover,
     &:focus-visible {
-      color: var(--global-theme-color);
       background-size:
         100% 100%,
-        100% 2px; /* highlight fills, underline bolds */
+        100% 1.5px;
     }
   }
 }
-
-/* The publications module, repositories and social icons render their own
-   chrome (badges, buttons, icon links) — keep the prose-link treatment off them. */
+/* Modules that render their own chrome keep the prose-link treatment off. */
 .about .publications a,
 .about .repositories a,
 .about .social a,
@@ -233,7 +372,28 @@ article .publications a {
   background-image: none;
 }
 
-/* keep nav clean */
+/* ---- Content-area list markers ------------------------------------------- */
+.post,
+.about .post-content,
+article {
+  ul:not(.tags-container):not(.social-icons) {
+    list-style: none;
+    padding-left: 0;
+    li {
+      position: relative;
+      padding-left: 1.6rem;
+      margin-bottom: 0.7rem;
+      line-height: 1.7;
+      &::before {
+        content: "›";
+        position: absolute;
+        left: 0;
+        color: var(--global-theme-color);
+        font-weight: 700;
+      }
+    }
+  }
+}
 .navbar,
 .nav,
 .navbar-nav,
@@ -252,72 +412,9 @@ article .publications a {
   }
 }
 
-/* ---- Focus-area tags ----------------------------------------------------- */
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1.6rem 0 0;
-  padding: 0;
-  list-style: none;
-
-  .tag {
-    display: inline-block;
-    padding: 0.4rem 0.85rem;
-    font-family: var(--mono-stack);
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    border: 1px solid var(--global-divider-color);
-    border-radius: 6px;
-    cursor: default;
-    transition:
-      border-color 0.25s ease,
-      color 0.25s ease,
-      background 0.25s ease;
-
-    &:hover {
-      border-color: var(--global-theme-color);
-      color: var(--global-theme-color);
-      background: rgba(var(--global-theme-color-rgb), 0.05);
-    }
-  }
-}
-
-/* ---- Project highlights -------------------------------------------------- */
-.project-highlight {
-  margin: 1rem 0;
-  padding: 1.2rem 1.4rem;
-  border-left: 2px solid rgba(var(--global-theme-color-rgb), 0.4);
-  transition:
-    border-color 0.3s ease,
-    padding-left 0.3s ease;
-
-  &:hover {
-    border-left-color: var(--global-theme-color);
-    padding-left: 1.6rem;
-  }
-
-  strong {
-    color: var(--global-text-color);
-  }
-}
-
-/* ---- Callout ------------------------------------------------------------- */
-.callout-box {
-  padding: 1.3rem 1.5rem;
-  border-radius: 12px;
-  margin: 1.5rem 0 0;
-  font-size: 1rem;
-  line-height: 1.7;
-  border: 1px solid var(--global-divider-color);
-  background: rgba(var(--global-theme-color-rgb), 0.03);
-}
-
 /* ---- Social icons -------------------------------------------------------- */
 .social {
   margin-top: 2.5rem;
-
   a {
     display: inline-flex;
     align-items: center;
@@ -326,19 +423,18 @@ article .publications a {
     height: 44px;
     margin: 0 0.35rem;
     border-radius: 10px;
-    background: var(--global-bg-color);
+    background: var(--global-card-bg-color);
     border: 1px solid var(--global-divider-color);
     transition:
       transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.3s ease,
       background 0.3s ease;
-
     &:hover {
       transform: translateY(-4px);
-      background: var(--global-theme-color);
-      border-color: var(--global-theme-color);
+      background: var(--mark);
+      border-color: var(--mark);
       i {
-        color: #fff;
+        color: #1a1712;
       }
     }
     &::after {
@@ -347,9 +443,9 @@ article .publications a {
   }
 }
 
-/* ---- Publications + latest posts ----------------------------------------- */
+/* ---- Publications + latest posts cards ----------------------------------- */
 .publications .bibliography li {
-  background: var(--global-card-bg-color, #fff);
+  background: var(--global-card-bg-color);
   border-radius: 12px;
   padding: 1.4rem;
   margin-bottom: 1.4rem;
@@ -357,33 +453,31 @@ article .publications a {
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 26px rgba(26, 23, 18, 0.09);
   }
   &::before {
     display: none;
   }
 }
 .latest-posts .post-item {
-  background: var(--global-card-bg-color, #fff);
+  background: var(--global-card-bg-color);
   border-radius: 12px;
   padding: 1.4rem;
   margin-bottom: 1.4rem;
   border: 1px solid var(--global-divider-color);
-  border-left: 3px solid var(--global-theme-color);
+  border-left: 3px solid var(--mark);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-
   &:hover {
     transform: translateX(6px);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 24px rgba(26, 23, 18, 0.09);
   }
 }
 
-/* ---- Scroll reveal (progressive — only active when JS adds .has-reveal) --- */
+/* ---- Scroll reveal (only active once JS adds .has-reveal) ----------------- */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -397,7 +491,6 @@ article .publications a {
 .animated-section {
   animation: fadeInUp 0.55s ease-out;
 }
-
 html.has-reveal .animated-section {
   opacity: 0;
   transform: translateY(24px);
@@ -411,28 +504,46 @@ html.has-reveal .animated-section.in-view {
   transform: none;
 }
 
-/* ---- Helpers ------------------------------------------------------------- */
-.highlight-text {
-  color: var(--global-theme-color);
-  font-weight: 600;
-}
 html {
   scroll-behavior: smooth;
 }
 
 /* ---- Responsive ---------------------------------------------------------- */
 @media (max-width: 768px) {
-  .about .profile img {
-    margin-bottom: 2rem;
-  }
   .now-grid {
     grid-template-columns: 1fr;
   }
   .hero-intro {
-    font-size: 1.06rem;
+    font-size: 1rem;
   }
-  .section-card {
-    padding: 1.5rem 1.3rem;
+}
+
+@media (max-width: 640px) {
+  .about .post-title {
+    font-size: clamp(2rem, 9vw, 3rem);
+    line-height: 1.04;
+  }
+  .about .desc {
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+  }
+  .about .thesis {
+    font-size: 1.45rem;
+    margin-top: 1.1rem;
+  }
+  .about .profile.float-right,
+  .about .profile.float-left {
+    float: none !important;
+    width: 200px;
+    max-width: 55%;
+    margin: 0.5rem 0 1.8rem;
+  }
+  .about .more-info {
+    margin-top: 0.6rem;
+  }
+  .section-head h2,
+  .about h2 {
+    font-size: 1.5rem;
   }
 }
 
@@ -442,6 +553,9 @@ html {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .mark-strong {
+    transform: none;
   }
   * {
     scroll-behavior: auto;

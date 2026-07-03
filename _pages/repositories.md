@@ -2,14 +2,14 @@
 layout: page
 permalink: /repositories/
 title: open source
-description: Building tools and frameworks that push the boundaries of AI research and development
+description: Code I maintain in the open: a typed Redis ODM, and the research systems behind my papers.
 nav: true
 nav_order: 4
 ---
 
-## Featured Projects
+## What I maintain
 
-From production-ready infrastructure tools to cutting-edge research implementations - here's what I'm building in the open.
+A typed Redis ODM I built for my own work, plus the systems behind the papers: factuality evaluation, word-sense linking, and cross-lingual alignment.
 
 {% if site.data.repositories.github_repos %}
 
