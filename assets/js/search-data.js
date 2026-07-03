@@ -99,7 +99,7 @@ ninja.data = [{
           title: 'ConceptPedia accepted at EMNLP 2025: a large-scale, cross-lingual concept resource for grounding semantic...',
           description: "",
           section: "News",},{id: "news-building-syllotips-governed-agent-runtime-orchestration-model-context-protocol-tooling-and-agent-memory-that-keeps-reasoning-grounded-and-supervisable",
-          title: 'Building SylloTips’ governed agent runtime: orchestration, Model Context Protocol tooling, and agent memory...',
+          title: 'Building Syllotips’ governed agent runtime: orchestration, Model Context Protocol tooling, and agent memory...',
           description: "",
           section: "News",},{
         id: 'social-email',
