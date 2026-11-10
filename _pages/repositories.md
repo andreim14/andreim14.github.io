@@ -13,39 +13,20 @@ A typed Redis ODM I built for my own work, plus the systems behind the papers: f
 
 {% if site.data.repositories.github_repos %}
 
-<div class="repositories d-flex flex-wrap flex-md-row flex-column justify-content-between align-items-center">
+<style>
+  /* Self-contained: the purged site CSS has no grid or card utilities. */
+  .repo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+  article .repo-grid a.repo-card { display: flex; flex-direction: column; gap: 0.4rem; padding: 1rem 1.1rem !important; border: 1px solid var(--global-divider-color);
+    border-radius: 8px; background: var(--global-card-bg-color); color: var(--global-text-color); text-decoration: none; border-bottom-width: 1px; }
+  article .repo-grid a.repo-card:hover { border-color: var(--global-theme-color); text-decoration: none; }
+  .repo-card-name { font-weight: 600; color: var(--global-theme-color); }
+  .repo-card-desc { font-size: 0.9rem; line-height: 1.45; }
+  .repo-card-meta { font-size: 0.8rem; color: var(--global-text-color-light); margin-top: auto; }
+</style>
+
+<div class="repo-grid">
   {% for repo in site.data.repositories.github_repos %}
     {% include repository/repo.liquid repository=repo %}
   {% endfor %}
 </div>
-{% endif %}
-
----
-
-{% if site.data.repositories.github_users %}
-
-## GitHub Activity
-
-<div class="repositories d-flex flex-wrap flex-md-row flex-column justify-content-between align-items-center">
-  {% for user in site.data.repositories.github_users %}
-    {% include repository/repo_user.liquid username=user %}
-  {% endfor %}
-</div>
-
----
-
-{% if site.repo_trophies.enabled %}
-{% for user in site.data.repositories.github_users %}
-{% if site.data.repositories.github_users.size > 1 %}
-
-  <h4>{{ user }}</h4>
-  {% endif %}
-  <div class="repositories d-flex flex-wrap flex-md-row flex-column justify-content-between align-items-center">
-  {% include repository/repo_trophies.liquid username=user %}
-  </div>
-
----
-
-{% endfor %}
-{% endif %}
 {% endif %}

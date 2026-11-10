@@ -8,3 +8,23 @@ github_repos:
   - Babelscape/LLM-Oasis
   - Babelscape/WSL
   - Babelscape/CroCoAlign
+
+# Card text for each repo. Stars are a snapshot (2026-11-10): the hosted stats-card services are offline,
+# so the page renders these directly. Refresh with `gh api repos/<owner>/<name>`.
+repo_details:
+  andreim14/beanis:
+    description: Asynchronous Python ODM for Redis.
+    language: Python
+    stars: 9
+  Babelscape/LLM-Oasis:
+    description: Large-scale resource for end-to-end factuality evaluation of LLMs, built by extracting and falsifying facts from Wikipedia.
+    language: Python
+    stars: 25
+  Babelscape/WSL:
+    description: Word Sense Linking, a model that finds spans of text and links them to their senses in a reference inventory.
+    language: Python
+    stars: 13
+  Babelscape/CroCoAlign:
+    description: A cross-lingual, context-aware and fully neural sentence alignment system for long texts.
+    language: Python
+    stars: 10
