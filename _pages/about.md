@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: AI Applied Scientist · Ph.D. in Artificial Intelligence
+subtitle: Senior AI Applied Scientist · Ph.D. in Artificial Intelligence
 
 # Sitemap settings
 priority: 1.0
@@ -40,7 +40,7 @@ latest_posts:
 
 At [Syllotips](https://www.syllotips.com) I work on the **harness that governs how agents plan, act, and stay grounded**: orchestration, guardrails, memory and tooling, so an agent reasons over a real company instead of hallucinating its way through it.
 
-Before this, a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) and [Babelscape](https://babelscape.com), on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and in Computational Linguistics.
+Before this, **8 years at [Babelscape](https://babelscape.com)**, from software engineer to NLP researcher, and a **Ph.D. in AI** with Sapienza's [NLP group](https://nlp.uniroma1.it/) on how machines pin down what words actually _mean_ in context. That work landed at ACL 2024 and in Computational Linguistics.
 
 </div>
 
@@ -56,7 +56,7 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
   <div class="now-card">
     <div class="now-kicker">orchestration</div>
     <h3>Agent orchestration &amp; governance</h3>
-    <p>Agents that plan multi-step work, recover when a step fails, and stay grounded: they cite what they actually know and say so when they don't, instead of making things up.</p>
+    <p>Agents that plan multi-step work, recover when a step fails, and stay grounded: they cite what they actually know and say so when they don't, instead of making things up. Rebuilding our deep-research agent this way raised judged answer quality from 78% to 92%.</p>
   </div>
   <div class="now-card">
     <div class="now-kicker">memory</div>
@@ -73,6 +73,16 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
     <h3>Continuous improvement</h3>
     <p>Subject-matter experts correct an agent once; those corrections become durable, governed knowledge the whole system learns from. No retraining cycle required.</p>
   </div>
+  <div class="now-card">
+    <div class="now-kicker">models</div>
+    <h3>Small models on our own hardware</h3>
+    <p>Hundreds of fine-tuning runs on a supercomputer, from 0.6B to 32B parameters, so one small model can replace three commercial LLM calls for answer confidence estimation. Served with vLLM on our own GPUs.</p>
+  </div>
+  <div class="now-card">
+    <div class="now-kicker">evaluation</div>
+    <h3>Evaluation that decides what ships</h3>
+    <p>LLM-judged comparisons on public and internal benchmarks. A fix that does not move its target cases gets reverted, however good it looked in a demo.</p>
+  </div>
 </div>
 
 <div class="tags-container">
@@ -82,6 +92,8 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
   <span class="tag">Model Context Protocol</span>
   <span class="tag">Agent Memory</span>
   <span class="tag">Grounded RAG</span>
+  <span class="tag">LLM Fine-tuning</span>
+  <span class="tag">Self-hosted Inference</span>
   <span class="tag">Multilingual NLP</span>
 </div>
 
@@ -98,6 +110,14 @@ Most "AI agents" demo well and fall apart the moment a real workflow touches the
 **[LLM-OASIS](https://direct.mit.edu/coli/article/52/1/1/133509)** · Computational Linguistics 2026
 
 Co-first author on the largest resource for _end-to-end factuality evaluation_: can a system tell whether generated text is actually faithful to its sources, not just fluent? The grounding problem behind every agent I build now.
+
+</div>
+
+<div class="project-highlight" markdown="1">
+
+**[Minerva](https://aclanthology.org/2025.findings-naacl.371/)** · first Italian LLM
+
+Worked on supervised fine-tuning, vocabulary adaptation and continual training. Adapting the vocabulary cut token fertility for Italian, so the same model reads more text per token.
 
 </div>
 
