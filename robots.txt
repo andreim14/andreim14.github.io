@@ -1,17 +1,4 @@
-# Allow all search engines to crawl everything
 User-agent: *
 Allow: /
-Crawl-delay: 0
 
-# Explicitly allow important directories
-Allow: /blog/
-Allow: /projects/
-Allow: /publications/
-Allow: /assets/
-
-# Sitemap location
 Sitemap: https://andreim14.github.io/sitemap.xml
-
-# Additional sitemaps (if you add them later)
-# Sitemap: https://andreim14.github.io/sitemap-pages.xml
-# Sitemap: https://andreim14.github.io/sitemap-posts.xml
