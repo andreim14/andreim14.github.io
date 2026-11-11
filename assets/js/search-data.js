@@ -27,6 +27,28 @@ ninja.data = [{
           window.location.href = "/blog/2025/build-ai-agents-langgraph-beanis/";
         
       },
+    },{id: "post-continual-pretraining-of-minerva-7b-an-italian-llm-data-recipes-16k-context-and-instruction-tuning-clic-it-2025",
+      
+        title: "Continual pretraining of Minerva-7B, an Italian LLM: data recipes, 16K context and instruction...",
+      
+      description: "We continually pretrained Minerva-7B on three data recipes (47.9B, 92B and 116B tokens) and extended its context from 4,096 to 16,384 tokens. Math data lifted GSM8K from 14.70 to 34.42, copyrighted books helped only on literary text, and the 16K model reached 25.9 METEOR on the new Italian INDAQA benchmark.",
+      section: "Posts",
+      handler: () => {
+        
+          window.location.href = "/blog/2025/continual-training-minerva-italian-llm/";
+        
+      },
+    },{id: "post-vocabulary-adaptation-for-an-italian-llm-cutting-token-fertility-with-sava-naacl-2025-findings",
+      
+        title: "Vocabulary adaptation for an Italian LLM: cutting token fertility with SAVA (NAACL 2025...",
+      
+      description: "Swapping the tokenizer of Mistral-7B-v0.1 and Llama-3.1-8B for an Italian one cuts Italian token fertility by 25% (Mistral) and 16% (Llama) and shrinks Llama-3.1-8B from 8.03B to 7.25B parameters. With SAVA initialisation and 12B tokens of continual training, the adapted Mistral matches or beats the original on Italian benchmarks.",
+      section: "Posts",
+      handler: () => {
+        
+          window.location.href = "/blog/2025/vocabulary-adaptation-italian-llm-sava/";
+        
+      },
     },{id: "post-llm-oasis-a-large-scale-dataset-and-benchmark-for-end-to-end-factuality-evaluation-of-llm-text-computational-linguistics-2026",
       
         title: "LLM-Oasis: a large-scale dataset and benchmark for end-to-end factuality evaluation of LLM text...",
