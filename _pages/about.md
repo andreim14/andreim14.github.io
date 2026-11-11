@@ -62,7 +62,7 @@ sitemap:
         <p class="metric"><span class="metric-num" data-count-from="78" data-count-to="92">92</span><span class="metric-pct">%</span><span class="metric-label">judged answer quality,<br>up from 78%</span></p>
       </div>
       <div class="run" aria-label="Example agent run">
-        <p class="run-head"><span>agent run</span><span class="run-state">live</span></p>
+        <p class="run-head"><span>agent run</span><span class="run-state">example run</span></p>
         <ol class="run-log" data-run>
           <li><b>plan</b> 3 steps, budget 12 tool calls</li>
           <li><b>search</b> knowledge base · 14 snippets</li>

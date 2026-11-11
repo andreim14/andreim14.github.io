@@ -16,7 +16,7 @@ entries:
     when: "2015 · 2019"
     lane: study
     who: "Sapienza · BSc in Computer Science, 107/110"
-    text: "Thesis on knowledge-based Word Sense Disambiguation with synset embeddings. Most of it written while already working."
+    text: "Thesis on knowledge-based Word Sense Disambiguation with synset embeddings."
   - id: cini
     at: "2016-12"
     when: "Dec 2016"
