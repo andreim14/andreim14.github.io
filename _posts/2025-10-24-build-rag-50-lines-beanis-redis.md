@@ -1,412 +1,201 @@
 ---
 layout: post
-title: "RAG with Redis and Beanis: Build Vector Search in ~50 Lines (No Separate Vector DB)"
+title: "How to build RAG retrieval on Redis with Beanis vector search"
 date: 2025-10-24 08:00:00 +0000
-description: "Build a RAG pipeline in about 50 lines of Python using Redis vector search and the Beanis ODM, without adding a separate vector database like Pinecone."
+last_modified_at: 2026-11-11 12:00:00
+description: "Store text and embeddings in Redis Stack with the Beanis ODM, let it create the HNSW index, and retrieve the top-k passages for a RAG prompt. Complete async Python code."
 tags: python redis RAG vector-search semantic-search beanis embeddings
 categories: tutorials
 giscus_comments: true
 related_posts: true
-thumbnail: assets/img/rag-simple.png
-keywords: RAG, Redis, vector search, Beanis, semantic search, embeddings, Pinecone alternative, Jina embeddings, HNSW
+keywords: Redis vector search Python, RAG with Redis, Beanis VectorField, RediSearch HNSW Python, find_by_vector_similarity, Redis Stack embeddings, jina-embeddings-v4
 author: Andrei Stefan Bejgu
 ---
 
-## TL;DR
+This tutorial builds the retrieval half of a RAG pipeline on Redis: a Beanis model with a `VectorField`, an ingest step that stores text plus embeddings, and a search function that returns the closest passages. At the end you have one Python file that you can point at your own documents and plug into any LLM prompt.
 
-**Beanis** is a Redis ODM (object-document mapper) with built-in vector search, so if you already run Redis you can build RAG (retrieval-augmented generation) without a dedicated vector database. You define a Pydantic-style model with a `VectorField`, Beanis creates the HNSW index automatically, and similarity search is one call.
+| | |
+| --- | --- |
+| Package | [`pip install beanis`](https://pypi.org/project/beanis/) (0.2.0) |
+| Code | [beanis](https://github.com/andreim14/beanis) · [simple-rag example](https://github.com/andreim14/beanis-examples/tree/main/simple-rag) |
+| Docs | [andreim14.github.io/beanis](https://andreim14.github.io/beanis/) |
+| Requirements | Python 3.9+, Redis Stack (needs the RediSearch module for vector indexes), `transformers>=4.52` and `torch>=2.6` for the embedding model |
 
-- **What it replaces:** a separate vector service (Pinecone, Weaviate, pgvector) for small-to-mid corpora (roughly 10K to 1M documents).
-- **Setup:** `redis-stack` (includes the RediSearch module) plus `pip install beanis transformers redis`.
-- **Embeddings:** open-source [jina-embeddings-v4](https://huggingface.co/jinaai/jina-embeddings-v4), runs locally, no API key.
-- **Code size:** about 50 lines total for ingest and search.
-- **Docs:** [Beanis Documentation](https://andreim14.github.io/beanis/)
-- **Example:** [Simple RAG](https://github.com/andreim14/beanis-examples/tree/main/simple-rag)
+<figure class="flow" aria-label="RAG retrieval with Beanis in four steps">
+<ol>
+<li><b>Embed</b><span>turn each passage into a 1024-dim vector</span></li>
+<li><b>Insert</b><span>Beanis writes the text and vector to a Redis hash</span></li>
+<li><b>Search</b><span>KNN query on the HNSW index Beanis created at init</span></li>
+<li><b>Fetch</b><span>load the matching documents and pass their text to the LLM</span></li>
+</ol>
+<figcaption>Beanis owns storage and the index. The embedding model and the LLM are yours to choose.</figcaption>
+</figure>
 
-```python
-# Define a model, ingest, and search
-doc = KnowledgeBase(text=text, embedding=embedding)
-await doc.insert()
+## Minimal example
 
-results = await IndexManager.find_by_vector_similarity(
-    redis_client, KnowledgeBase, "embedding", query_embedding, k=5
-)
-```
-
-## The problem
-
-You are building an AI app that needs semantic search for RAG. The common advice is to reach for [Pinecone](https://www.pinecone.io/) ($70/month minimum, plus 100+ lines of boilerplate), [Weaviate](https://weaviate.io/) (another service to deploy and monitor), or [pgvector](https://github.com/pgvector/pgvector) (slower queries and index tuning).
-
-Meanwhile you already run Redis for caching, session storage, and job queues. What most people miss is that **Redis is also a vector database**. If you are already running it, the vector search capability is there whether you use it or not.
-
-## The solution: Beanis on Redis
-
-**Beanis** is a Redis ODM with built-in vector search. The whole RAG system is short:
-
-```python
-# models.py (14 lines)
-from beanis import Document, VectorField
-from typing import List
-from typing_extensions import Annotated
-
-class KnowledgeBase(Document):
-    text: str
-    embedding: Annotated[List[float], VectorField(dimensions=1024)]
-
-    class Settings:
-        name = "knowledge"
-
-# ingest.py (20 lines)
-from transformers import AutoModel
-
-model = AutoModel.from_pretrained('jinaai/jina-embeddings-v4')
-
-async def ingest_text(text: str):
-    embedding = model.encode([text])[0].tolist()
-    doc = KnowledgeBase(text=text, embedding=embedding)
-    await doc.insert()
-
-# search.py (15 lines)
-from beanis.odm.indexes import IndexManager
-
-async def search(query: str):
-    query_emb = model.encode([query])[0].tolist()
-
-    results = await IndexManager.find_by_vector_similarity(
-        redis_client, KnowledgeBase, "embedding", query_emb, k=5
-    )
-
-    return [await KnowledgeBase.get(doc_id) for doc_id, score in results]
-```
-
-That is the entire RAG system.
-
-## Why this approach works
-
-Vector indexes are created automatically when you call `init_beanis()`. No manual Redis commands, no setup scripts. Define your model with `VectorField()` and Beanis handles the index.
-
-### Beanis + Redis vs Pinecone
-
-Pinecone is a good product, but it solves a problem you may not have. It makes sense for massive-scale search across billions of documents, global replication, and managed infrastructure with SLAs. If that is you, and you [have the budget](https://www.pinecone.io/pricing/), use Pinecone.
-
-Most apps do not need that. You have maybe 10K to 1M documents, you already run Redis, and you would rather not add a monthly bill. Here is what changes with Beanis + Redis:
-
-| Dimension     | Beanis + Redis                 | Pinecone          |
-| ------------- | ------------------------------ | ----------------- |
-| Setup         | `docker run`, no API keys      | Account, API keys |
-| Code          | about 50 lines                 | 100+ lines        |
-| Cost          | $0 if Redis is already running | from $70/month    |
-| Query latency | 15ms (local)                   | 40ms (network)    |
-| Operations    | one service                    | one more service  |
-
-The trade-off is self-hosting. If managed infrastructure matters to you, stay on Pinecone. If you already run Redis and do not mind operating it, this is simpler and cheaper.
-
-### The code comparison
-
-**Pinecone:**
-
-```python
-# Setup
-import pinecone
-pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment="us-west1-gcp")
-index = pinecone.Index("my-index")
-
-# Upsert (complex)
-vectors = [(str(i), embedding, {"text": text}) for i, (text, embedding) in enumerate(docs)]
-index.upsert(vectors=vectors, namespace="docs")
-
-# Search (multiple steps)
-query_response = index.query(
-    vector=query_embedding,
-    top_k=5,
-    namespace="docs",
-    include_metadata=True
-)
-results = [match['metadata']['text'] for match in query_response['matches']]
-
-# ~100+ lines for production setup
-```
-
-**Beanis:**
-
-```python
-# Setup
-doc = KnowledgeBase(text=text, embedding=embedding)
-await doc.insert()
-
-# Search
-results = await IndexManager.find_by_vector_similarity(
-    redis_client, KnowledgeBase, "embedding", query_embedding, k=5
-)
-
-# ~50 lines total
-```
-
-## Step-by-step tutorial
-
-### 1. Install dependencies
-
-```bash
-pip install beanis transformers redis
-```
-
-Three packages, no account creation.
-
-### 2. Start Redis
+Start Redis Stack:
 
 ```bash
 docker run -d -p 6379:6379 redis/redis-stack:latest
+pip install beanis "transformers>=4.52" "torch>=2.6" peft torchvision pillow
 ```
 
-Use [`redis-stack`](https://redis.io/about/redis-stack/). It includes the RediSearch module needed for vector search.
-
-### 3. Define your model
+Then save this as `rag.py` and run `python rag.py`:
 
 ```python
-from beanis import Document, VectorField
+import asyncio
 from typing import List
+
+from redis.asyncio import Redis
+from transformers import AutoModel
 from typing_extensions import Annotated
+
+from beanis import Document, VectorField, init_beanis
+from beanis.odm.indexes import IndexManager
+
+DIM = 1024
+
+model = AutoModel.from_pretrained("jinaai/jina-embeddings-v4", trust_remote_code=True)
+
+
+def embed(text: str, kind: str) -> List[float]:
+    """kind is "passage" when indexing and "query" when searching."""
+    vec = model.encode_text(
+        texts=[text], task="retrieval", prompt_name=kind, truncate_dim=DIM
+    )[0]
+    return vec.tolist()
+
 
 class KnowledgeBase(Document):
     text: str
-    embedding: Annotated[List[float], VectorField(dimensions=1024)]
+    embedding: Annotated[List[float], VectorField(dimensions=DIM)]
 
-    class Settings:
-        name = "knowledge"
-```
 
-14 lines for the whole data model. `VectorField()` tells Beanis to create a vector index using the HNSW algorithm for fast similarity search.
-
-### 4. Ingest documents
-
-Vector indexes are created automatically, so there is no manual setup step.
-
-```python
-from transformers import AutoModel
-import redis.asyncio as redis
-from beanis import init_beanis
-
-# Load open-source embedding model (no API key)
-model = AutoModel.from_pretrained('jinaai/jina-embeddings-v4', trust_remote_code=True)  # https://huggingface.co/jinaai/jina-embeddings-v4
-
-async def ingest_text(text: str):
-    # Generate embedding
-    embedding = model.encode([text])[0].tolist()
-
-    # Store in Redis
-    doc = KnowledgeBase(text=text, embedding=embedding)
-    await doc.insert()
-
-    print(f"✓ Indexed: {text[:50]}...")
-
-# Initialize
-redis_client = redis.Redis(decode_responses=True)
-await init_beanis(database=redis_client, document_models=[KnowledgeBase])
-
-# Ingest your documents
-texts = ["Redis is fast", "Python is great", "Beanis is simple"]
-for text in texts:
-    await ingest_text(text)
-```
-
-20 lines. Documents are now searchable and the vector index was built for you.
-
-### 5. Search semantically
-
-```python
-from beanis.odm.indexes import IndexManager
-
-async def search(query: str, k: int = 5):
-    # Embed query
-    query_embedding = model.encode([query])[0].tolist()
-
-    # Search
+async def search(redis_client, query: str, k: int = 3):
     results = await IndexManager.find_by_vector_similarity(
         redis_client=redis_client,
         document_class=KnowledgeBase,
         field_name="embedding",
-        query_vector=query_embedding,
-        k=k
+        query_vector=embed(query, "query"),
+        k=k,
     )
-
-    # Get documents
-    docs = []
-    for doc_id, similarity_score in results:
+    hits = []
+    for doc_id, score in results:
         doc = await KnowledgeBase.get(doc_id)
-        docs.append((doc.text, similarity_score))
+        if doc is not None:
+            hits.append((score, doc.text))
+    return hits
 
-    return docs
 
-# Search
-results = await search("what is semantic search?")
-for text, score in results:
-    print(f"{score:.3f}: {text}")
+async def main():
+    redis_client = Redis(decode_responses=True)
+    # Creates the HNSW index idx:KnowledgeBase:vector if it does not exist
+    await init_beanis(database=redis_client, document_models=[KnowledgeBase])
+
+    for text in [
+        "Redis keeps its whole dataset in memory.",
+        "Beanis maps Pydantic models to Redis hashes.",
+        "HNSW is a graph index for approximate nearest neighbour search.",
+    ]:
+        await KnowledgeBase(text=text, embedding=embed(text, "passage")).insert()
+
+    for score, text in await search(redis_client, "How does approximate vector search work?"):
+        print(f"{score:.3f}  {text}")
+
+    await redis_client.close()
+
+
+asyncio.run(main())
 ```
 
-15 lines, semantic search working.
+The `score` is the distance RediSearch returns for the KNN query. With the default `COSINE` metric, lower means closer.
 
-## Why semantic search beats keywords
-
-Say you are building documentation search and a user asks "how to cancel my subscription?" while the docs use the phrase "termination policy". Keyword search returns nothing. Vector search matches on meaning, so it surfaces:
-
-- "Account termination policy"
-- "How to close your account"
-- "Subscription cancellation process"
-
-Vector embeddings encode meaning, not exact tokens, so related phrasing still matches.
-
-## Performance comparison
-
-I benchmarked this against the usual options with 10,000 documents. These are measured numbers, not marketing figures.
-
-| System         | Query latency | Setup code | Setup            | Incremental cost       |
-| -------------- | ------------- | ---------- | ---------------- | ---------------------- |
-| Beanis + Redis | 15ms          | ~50 lines  | `docker run`     | $0                     |
-| Pinecone       | 40ms          | 100+ lines | API key          | $70+/month             |
-| Weaviate       | 35ms          | 80+ lines  | deploy a service | self-hosting           |
-| pgvector       | 200ms         | 60+ lines  | index tuning     | included with Postgres |
-
-Beanis wins on speed (local Redis beats API round trips) and on code size (the ODM pattern removes boilerplate). What you give up is managed infrastructure. If that matters, Pinecone is worth the cost.
-
-## The "already using Redis" advantage
-
-Most modern web apps already run Redis for caching, sessions, job queues, and rate limiting. Vector search joins that list on the same service, with the same monitoring and the same deployment pipeline.
-
-Before:
-
-- Redis (caching and sessions)
-- PostgreSQL (user data)
-- Pinecone (vectors, $70+/month)
-- Your app
-
-After:
-
-- Redis (caching, sessions, and vectors)
-- PostgreSQL (user data)
-- Your app
-
-One fewer service to monitor, deploy, and pay for. Vectors sit next to your cache, so queries benefit from data locality, and there is one less system to check when something breaks.
-
-## Beyond basic text search
-
-Once the basics work, a few extensions are worth knowing.
-
-**Multimodal search.** [Jina v4](https://huggingface.co/jinaai/jina-embeddings-v4) embeds text and images into the same vector space, so you can search images with text queries or find text from an image. It is the same `model.encode()` API, plus `encode_image()` for images:
+## How to define a vector field
 
 ```python
-from PIL import Image
-
-# Search with text
-text_emb = model.encode(["red sports car"])[0].tolist()
-results = await IndexManager.find_by_vector_similarity(...)
-
-# Search with image
-img = Image.open("car.jpg")
-img_emb = model.encode_image([img])[0].tolist()
-results = await IndexManager.find_by_vector_similarity(...)
+embedding: Annotated[List[float], VectorField(dimensions=1024)]
 ```
 
-Both queries run against the same index.
+`VectorField` takes these parameters, all with defaults except `dimensions`:
 
-**Hybrid search.** Combine vector similarity with traditional filters. Add indexed fields to your model and filter before or after the vector search:
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `dimensions` | required | must equal the length of your embeddings |
+| `algorithm` | `"HNSW"` | or `"FLAT"` for exact search on small sets |
+| `distance_metric` | `"COSINE"` | or `"L2"`, `"IP"` |
+| `m` | `16` | HNSW links per node |
+| `ef_construction` | `200` | HNSW build-time candidate list size |
 
-```python
-class KnowledgeBase(Document):
-    text: str
-    embedding: Annotated[List[float], VectorField(dimensions=1024)]
-    category: Indexed(str)  # Filter by category
-    date: datetime
-    language: Indexed(str)  # Filter by language
-```
+At `init_beanis()` Beanis runs `FT.CREATE idx:<ClassName>:vector` over hashes with the `<ClassName>:` prefix, using a `FLOAT32` vector field. If RediSearch is not available it prints a warning and continues, so check the output if search returns nothing.
 
-This supports queries like "similar documents, but only in English" or "semantic search within the documentation category".
-
-**Production tuning.** Redis Cluster handles sharding automatically, and you can tune HNSW parameters for your recall/speed trade-off:
+## How to search and tune recall
 
 ```python
-VectorField(
-    dimensions=1024,
-    algorithm="HNSW",
-    m=32,  # More connections = better recall, more memory
-    ef_construction=400  # Higher = better index quality, slower indexing
+results = await IndexManager.find_by_vector_similarity(
+    redis_client, KnowledgeBase, "embedding", query_vector, k=5, ef_runtime=100
 )
 ```
 
-Start with the defaults and only tune if you see problems.
+It returns a list of `(document_id, score)` tuples. `ef_runtime` is passed to the HNSW query: larger values search more of the graph, which raises recall and costs time. If the search itself fails (for example, the index does not exist), the function logs a warning and returns `[]`.
 
-## Complete working example
+## How to use the results in a RAG prompt
 
-Clone and run:
-
-```bash
-git clone https://github.com/andreim14/beanis-examples.git
-cd beanis-examples/simple-rag
-
-# Install
-pip install -r requirements.txt
-
-# Start Redis
-docker run -d -p 6379:6379 redis/redis-stack:latest
-
-# Ingest sample docs (vector indexes created automatically)
-python ingest.py
-
-# Search
-python search.py "what is semantic search?"
-```
-
-## FAQ
-
-### What is Beanis?
-
-Beanis is a Redis ODM (object-document mapper) with built-in vector search. You define documents like Pydantic models, and it handles serialization, indexing, and vector similarity queries on Redis.
-
-### Do I need RediSearch?
-
-Yes. Use `redis-stack` (which includes the RediSearch module) or install RediSearch manually. Plain Redis does not have vector search.
-
-### Can I use OpenAI embeddings instead of Jina?
-
-Yes. Swap the embedding source and keep the rest of the pipeline:
+Retrieval gives you passages. Build the prompt with any LLM client:
 
 ```python
-import openai
-embedding = openai.Embedding.create(input=text, model="text-embedding-3-small")
+hits = await search(redis_client, question, k=3)
+context = "\n\n".join(text for _, text in hits)
+prompt = f"Answer using only this context:\n\n{context}\n\nQuestion: {question}"
 ```
 
-The jina-embeddings-v4 model is free, runs locally, and needs no API key, which is why the tutorial uses it.
+For a full agent with conversation memory, see [the LangGraph tutorial]({% post_url 2025-11-11-build-ai-agents-langgraph-beanis %}).
 
-### How much data can Redis handle for vectors?
+## How to filter by metadata
 
-Redis can hold millions of vectors on a single node, and billions with sharding via Redis Cluster. Memory is roughly 4KB per document for 1024-dimension vectors, so about 4GB of RAM for 1M documents.
-
-### How do updates and deletes work?
-
-Edit the document and save, or delete it. Indexes update automatically:
+Beanis does not combine a vector query and a field filter in one Redis command. Add an indexed field and intersect in Python:
 
 ```python
-# Update
-doc = await KnowledgeBase.get(doc_id)
-doc.text = "Updated text"
-doc.embedding = new_embedding
-await doc.save()
+from beanis import Indexed
 
-# Delete
-await doc.delete()
+class KnowledgeBase(Document):
+    text: str
+    language: Indexed(str)
+    embedding: Annotated[List[float], VectorField(dimensions=1024)]
+
+results = await IndexManager.find_by_vector_similarity(
+    redis_client, KnowledgeBase, "embedding", query_vector, k=50
+)
+docs = [await KnowledgeBase.get(doc_id) for doc_id, _ in results]
+english = [d for d in docs if d is not None and d.language == "en"][:5]
 ```
 
-### When should I still use a dedicated vector database?
+Ask for a larger `k` than you need, since some hits will be filtered out. For a large filtered subset, `await KnowledgeBase.find(language="en")` gives you the matching documents directly.
 
-When you need billions of documents, global replication, or fully managed infrastructure with SLAs. For roughly 10K to 1M documents on infrastructure you already run, Beanis + Redis is simpler and cheaper.
+## Choosing an embedding model
 
-### Is Beanis tied to a specific database?
+The example uses [jina-embeddings-v4](https://huggingface.co/jinaai/jina-embeddings-v4), as the [simple-rag example](https://github.com/andreim14/beanis-examples/tree/main/simple-rag) does. Its vectors are 2048-dimensional by default; `truncate_dim=1024` keeps them at 1024. It is built on Qwen2.5-VL-3B, so a GPU helps, and its license is the Qwen Research License, so check it before commercial use. Any other model works: set `dimensions` to its output size and embed queries and documents with the same model.
 
-No. It runs on Redis, so there is no proprietary lock-in. Your data and index live in a service you can host anywhere.
+## Questions people ask
 
-## Resources
+**Do I need Redis Stack for vector search?**
+Yes. The vector index is a RediSearch index (`FT.CREATE`), so you need Redis Stack or another Redis build with RediSearch. Beanis's other features run on plain Redis.
 
-- **Docs:** [Beanis Documentation](https://andreim14.github.io/beanis/)
-- **Simple RAG example:** [GitHub](https://github.com/andreim14/beanis-examples/tree/main/simple-rag)
-- **Restaurant Finder example:** [GitHub](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
-- **Embedding model:** [jina-embeddings-v4](https://huggingface.co/jinaai/jina-embeddings-v4)
-- **Redis Stack:** [redis-stack](https://redis.io/about/redis-stack/)
+**Can I use OpenAI embeddings instead of Jina?**
+Yes. Set `VectorField(dimensions=1536)` for `text-embedding-3-small`, and use the same model for documents and queries.
+
+**When is the vector index created?**
+During `init_beanis()`, not on the first insert. Beanis skips creation if the index already exists.
+
+**How do I delete a document from the index?**
+Call `await doc.delete_self()` or `await KnowledgeBase.delete(doc_id)`. RediSearch drops a hash from its index when the hash is deleted.
+
+**Why does search return nothing?**
+Check that the first `init_beanis()` run printed `Created vector index` (later runs find the index and print nothing), that `dimensions` matches your embedding length, and that queries use the same model as the documents.
+
+## Links
+
+- PyPI: [pypi.org/project/beanis](https://pypi.org/project/beanis/)
+- GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
+- Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis/)
+- Example: [beanis-examples/simple-rag](https://github.com/andreim14/beanis-examples/tree/main/simple-rag)
+- Redis vector search: [redis.io docs](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/)

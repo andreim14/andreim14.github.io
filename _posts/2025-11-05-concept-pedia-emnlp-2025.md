@@ -1,370 +1,180 @@
 ---
 layout: post
-title: "Concept-pedia: A Multimodal Concept Dataset and Benchmark Beyond ImageNet (EMNLP 2025)"
+title: "Concept-pedia and Concept-10k: test your vision-language model beyond ImageNet (EMNLP 2025)"
 date: 2025-11-05 09:00:00
-description: "Concept-pedia is a wide-coverage, semantically-annotated multimodal dataset of 165K+ visual concepts built on BabelNet, with the Concept-10k benchmark and SigLIP models on Hugging Face for evaluating vision-language models beyond ImageNet."
+last_modified_at: 2026-11-11 12:00:00
+description: "Concept-10k is a human-validated benchmark of 9,837 visual concepts in 28 semantic categories. SigLIP-SO400M scores 83.2% on ImageNet-1k and 40.3% on Concept-10k. How the dataset was built from Wikipedia and BabelNet, how to evaluate your own model on it in a few lines, and how to cite it."
 tags: conceptpedia multimodal vision-language emnlp2025 research dataset benchmark huggingface siglip babelnet
 categories: research
-giscus_comments: true
-related_posts: true
-thumbnail: assets/img/conceptpedia-thumbnail.png
-keywords: concept-pedia, concept-10k, vision-language dataset, SigLIP, BabelNet, EMNLP 2025, ImageNet alternative, zero-shot image classification, fine-grained recognition, multimodal benchmark
+keywords: Concept-pedia, Concept-10k, vision-language benchmark, zero-shot image classification, SigLIP, CLIP, ImageNet alternative, BabelNet, Wikipedia image captions, visual concept recognition, EMNLP 2025
 author: Andrei Stefan Bejgu
 ---
 
-## TL;DR
+**Concept-10k** is a benchmark for one question: does your vision-language model recognise concepts outside ImageNet? It has **9,837 concepts across 28 semantic categories**, each checked by two expert linguists. Models that look excellent on ImageNet do not hold up on it: SigLIP-SO400M goes from **83.2% top-1 on ImageNet-1k to 40.3% on Concept-10k**.
 
-**Concept-pedia** is a wide-coverage, semantically-annotated multimodal dataset of **165,000+ visual concepts** built on [BabelNet](https://babelnet.org/), designed for training and evaluating vision-language models on far more than ImageNet's 1,000 categories. It ships with **Concept-10k**, a human-verified evaluation benchmark, and three fine-tuned [SigLIP](https://huggingface.co/docs/transformers/model_doc/siglip) models on Hugging Face.
+It comes from **Concept-pedia**, a training set of 165K concepts built automatically from Wikipedia image captions and the BabelNet taxonomy. Fine-tuning on it adds **5.2 points** on Concept-10k on average, without losing ImageNet-1k accuracy.
 
-- **Paper:** [Concept-pedia: A Wide-coverage Semantically-annotated Multimodal Dataset](https://aclanthology.org/2025.emnlp-main.1745/), EMNLP 2025 (Main)
-- **Authors:** Karim Ghonim, Andrei Stefan Bejgu, Alberte Fernández-Castro, Roberto Navigli (Sapienza University of Rome and Babelscape)
-- **Models:** [sapienzanlp on Hugging Face](https://huggingface.co/sapienzanlp) (SigLIP base, large, SO400M)
-- **Datasets:** [Concept-10k](https://huggingface.co/datasets/sapienzanlp/Concept-10k) and [Concept-10k-imgs](https://huggingface.co/datasets/sapienzanlp/Concept-10k-imgs)
-- **Key finding:** State-of-the-art vision-language models drop **30+ points** from ImageNet to Concept-10k.
+| | |
+|---|---|
+| Paper | [Concept-pedia: a Wide-coverage Semantically-annotated Multimodal Dataset](https://aclanthology.org/2025.emnlp-main.1745/), EMNLP 2025 |
+| Authors | Karim Ghonim, Andrei Stefan Bejgu, Alberte Fernández-Castro, Roberto Navigli (Sapienza University of Rome, Babelscape) |
+| Benchmark | [`sapienzanlp/Concept-10k`](https://huggingface.co/datasets/sapienzanlp/Concept-10k) on Hugging Face, one `test` split |
+| Fine-tuned models | [`sapienzanlp`](https://huggingface.co/sapienzanlp) SigLIP base, large and SO400M, fine-tuned on Concept-pedia |
+| Use it for | zero-shot image classification evals, long-tail and abstract concepts, per-category error analysis |
 
-## The problem: ImageNet is a narrow test
+## Evaluate your model on Concept-10k
 
-For over a decade, [ImageNet](https://image-net.org/) and its 1,000 categories have been the default benchmark for computer vision. Models are trained on ImageNet-like distributions and then evaluated on ImageNet, or on benchmarks that are close variants of it.
+Each row is one image with the concept it shows, its BabelNet id and its semantic category:
 
-The real world has far more than 1,000 visual concepts. Ask a state-of-the-art model about anything outside that distribution and the gaps show: a Bombay cat gets labeled "black cat", an Allen wrench gets called a "screwdriver". These are not obscure edge cases. They are everyday objects that people recognize instantly, and they fall outside the categories most models were optimized for.
+```python
+{"id": "147_000015482", "caption": "Bipartite patella", "concept": "patella",
+ "bn_id": "bn:00049315n", "category": "PART", "image": <PIL.Image>}
+```
 
-High ImageNet accuracy has given the field a false sense of progress. A model that scores 85% on ImageNet can still fail to tell a moka pot from a french press. Concept-pedia measures that gap directly.
+Zero-shot evaluation works like the paper's: embed every concept name and every image in the same space, predict the concept with the highest similarity, report top-1 accuracy. This script does that for any SigLIP or CLIP checkpoint on Hugging Face:
 
-## What Concept-pedia is
+```python
+# pip install torch transformers datasets   (tested with transformers 5.22)
+import torch
+from datasets import load_dataset
+from transformers import AutoModel, AutoProcessor
 
-Concept-pedia is built on top of BabelNet, the largest multilingual semantic network. Every concept carries a definition, relationships to other concepts, and multilingual mappings, rather than a bare image-label pair. A concept exists inside a web of human knowledge, and the dataset keeps that structure attached.
+model_id = "google/siglip-base-patch16-224"   # or any CLIP / SigLIP checkpoint
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = AutoModel.from_pretrained(model_id).to(device).eval()
+processor = AutoProcessor.from_pretrained(model_id)
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-examples.png" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Examples of taxonomical concept population in Concept-pedia across categories, showing the semantic structure inherited from BabelNet.
-</div>
+ds = load_dataset("sapienzanlp/Concept-10k", split="test")
+concepts = sorted(set(ds["concept"]))
+names = [c.replace("_", " ") for c in concepts]      # "dangerous_goods" -> "dangerous goods"
+index = {c: i for i, c in enumerate(concepts)}
 
-Three properties set it apart from typical image-text datasets:
+def unit(x):
+    # transformers >= 5 returns an output object, older versions a tensor
+    x = x if torch.is_tensor(x) else x.pooler_output
+    return torch.nn.functional.normalize(x, dim=-1)
 
-- **Scale and diversity:** 165,000+ concepts, from specific cat breeds to architectural elements to types of pasta, not the same 1,000 ImageNet categories in different poses.
-- **Semantic annotations:** hypernymy (is-a), meronymy (part-of), and links to Wikipedia and WordNet, so models can reason about concept hierarchies instead of only pattern-matching pixels to tokens.
-- **A verified benchmark:** Concept-10k, curated and checked by expert annotators to test whether models understand visual concepts or memorized ImageNet.
+with torch.no_grad():
+    text = []
+    for i in range(0, len(names), 512):
+        t = processor(text=names[i:i + 512], padding="max_length", truncation=True, return_tensors="pt").to(device)
+        text.append(unit(model.get_text_features(**t)))
+    text = torch.cat(text)
 
-### Concept-10k: the evaluation benchmark
+    correct = 0
+    for i in range(0, len(ds), 64):
+        batch = ds[i:i + 64]
+        px = processor(images=[im.convert("RGB") for im in batch["image"]], return_tensors="pt").to(device)
+        img = unit(model.get_image_features(**px))
+        pred = (img @ text.T).argmax(dim=-1).tolist()
+        correct += sum(p == index[c] for p, c in zip(pred, batch["concept"]))
 
-Concept-10k is the manually-curated evaluation subset: diverse, human-verified concepts spanning the full range of semantic categories, with balanced difficulty from easy to genuinely hard. Every image was verified across multiple rounds of expert review, checking not just "is this the right label?" but "is this a good, unambiguous example?"
+print(f"Concept-10k top-1: {correct / len(ds):.1%}")
+```
 
-The full released Concept-10k dataset covers 28 semantic categories and 9,837 unique concepts, against ImageNet-1k's 11 categories and 1,000 concepts.
+The label space is every concept in the benchmark (about 9.8K candidates), which is what makes it hard. To compare against the paper's numbers, use the same models; the public release has 34,345 rows, so small differences from the paper's tables are expected. Group the predictions by `category` to see where a model breaks, which is usually more useful than the single number.
 
-## The ImageNet anchor: results
+To classify your own images, the fine-tuned checkpoints drop into the standard zero-shot pipeline:
 
-When we evaluate state-of-the-art vision-language models on Concept-10k, performance collapses.
+```python
+from transformers import pipeline
 
-| Model           | ImageNet | Concept-10k | Drop       |
-| --------------- | -------- | ----------- | ---------- |
-| CLIP (ViT-L/14) | 75.5%    | 42.3%       | **-33.2%** |
-| ALIGN           | 76.4%    | 43.8%       | **-32.6%** |
-| OpenCLIP        | 78.2%    | 45.1%       | **-33.1%** |
+clf = pipeline("zero-shot-image-classification",
+               model="sapienzanlp/siglip-base-patch16-256-ft-concept-pedia")
+clf("photo.jpg", candidate_labels=["moka pot", "french press", "espresso machine"])
+```
 
-Performance drops by more than 30 points on diverse concepts. The failing concepts are not visually harder than ImageNet categories: a Bombay cat is no harder to recognize than an Egyptian cat. The model just never learned to make the distinction.
+## Results
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-comparison.png" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Concept and category distributions: Concept-10k covers 28 semantic categories with 9,837 unique concepts, against ImageNet-1k's 11 categories and 1,000 concepts, with a more balanced spread.
-</div>
+<figure class="chart" role="img" aria-label="Top-1 accuracy on ImageNet-1k versus Concept-10k for six models; every model loses 38 to 49 points."><svg viewBox="0 0 680 316" width="100%" preserveAspectRatio="xMidYMid meet"><g class="ch-legend" font-size="12"><circle cx="190" cy="16" r="6" class="ch-a"/><text x="202" y="20">ImageNet-1k</text><circle cx="310" cy="16" r="6" class="ch-b"/><text x="322" y="20">Concept-10k</text></g><line x1="190.0" x2="190.0" y1="40" y2="276" class="ch-grid"/><text x="190.0" y="310" class="ch-tick" text-anchor="middle">0%</text><line x1="306.5" x2="306.5" y1="40" y2="276" class="ch-grid"/><text x="306.5" y="310" class="ch-tick" text-anchor="middle">25%</text><line x1="423.0" x2="423.0" y1="40" y2="276" class="ch-grid"/><text x="423.0" y="310" class="ch-tick" text-anchor="middle">50%</text><line x1="539.5" x2="539.5" y1="40" y2="276" class="ch-grid"/><text x="539.5" y="310" class="ch-tick" text-anchor="middle">75%</text><line x1="656.0" x2="656.0" y1="40" y2="276" class="ch-grid"/><text x="656.0" y="310" class="ch-tick" text-anchor="middle">100%</text><g class="ch-row"><title>CLIP-B: ImageNet-1k 68.3%, Concept-10k 22.0% (-46.3 points)</title><rect x="0" y="40" width="680" height="34" class="ch-hit"/><text x="176" y="60" text-anchor="end" class="ch-label">CLIP-B</text><line x1="292.5" x2="508.3" y1="56" y2="56" class="ch-stem"/><circle cx="508.3" cy="56" r="6" class="ch-a"/><circle cx="292.5" cy="56" r="6" class="ch-b"/><text x="518.3" y="60" class="ch-val">68.3</text><text x="282.5" y="60" text-anchor="end" class="ch-val">22.0</text></g><g class="ch-row"><title>CLIP-L: ImageNet-1k 75.5%, Concept-10k 26.7% (-48.8 points)</title><rect x="0" y="80" width="680" height="34" class="ch-hit"/><text x="176" y="100" text-anchor="end" class="ch-label">CLIP-L</text><line x1="314.4" x2="541.8" y1="96" y2="96" class="ch-stem"/><circle cx="541.8" cy="96" r="6" class="ch-a"/><circle cx="314.4" cy="96" r="6" class="ch-b"/><text x="551.8" y="100" class="ch-val">75.5</text><text x="304.4" y="100" text-anchor="end" class="ch-val">26.7</text></g><g class="ch-row"><title>SigLIP-B: ImageNet-1k 76.2%, Concept-10k 31.1% (-45.1 points)</title><rect x="0" y="120" width="680" height="34" class="ch-hit"/><text x="176" y="140" text-anchor="end" class="ch-label">SigLIP-B</text><line x1="334.9" x2="545.1" y1="136" y2="136" class="ch-stem"/><circle cx="545.1" cy="136" r="6" class="ch-a"/><circle cx="334.9" cy="136" r="6" class="ch-b"/><text x="555.1" y="140" class="ch-val">76.2</text><text x="324.9" y="140" text-anchor="end" class="ch-val">31.1</text></g><g class="ch-row"><title>SigLIP-L: ImageNet-1k 80.5%, Concept-10k 36.1% (-44.4 points)</title><rect x="0" y="160" width="680" height="34" class="ch-hit"/><text x="176" y="180" text-anchor="end" class="ch-label">SigLIP-L</text><line x1="358.2" x2="565.1" y1="176" y2="176" class="ch-stem"/><circle cx="565.1" cy="176" r="6" class="ch-a"/><circle cx="358.2" cy="176" r="6" class="ch-b"/><text x="575.1" y="180" class="ch-val">80.5</text><text x="348.2" y="180" text-anchor="end" class="ch-val">36.1</text></g><g class="ch-row"><title>SigLIP-SO400M: ImageNet-1k 83.2%, Concept-10k 40.3% (-42.9 points)</title><rect x="0" y="200" width="680" height="34" class="ch-hit"/><text x="176" y="220" text-anchor="end" class="ch-label">SigLIP-SO400M</text><line x1="377.8" x2="577.7" y1="216" y2="216" class="ch-stem"/><circle cx="577.7" cy="216" r="6" class="ch-a"/><circle cx="377.8" cy="216" r="6" class="ch-b"/><text x="587.7" y="220" class="ch-val">83.2</text><text x="367.8" y="220" text-anchor="end" class="ch-val">40.3</text></g><g class="ch-row"><title>SigLIP-SO400M, fine-tuned: ImageNet-1k 83.0%, Concept-10k 45.0% (-38.0 points)</title><rect x="0" y="240" width="680" height="34" class="ch-hit"/><text x="176" y="260" text-anchor="end" class="ch-label">SigLIP-SO400M, fine-tuned</text><line x1="399.7" x2="576.8" y1="256" y2="256" class="ch-stem"/><circle cx="576.8" cy="256" r="6" class="ch-a"/><circle cx="399.7" cy="256" r="6" class="ch-b"/><text x="586.8" y="260" class="ch-val">83.0</text><text x="389.7" y="260" text-anchor="end" class="ch-val">45.0</text></g></svg><figcaption>Top-1 accuracy (%), Table 5 of the paper. Every model loses 38 to 49 points moving from ImageNet-1k to Concept-10k; fine-tuning on Concept-pedia narrows the gap without hurting ImageNet.</figcaption></figure>
 
-### Where models fail
+The full numbers, including ImageNet-v2. "Fine-tuned" means trained on Concept-pedia with all Concept-10k images removed first.
 
-| Concept                | Human                           | Model                                        | Why it fails                                              |
-| ---------------------- | ------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
-| Allen wrench (hex key) | Recognizes the L-shaped tool    | Confuses with "wrench", "screwdriver", "key" | Too specific, not in ImageNet's 1K categories             |
-| Bombay cat (breed)     | Recognizes the sleek black coat | Outputs "cat" or "black cat"                 | ImageNet has "Egyptian cat" but lacks fine-grained breeds |
+| Model | Params | ImageNet-1k | ImageNet-v2 | Concept-10k |
+|---|---|---|---|---|
+| CLIP-B | 150M | 68.3 | 61.9 | 22.0 |
+| CLIP-L | 428M | 75.5 | 69.0 | 26.7 |
+| SigLIP-B | 203M | 76.2 | 69.6 | 31.1 |
+| SigLIP-B, fine-tuned | 203M | 75.9 | 69.1 | **36.1** |
+| SigLIP-L | 652M | 80.5 | 74.2 | 36.1 |
+| SigLIP-L, fine-tuned | 652M | 79.3 | 73.5 | **41.9** |
+| SigLIP-SO400M | 878M | 83.2 | 77.2 | 40.3 |
+| SigLIP-SO400M, fine-tuned | 878M | 83.0 | 76.7 | **45.0** |
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/conceptpedia-annotation-examples.png" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Annotation quality in Concept-pedia: correct annotations are verified by expert linguists, and ambiguous cases are filtered out (for example, distinguishing "church" from "altar" when both appear in one image).
-</div>
+Three things to take from it:
 
-## How Concept-pedia was built
+- **The drop is about which concepts you test, not image quality.** On Concept-1k, the slice of Concept-pedia restricted to ImageNet's 1,000 classes, human annotators judged labels correct 95.7% of the time against 88.4% for ImageNet itself. Models still score lower there (SigLIP-large: 87.6% on ImageNet vs 83.0% on Concept-1k), the same pattern as ImageNet-v2. New concepts, not bad data, cause the gap.
+- **Abstract and specialised categories are the weak spot.** Even after fine-tuning, SigLIP-SO400M sits at 23.1% on law, 24.1% on psychology and 26.0% on measures, against 71.9% on animals (Table 7).
+- **Fine-tuning helps everywhere it matters and costs nothing on ImageNet.** +5.2 points on Concept-10k on average; ImageNet-1k accuracy moves by at most 1.2 points.
 
-### Filtering BabelNet for visual concepts
+## How the data was built
 
-BabelNet spans millions of concepts across hundreds of languages, but not all of them are visual ("democracy" is hard to photograph). Starting from the full knowledge graph, we kept concepts with clear visual representations, which left 165,000+ concepts across animals, architecture, food, and specialized tools. The semantic annotations (definitions, relationships, multilingual mappings, Wikipedia links) were preserved throughout.
+The idea: Wikipedia editors have already linked millions of images to concepts by hand. Concept-pedia reuses those links instead of paying for new labels.
+
+<figure class="flow" aria-label="How Concept-pedia and Concept-10k were built, in four steps">
+<ol>
+<li><b>4.6M</b><span>Wikipedia image captions (English, Nov 2023)</span></li>
+<li><b>74.5%</b><span>captions linked to a concept after link propagation</span></li>
+<li><b>101,354</b><span>concepts after taxonomic propagation, each with 5+ images</span></li>
+<li><b>9,837</b><span>concepts in Concept-10k, 49,185 pairs checked by two linguists</span></li>
+</ol>
+<figcaption>From free Wikipedia annotations to a human-validated benchmark. Each arrow is one step described below.</figcaption>
+</figure>
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
         {% include figure.liquid path="assets/img/conceptpedia-link-propagation.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
-<div class="caption">
-    Link propagation: the methodology uses Wikipedia hyperlinks and BabelNet's semantic structure to automatically annotate images with precise concepts at scale.
+<div class="caption">A caption often mentions a concept without linking it, while the page body links the same term. Link propagation copies that link onto the caption.</div>
+
+1. **Start from captions.** 4.6 million image captions from English Wikipedia (Nov 2023 dump).
+2. **Link propagation.** When a caption mentions something the page body already links, copy the link onto the caption. Four matching rules, each measured on 200 samples: exact string (100% precision), lemma (91%), BabelNet synonym such as *natatorium* → *swimming pool* (96%), and Wikipedia redirect such as *Lesser Panda* → *Red Panda* (84%). Afterwards 74.5% of captions carry at least one link. Every annotation records which rule produced it, so you can keep only the high-precision ones.
+3. **Taxonomic propagation.** About 85% of the links point to named entities, not concepts. Each entity is mapped to its concept through BabelNet's hypernyms (*Arrie Church* → *church*), and rare concepts move up to their parent (*Hokuto* → *train*) until every concept has at least 5 images. Precision of this step: 96%. Result: 101,354 concepts, each with 5+ images.
+4. **Concept-10k.** From concepts with at least 10 images: drop captions that mention more than one concept, keep the 5 shortest captions per concept, and remove concepts that are parents of other concepts in the set (keep *race car*, drop *car*) so a correct prediction is never marked wrong. Two expert linguists then validated every image-concept pair (Cohen's κ = 89.3). Final benchmark: 49,185 image-concept pairs over 9,837 concepts.
+
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/conceptpedia-comparison.png" class="img-fluid rounded z-depth-1" %}
+    </div>
 </div>
+<div class="caption">ImageNet-1k covers 11 of the 29 semantic categories; Concept-10k covers 28, including abstract ones such as events and feelings, with a more even spread.</div>
 
-### Human verification for Concept-10k
+Concepts are labelled with the 29 semantic categories of CNER (Martinelli et al., 2024). That is where the `category` column comes from, and it is what makes per-category error analysis possible.
 
-For the evaluation benchmark, automation was not enough. Expert annotators verified every image across the benchmark concepts over multiple review rounds, and difficulty was calibrated deliberately, from easy concepts (a golden retriever) to hard ones (distinguishing between types of wrenches).
+## Limitations
 
-## What the results show
+- Captions come only from English Wikipedia, which brings a cultural bias.
+- The benchmark keeps one concept per image; real images often show several.
+- Concepts were chosen by frequency, so diversity inside a category is not optimised.
 
-- **The ImageNet anchor is real.** Models do not degrade gracefully on unfamiliar concepts, they fail outright, and not because those concepts are visually harder.
-- **Semantic structure helps generalization.** Models that use the knowledge graph, with concept relationships and hierarchies, generalize better than pure image-text pretraining.
-- **Fine-grained recognition is the weak point.** Specific breeds, variants of the same tool, region-specific cultural objects, and technical or medical equipment are where models collapse to the nearest generic category.
-- **Scale alone is not the fix.** Adding more examples from the same distribution does not close the gap. Semantic diversity does. A million more images labeled "dog" teaches nothing about specific breeds.
+## Questions people ask
 
-## Using the models and datasets
+**Is Concept-10k a replacement for ImageNet?** No, a complement. ImageNet tells you how well a model fits a well-studied set of 1,000 classes; Concept-10k tells you whether it generalises to the long tail.
 
-The full ecosystem is on Hugging Face: three fine-tuned SigLIP models and two datasets.
+**Why are the numbers so low?** The label space is ~9.8K concepts, many abstract or specialised, and a prediction is right only if it names exactly the annotated concept. Parents of other concepts were removed, so a more general answer does not count as wrong by accident.
 
-**Models (vision-language):**
+**Can I train on Concept-10k?** No, it is a test set. Train on Concept-pedia (with the Concept-10k images removed, as in the paper) or on your own data, then evaluate here.
 
-- `sapienzanlp/siglip-base-patch16-256-ft-concept-pedia` (0.2B params): fastest
-- `sapienzanlp/siglip-large-patch16-256-ft-concept-pedia` (0.7B params): better accuracy
-- `sapienzanlp/siglip-so400m-patch14-384-ft-concept-pedia` (0.9B params): best performance
+**Which fine-tuned model should I use?** `siglip-base-patch16-256-ft-concept-pedia` for speed, `siglip-so400m-patch14-384-ft-concept-pedia` for accuracy, `siglip-large-patch16-256-ft-concept-pedia` in between.
 
-**Datasets:**
+## Cite
 
-- `sapienzanlp/Concept-10k`: text annotations and metadata (34.3K concepts)
-- `sapienzanlp/Concept-10k-imgs`: full image dataset (4.26 GB)
-
-All models are trained on the full Concept-pedia dataset, giving them coverage of 165K+ visual concepts beyond ImageNet categories.
-
-### Zero-shot image classification
-
-```python
-from transformers import AutoModel, AutoProcessor
-from PIL import Image
-import torch
-
-# Load the base model (fastest option)
-model_name = "sapienzanlp/siglip-base-patch16-256-ft-concept-pedia"
-processor = AutoProcessor.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
-
-# Load your image
-image = Image.open("your_image.jpg")
-
-# Define candidate concepts - can be anything!
-candidate_concepts = [
-    "Bombay cat",
-    "Persian cat",
-    "Siamese cat",
-    "Maine Coon cat",
-    "tabby cat"
-]
-
-# Process the inputs
-inputs = processor(
-    text=candidate_concepts,
-    images=image,
-    return_tensors="pt",
-    padding=True
-)
-
-# Get predictions
-with torch.no_grad():
-    outputs = model(**inputs)
-    logits = outputs.logits_per_image
-    probs = logits.softmax(dim=1)
-
-# Print results
-print("Classification results:")
-for concept, prob in zip(candidate_concepts, probs[0]):
-    print(f"  {concept}: {prob.item():.1%}")
-```
-
-You can test any visual concept, not just ImageNet's 1,000 categories. To classify types of pasta, breeds of dog, or specific tools, change the `candidate_concepts` list. Because the models were trained on the full 165K concept distribution rather than optimized for ImageNet, they distinguish specific cat breeds (Bombay vs Persian vs Scottish Fold), handle specialized domains (medical equipment, industrial tools, architectural elements), recognize culturally-specific objects, and work with long-tail concepts. They are not perfect, but they are substantially better on real-world diversity than ImageNet-anchored models.
-
-### Loading the Concept-10k dataset
-
-```python
-from datasets import load_dataset
-
-# Load the text/metadata dataset (lightweight)
-dataset = load_dataset("sapienzanlp/Concept-10k")
-
-# Look at the first example
-example = dataset['test'][0]
-print(f"Concept: {example['concept']}")
-print(f"Category: {example['category']}")
-print(f"Caption: {example['caption']}")
-print(f"BabelNet ID: {example['bn_id']}")
-```
-
-Each entry includes the concept name, its semantic category (ARTIFACT, ANIMAL, FOOD, and so on), a natural-language caption, and a BabelNet ID that links back to the full knowledge graph. The image dataset adds the visual content.
-
-### Exploring the image dataset
-
-```python
-from datasets import load_dataset
-from PIL import Image
-
-# Load the image dataset
-img_dataset = load_dataset("sapienzanlp/Concept-10k-imgs")
-
-# Browse examples
-for i in range(5):
-    example = img_dataset['train'][i]
-
-    # Access the image
-    img = example['jpg']
-
-    # Show or save it
-    img.show()  # Opens in default viewer
-    # Or save: img.save(f"concept_{i}.jpg")
-
-    print(f"Image {i}: {example['__key__']}")
-```
-
-The image dataset is about 4.26 GB, so the first download takes a few minutes and is then cached locally. If you are memory-constrained, stream it:
-
-```python
-# Stream large dataset without downloading everything
-dataset = load_dataset("sapienzanlp/Concept-10k-imgs", streaming=True)
-
-# Process in batches
-from itertools import islice
-
-batch_size = 100
-for batch in islice(dataset['train'], 0, batch_size):
-    # Process batch
-    pass
-```
-
-### Fine-grained visual search
-
-```python
-from transformers import AutoModel, AutoProcessor
-from PIL import Image
-import torch
-from pathlib import Path
-
-def find_similar_concepts(query_image_path, concept_database):
-    """
-    Find the most similar concepts to a query image.
-
-    Args:
-        query_image_path: Path to query image
-        concept_database: List of concept names to search
-
-    Returns:
-        Ranked list of (concept, score) tuples
-    """
-    # Load model
-    model_name = "sapienzanlp/siglip-base-patch16-256-ft-concept-pedia"
-    processor = AutoProcessor.from_pretrained(model_name)
-    model = AutoModel.from_pretrained(model_name)
-
-    # Load image
-    image = Image.open(query_image_path)
-
-    # Process
-    inputs = processor(
-        text=concept_database,
-        images=image,
-        return_tensors="pt",
-        padding=True
-    )
-
-    # Get scores
-    with torch.no_grad():
-        outputs = model(**inputs)
-        scores = outputs.logits_per_image[0].softmax(dim=0)
-
-    # Rank results
-    results = sorted(
-        zip(concept_database, scores.tolist()),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    return results
-
-# Example usage
-concepts = [
-    "espresso machine", "coffee grinder", "french press",
-    "moka pot", "pour over coffee maker", "cold brew maker"
-]
-
-results = find_similar_concepts("kitchen_appliance.jpg", concepts)
-
-print("Top 3 matches:")
-for concept, score in results[:3]:
-    print(f"  {concept}: {score:.1%}")
-```
-
-### Which model to pick
-
-Choose by requirement: the base model (0.2B params) is fast enough for real-time use, the large model (0.7B) trades speed for accuracy in production, and the SO400M model (0.9B) is for the best accuracy when inference speed is not the constraint. For inference, batch your images, use a GPU where available (`model.to("cuda")`), and cache the processor and model instead of reloading them per request.
-
-### Common pitfalls
-
-- **Testing on ImageNet after fine-tuning on Concept-pedia.** Expect a drop on ImageNet; the dataset targets broad coverage, not ImageNet-specific optimization. Evaluate on Concept-10k or your own domain instead.
-- **Too many candidate concepts per query.** The models work best with 10 to 100 candidates. For larger label sets, add a retrieval or clustering stage to narrow candidates first.
-- **Assuming perfect accuracy on rare concepts.** The models still struggle with extremely rare or ambiguous concepts. Use confidence thresholds and human-in-the-loop review for critical applications.
-
-## When to use Concept-pedia
-
-- **Your domain is not covered by ImageNet:** medical diagnosis, industrial inspection, cultural heritage, e-commerce with diverse products.
-- **You need fine-grained recognition:** Golden Retriever vs Labrador, cappuccino vs flat white.
-- **You want real zero-shot capability** on arbitrary concepts, not just near-distribution ones.
-- **You are building multilingual systems:** BabelNet integration provides multilingual concept support out of the box.
-- **You care about real-world diversity:** ImageNet is Western-centric; global applications need concepts from different cultures.
-
-## FAQ
-
-**What is Concept-pedia?**
-A wide-coverage, semantically-annotated multimodal dataset of 165,000+ visual concepts built on BabelNet, for training and evaluating vision-language models beyond ImageNet's 1,000 categories.
-
-**What is Concept-10k?**
-The human-verified evaluation benchmark released with Concept-pedia. It covers 28 semantic categories and 9,837 unique concepts, curated to test real-world visual generalization rather than ImageNet memorization.
-
-**How is it different from ImageNet?**
-ImageNet has 1,000 categories across about 11 semantic categories. Concept-10k covers 28 categories and thousands of unique concepts, with semantic annotations (hypernymy, meronymy, Wikipedia and WordNet links) attached to each concept.
-
-**How much do models drop from ImageNet to Concept-10k?**
-More than 30 points. CLIP (ViT-L/14) drops 33.2%, ALIGN 32.6%, and OpenCLIP 33.1% between the two benchmarks.
-
-**Which model should I use?**
-The SigLIP base model (0.2B) for speed, large (0.7B) for a speed and accuracy balance, and SO400M (0.9B) for the best accuracy. All are on Hugging Face under `sapienzanlp`.
-
-**Where can I get the dataset and models?**
-On Hugging Face: [Concept-10k](https://huggingface.co/datasets/sapienzanlp/Concept-10k), [Concept-10k-imgs](https://huggingface.co/datasets/sapienzanlp/Concept-10k-imgs), and the [sapienzanlp](https://huggingface.co/sapienzanlp) models.
-
-**Where was it published?**
-At EMNLP 2025 (Main), the Conference on Empirical Methods in Natural Language Processing, held in Suzhou, China.
-
-## Resources
-
-- **Paper:** [ACL Anthology](https://aclanthology.org/2025.emnlp-main.1745/)
-- **PDF:** [Download](https://aclanthology.org/2025.emnlp-main.1745.pdf)
-- **Models:** [sapienzanlp on Hugging Face](https://huggingface.co/sapienzanlp)
-- **Datasets:** [Concept-10k](https://huggingface.co/datasets/sapienzanlp/Concept-10k) and [Concept-10k-imgs](https://huggingface.co/datasets/sapienzanlp/Concept-10k-imgs)
-- **BabelNet:** [babelnet.org](https://babelnet.org/)
-
-## Citation
+If you use Concept-pedia, Concept-10k or the fine-tuned models, please cite:
 
 ```bibtex
-@inproceedings{ghonim-etal-2025-conceptpedia,
-    title     = "Concept-pedia: A Wide-coverage Semantically-annotated Multimodal Dataset",
-    author    = "Ghonim, Karim and
-                 Bejgu, Andrei Stefan and
-                 Fern{\'a}ndez-Castro, Alberte and
-                 Navigli, Roberto",
+@inproceedings{ghonim-etal-2025-concept,
+    title = "Concept-pedia: a Wide-coverage Semantically-annotated Multimodal Dataset",
+    author = "Ghonim, Karim and Bejgu, Andrei Stefan and Fern{\'a}ndez-Castro, Alberte and Navigli, Roberto",
     booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
-    month     = nov,
-    year      = "2025",
-    address   = "Suzhou, China",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
     publisher = "Association for Computational Linguistics",
-    url       = "https://aclanthology.org/2025.emnlp-main.1745/",
-    pages     = "34405--34426",
+    url = "https://aclanthology.org/2025.emnlp-main.1745/",
+    doi = "10.18653/v1/2025.emnlp-main.1745",
+    pages = "34417--34438"
 }
 ```
 
-> Karim Ghonim, Andrei Stefan Bejgu, Alberte Fernández-Castro, and Roberto Navigli. 2025. Concept-pedia: A Wide-coverage Semantically-annotated Multimodal Dataset. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing, pages 34405-34426, Suzhou, China. Association for Computational Linguistics.
+Paper: [ACL Anthology](https://aclanthology.org/2025.emnlp-main.1745/) · [PDF](https://aclanthology.org/2025.emnlp-main.1745.pdf) · Benchmark: [Concept-10k](https://huggingface.co/datasets/sapienzanlp/Concept-10k) · Models: [sapienzanlp](https://huggingface.co/sapienzanlp)

@@ -1,551 +1,215 @@
 ---
 layout: post
-title: "Redis Geo-Spatial Cache: Build a Restaurant Finder with Beanis and PostgreSQL"
+title: "How to find nearby places in Redis with Python: a restaurant finder with Beanis GeoPoint"
 date: 2025-10-30 08:00:00
-description: "How to use Redis (via the Beanis ODM) as a geo-spatial cache in front of PostgreSQL/PostGIS, with OpenStreetMap data, to serve nearby-restaurant queries in about 12ms."
+last_modified_at: 2026-11-11 12:00:00
+description: "Store restaurants with a GeoPoint in Redis using Beanis, query them by radius with GEORADIUS, and use Redis as a geo cache in front of PostgreSQL/PostGIS. Complete async Python code."
 tags: python redis geospatial cache beanis tutorial architecture
 categories: tutorials
 giscus_comments: true
 related_posts: true
-thumbnail: assets/img/geo-search.png
-keywords: Redis cache, geospatial queries, Beanis, GeoPoint, GEORADIUS, PostgreSQL cache, OpenStreetMap, location search, Python
+keywords: Redis geospatial Python, GEORADIUS Python, nearby search Redis, Beanis GeoPoint, find_by_geo_radius_with_distance, Redis cache PostgreSQL PostGIS, restaurant finder Redis
 author: Andrei Stefan Bejgu
 ---
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.html path="assets/img/geo-search.png" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
+This tutorial stores restaurants in Redis with a geo-indexed `GeoPoint` field and answers "what is within 2 km of me?" with one call. It then shows how the [restaurant-finder example](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder) uses that index as a cache in front of PostgreSQL/PostGIS.
 
-## TL;DR
+| | |
+| --- | --- |
+| Package | [`pip install beanis`](https://pypi.org/project/beanis/) (0.2.0) |
+| Code | [beanis](https://github.com/andreim14/beanis) · [restaurant-finder example](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder) |
+| Docs | [Geo-spatial guide](https://github.com/andreim14/beanis/blob/main/docs/tutorial/geo-spatial.md) · [andreim14.github.io/beanis](https://andreim14.github.io/beanis/) |
+| Requirements | Python 3.9+, Redis 5+ (no modules; geo commands are built in) |
 
-A geo-spatial cache is a Redis layer that pre-computes location indexes (geohashes) so radius queries ("restaurants within 2km") return in milliseconds instead of hitting PostGIS on every request. This tutorial puts [Beanis](https://andreim14.github.io/beanis) (a Redis ODM) in front of PostgreSQL, imports [OpenStreetMap](https://www.openstreetmap.org/) data, and serves nearby queries in about 12ms.
+## Minimal example
 
-- **Pattern:** PostgreSQL/PostGIS is the source of truth; Redis is the read cache.
-- **Redis primitives:** `GEOADD` and `GEORADIUS`, wrapped by Beanis's `GeoPoint` type.
-- **Measured result:** a 750ms PostGIS query becomes a 12ms Redis lookup (62x faster) on a 2,600+ restaurant Paris dataset.
-- **Code:** [github.com/andreim14/beanis-examples/tree/main/restaurant-finder](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
-- **Docs:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
-
-## The problem: geo queries are expensive to recompute
-
-Say you are building a food delivery app. A user opens it in downtown Rome and wants Italian restaurants within 2km. Straightforward.
-
-Here is the PostgreSQL query with [PostGIS](https://postgis.net/), the standard geo-spatial extension for PostgreSQL:
-
-```sql
-SELECT *,
-       ST_Distance(location, ST_MakePoint(12.4922, 41.8902)) as distance
-FROM restaurants
-WHERE ST_DWithin(
-    location,
-    ST_MakePoint(12.4922, 41.8902),
-    2000  -- 2km in meters
-)
-AND cuisine = 'italian'
-AND rating >= 4.5
-ORDER BY distance
-LIMIT 20;
+```bash
+docker run -d -p 6379:6379 redis:7
+pip install beanis
 ```
-
-This query takes **750 milliseconds** on a modern database server, with indexes. That sounds tolerable until you do the concurrency math.
-
-### The concurrency math
-
-At lunch rush you might have 10,000 concurrent users opening the app, scrolling, and changing filters. That is not 10,000 queries; as users pan the map it is closer to 50,000 queries in a few minutes.
-
-PostgreSQL handles maybe 150 of these geo-spatial queries per second on decent hardware. You need around 830 per second. The database is now 5.5x overloaded, CPU pinned at 100%, queries timing out, and users watching a spinner.
-
-The reason is that [PostGIS distance calculations](https://postgis.net/docs/ST_Distance.html) are computationally expensive. Every query has to:
-
-- Calculate spherical distances (the earth is not flat)
-- Check each of your 50,000 restaurants
-- Sort by distance
-- Apply your filters
-
-It does all that math from scratch, every time, just to report that La Carbonara is 450 meters away.
-
-### Scaling Postgres does not fix the root cause
-
-You could add read replicas, shard by geography, or buy bigger servers. At peak you would need roughly 500 database connections running geo-spatial calculations at once, which is expensive, and you are still recomputing the same answers for queries that barely change. Restaurant locations do not move.
-
-### The fix: cache the pre-computed indexes in Redis
-
-Cache the hot queries in Redis, and specifically the geo-spatial indexes rather than raw rows.
-
-Redis has built-in [geo-spatial commands](https://redis.io/docs/latest/develop/data-types/geospatial/) (`GEOADD`, `GEORADIUS`) built for this. They pre-compute geohashes, store them in memory, and serve 10,000+ geo queries per second on a single instance.
-
-What changes:
-
-- **Response time:** 750ms to 12ms (62x faster)
-- **Database load:** 100% CPU to near idle
-- **Concurrency:** 150/sec ceiling to 10,000+/sec
-- **Infrastructure cost:** a single Redis instance
-
-PostgreSQL stays the source of truth (persistent, reliable, handles writes). Redis becomes the speed layer (ephemeral, fast, serves 99% of reads). Cache misses still cost 750ms while you populate Redis, but once the cache is warm the database goes back to transactions and complex queries instead of recomputing the same distances all day.
-
-## Architecture
-
-The data flow is simple:
-
-```
-OpenStreetMap API
-        ↓ (import once)
-   PostgreSQL
-        ↓ (sync to cache)
-    Redis Cache
-        ↓ (serve queries)
-   Your Users
-```
-
-PostgreSQL holds all restaurant data, handles writes, and maintains referential integrity. Redis sits in front as a cache. On import you push data to Redis and build geo-spatial indexes. When a user queries "restaurants near me," you hit Redis first: 12ms, no database load.
-
-`GEOADD` and `GEORADIUS` do the heavy lifting. You give Redis a set of coordinates, it pre-computes geohashes and stores them so radius queries are fast, with no spherical-distance math at query time.
-
-### How it works in practice
-
-When you save a restaurant to Redis through Beanis, it:
-
-1. Creates a Redis hash with all the restaurant data
-2. Adds the location to a geo-spatial index (`GEOADD` under the hood)
-3. Creates sorted sets for your filters (cuisine, rating, price, and so on)
-
-When a user queries nearby restaurants:
-
-1. `GEORADIUS` finds all restaurants within the radius (< 5ms)
-2. You filter by cuisine/rating using the sorted sets (< 2ms)
-3. You fetch the full documents and return them (< 5ms)
-4. Total: ~12ms, with no database work
-
-On a cache miss you fall back to PostgreSQL, get results in 750ms, cache them, and serve them. The next request for that area takes 12ms.
-
-### What you are building
-
-This tutorial covers how to:
-
-- Use Beanis's `GeoPoint` type to handle geo-spatial indexing automatically
-- Implement a cache-first strategy with PostgreSQL fallback
-- Import real restaurant data from [OpenStreetMap](https://www.openstreetmap.org/)
-- Build a FastAPI app that handles 10,000+ concurrent users
-
-The key idea: Redis is not your database, it is your speed layer. PostgreSQL can rebuild the cache anytime, so Redis durability is not a concern. You trade a little staleness (cached data can be a few seconds old) for a large performance gain.
-
-## Step 1: The Redis cache model
-
-The essential Beanis code for caching restaurant data:
 
 ```python
-from beanis import Document, Indexed, GeoPoint
-from beanis.odm.indexes import IndexedField
+import asyncio
+
+from redis.asyncio import Redis
 from typing_extensions import Annotated
 
-class RestaurantCache(Document):
-    """Redis cache model - mirrors PostgreSQL data"""
+from beanis import Document, GeoPoint, Indexed, init_beanis
+from beanis.odm.indexes import IndexedField, IndexManager
 
-    # Source tracking
-    db_id: Indexed(int)  # Link to PostgreSQL
+
+class Restaurant(Document):
     name: str
+    cuisine: Indexed(str)
+    rating: Indexed(float)
+    location: Annotated[GeoPoint, IndexedField()]  # GEOADD on insert
 
-    # Geo-spatial index
-    location: Annotated[GeoPoint, IndexedField()]
-    # This automatically creates a Redis GEORADIUS index
 
-    # Indexed fields for fast filtering
-    cuisine: Indexed(str)      # Creates sorted set
-    rating: Indexed(float)      # Creates sorted set
-    price_range: Indexed(int)   # Creates sorted set
-    is_active: Indexed(bool)    # Creates sorted set
+async def main():
+    redis_client = Redis(decode_responses=True)
+    await init_beanis(database=redis_client, document_models=[Restaurant])
 
-    # Other fields (not indexed)
-    address: str = ""
-    phone: Optional[str] = None
-    cached_at: datetime = Field(default_factory=datetime.now)
+    for r in [
+        Restaurant(name="Near the Colosseum", cuisine="italian", rating=4.6,
+                   location=GeoPoint(longitude=12.4930, latitude=41.8925)),
+        Restaurant(name="Trastevere", cuisine="italian", rating=4.2,
+                   location=GeoPoint(longitude=12.4700, latitude=41.8890)),
+        Restaurant(name="Termini", cuisine="japanese", rating=4.4,
+                   location=GeoPoint(longitude=12.5010, latitude=41.9010)),
+    ]:
+        await r.insert()
 
-    class Settings:
-        name = "RestaurantCache"
-```
-
-What Beanis does automatically:
-
-1. `location: Annotated[GeoPoint, IndexedField()]` creates a `GEOADD` index in Redis
-2. `Indexed(str/int/float/bool)` creates sorted sets for filtering
-3. `Document` handles serialization and Redis hash storage
-
-> [Full code with all fields](https://github.com/andreim14/beanis-examples/blob/main/restaurant-finder/models/cache.py)
-
-## Step 2: Caching data
-
-The key Beanis operation is saving to Redis:
-
-```python
-from beanis import GeoPoint
-
-# Create and save to Redis
-restaurant = RestaurantCache(
-    db_id=123,
-    name="La Carbonara",
-    location=GeoPoint(latitude=41.8933, longitude=12.4829),  # Geo-spatial index
-    cuisine="italian",
-    rating=4.5,
-    price_range=2,
-    is_active=True
-)
-
-await restaurant.insert()  # Saves to Redis with all indexes
-```
-
-What Beanis does behind the scenes:
-
-1. Creates a Redis hash: `RestaurantCache:123` → `{name: "La Carbonara", ...}`
-2. Creates the geo-index: `GEOADD RestaurantCache:location 12.4829 41.8933 "123"`
-3. Creates sorted sets for filters:
-   - `RestaurantCache:idx:cuisine:italian` → `{123, ...}`
-   - `RestaurantCache:idx:rating` → `{(123, 4.5), ...}`
-   - `RestaurantCache:idx:price_range` → `{(123, 2), ...}`
-
-> [Full caching logic](https://github.com/andreim14/beanis-examples/blob/main/restaurant-finder/services/restaurant_service.py#L162-L206)
-
-## Step 3: Querying with geo-spatial search
-
-The core feature is finding nearby restaurants:
-
-```python
-from beanis.odm.indexes import IndexManager
-
-# Query the Redis geo-spatial index
-results_with_distance = await IndexManager.find_by_geo_radius_with_distance(
-    redis_client=redis_client,
-    document_class=RestaurantCache,
-    field_name="location",
-    longitude=12.4922,
-    latitude=41.8902,
-    radius=2.0,  # 2km
-    unit="km"
-)
-
-# Returns: [(doc_id, distance_km), ...]
-# Example: [("123", 0.45), ("456", 1.2), ("789", 1.8)]
-
-# Get full documents
-for doc_id, distance in results_with_distance:
-    restaurant = await RestaurantCache.get(doc_id)
-    print(f"{restaurant.name}: {distance:.2f}km away")
-```
-
-What this does:
-
-1. Uses the Redis `GEORADIUS` command internally
-2. Returns document IDs sorted by distance
-3. Lets you fetch the full documents as needed
-4. Can filter further with indexed fields (cuisine, rating, and so on)
-
-With filters:
-
-```python
-# Fetch and filter
-results = []
-for doc_id, distance in results_with_distance:
-    doc = await RestaurantCache.get(doc_id)
-
-    # Filter using indexed fields (fast in-memory)
-    if doc.cuisine == "italian" and doc.rating >= 4.5:
-        results.append((doc, distance))
-```
-
-> [Full implementation with cache-first strategy](https://github.com/andreim14/beanis-examples/blob/main/restaurant-finder/services/restaurant_service.py)
-
-## Step 4: Initialization
-
-Initialize Beanis on application startup:
-
-```python
-from fastapi import FastAPI
-from beanis import init_beanis
-import redis.asyncio as redis
-
-app = FastAPI()
-
-@app.on_event("startup")
-async def startup():
-    # Connect to Redis
-    redis_client = redis.Redis(
-        host="localhost",
-        port=6379,
-        decode_responses=True
+    hits = await IndexManager.find_by_geo_radius_with_distance(
+        redis_client=redis_client,
+        document_class=Restaurant,
+        field_name="location",
+        longitude=12.4922,   # Colosseum
+        latitude=41.8902,
+        radius=2,
+        unit="km",
     )
+    hits.sort(key=lambda h: h[1])  # results are not sorted by distance
 
-    # Initialize Beanis with your document models
-    await init_beanis(
-        database=redis_client,
-        document_models=[RestaurantCache]  # Register your models
+    for doc_id, distance in hits:
+        r = await Restaurant.get(doc_id)
+        print(f"{distance:.2f} km  {r.name} ({r.cuisine}, {r.rating})")
+
+    await redis_client.close()
+
+
+asyncio.run(main())
+```
+
+`GeoPoint` takes `longitude` and `latitude` as keyword arguments and rejects values outside -180..180 and -90..90.
+
+Insert with `insert()`, not `insert_many()`. In Beanis 0.2.0 `insert_many()` writes the hashes in one pipeline but does not update the geo or field indexes, so the documents would not show up in radius queries.
+
+## How the geo index works
+
+On insert, Beanis writes the hash `Restaurant:<id>` and runs `GEOADD idx:Restaurant:location <lon> <lat> <id>`. A radius query is a `GEORADIUS` on that key. Redis stores geo members in a sorted set scored by geohash, so the lookup does not compute distances against every row.
+
+Two functions are available:
+
+| Function | Returns |
+| --- | --- |
+| `IndexManager.find_by_geo_radius(...)` | list of ids |
+| `IndexManager.find_by_geo_radius_with_distance(...)` | list of `(id, distance)` in the requested unit |
+
+Both take `redis_client`, `document_class`, `field_name`, `longitude`, `latitude`, `radius` and `unit` (`"m"`, `"km"`, `"mi"`, `"ft"`; default `"km"`). Neither sorts by distance, so sort in Python when order matters.
+
+## How to filter nearby results by cuisine or rating
+
+A geo query returns ids. Combine it with the other indexes using set intersection:
+
+```python
+nearby = dict(await IndexManager.find_by_geo_radius_with_distance(
+    redis_client, Restaurant, "location", 12.4922, 41.8902, 2, unit="km"
+))
+good_italian = {r.id for r in await Restaurant.find(cuisine="italian", rating__gte=4.5)}
+
+ids = sorted(nearby.keys() & good_italian, key=nearby.get)
+restaurants = await Restaurant.get_many(ids)
+```
+
+The restaurant-finder example does the simpler version: it loads every document in the radius and filters on the fields in Python.
+
+## How to use Redis as a geo cache in front of PostgreSQL
+
+In the example, PostgreSQL with PostGIS is the source of truth (OpenStreetMap data is imported there), and Redis holds a `RestaurantCache` copy with the geo index:
+
+<figure class="flow" aria-label="Cache-first nearby search in four steps">
+<ol>
+<li><b>Query Redis</b><span>GEORADIUS on the cached restaurants</span></li>
+<li><b>Hit</b><span>load the documents, filter, return</span></li>
+<li><b>Miss</b><span>run the PostGIS query on PostgreSQL</span></li>
+<li><b>Warm</b><span>insert the rows into Redis for the next request</span></li>
+</ol>
+<figcaption>The flow in restaurant_service.py of the restaurant-finder example.</figcaption>
+</figure>
+
+A sketch of that flow, with your own PostgreSQL loader passed in:
+
+```python
+async def nearby(redis_client, lon, lat, radius_km, load_from_postgres):
+    hits = await IndexManager.find_by_geo_radius_with_distance(
+        redis_client, Restaurant, "location", lon, lat, radius_km, unit="km"
     )
+    if hits:
+        hits.sort(key=lambda h: h[1])
+        docs = await Restaurant.get_many([doc_id for doc_id, _ in hits])
+        live = [d for d in docs if d is not None]  # None: hash expired or deleted
+        if live:
+            return live
+
+    rows = await load_from_postgres(lon, lat, radius_km)  # your PostGIS query
+    docs = [
+        Restaurant(
+            id=str(row["id"]),
+            name=row["name"],
+            cuisine=row["cuisine"],
+            rating=row["rating"],
+            location=GeoPoint(longitude=row["lon"], latitude=row["lat"]),
+        )
+        for row in rows
+    ]
+    for doc in docs:
+        await doc.insert()  # insert() also updates the geo and field indexes
+    return docs
 ```
 
-On startup Beanis will:
+Using the PostgreSQL id as the Redis id means a later change can target the same key.
 
-1. Create all geo-spatial indexes
-2. Create all sorted set indexes
-3. Handle serialization and deserialization
+## How to keep the cache fresh
 
-> [Full FastAPI example with endpoints](https://github.com/andreim14/beanis-examples/blob/main/restaurant-finder/main.py)
+- **Expire entries.** `await doc.insert(ttl=3600)` or `default_ttl` in `class Settings`. The hash expires, but its id stays in the index sets, so `get()` returns `None` for it. The sketch above skips those and goes to PostgreSQL when nothing live is left.
+- **Invalidate on write.** When a restaurant changes in PostgreSQL, call `await Restaurant.delete(str(db_id))`. It deletes the hash and removes the id from the geo and field indexes. The next miss reloads it.
+- **Replace on write.** Delete, then insert the new version. Prefer this over `update()` for indexed fields like `location`, `cuisine` or `rating`, since `update()` writes the hash fields only.
 
-## Performance comparison
+## Performance
 
-These are measured numbers from a real Paris dataset of 2,600+ restaurants imported from OpenStreetMap, not theoretical figures.
+The [geo guide](https://github.com/andreim14/beanis/blob/main/docs/tutorial/geo-spatial.md) reports about 0.2 ms per radius query. The repo also has a geo benchmark you can run on your own hardware: [`benchmarks/benchmark_geospatial.py`](https://github.com/andreim14/beanis/blob/main/benchmarks/benchmark_geospatial.py). End-to-end API time is a different number: the restaurant-finder README reports first and cached calls of the same order (about 650 ms and 620 ms on 2,643 Paris restaurants), so profile the document loading and filtering around the geo lookup before expecting large gains from the cache.
 
-| Scenario                                | PostgreSQL             | Redis (Beanis)   |
-| --------------------------------------- | ---------------------- | ---------------- |
-| Cold start (first query + cache write)  | 850ms + 120ms = ~970ms | n/a (populating) |
-| Warm cache, same query                  | 750ms                  | 12ms             |
-| Warm cache with cuisine + rating filter | 820ms                  | 15ms             |
-| Smaller dataset (1,030 restaurants)     | 380ms                  | 8ms              |
-| 100 users x 10 queries (1,000 total)    | 75s                    | 1.2s             |
-
-Notes on each row:
-
-- **Cold start** happens once per cache region: PostgreSQL computes distances and sorts (850ms), then Beanis writes the results to Redis (120ms).
-- **Warm cache** is the common path. Same query, 62x faster.
-- **Filters** barely cost extra on Redis because the sorted sets are pre-computed.
-- **Concurrency** is where the gap is starkest: under 100 concurrent users the PostgreSQL path queues up and pins CPU, while Redis stays effectively instant.
-
-Once the cache is warm the hit rate sits around 99.8%, nearly every query is served from Redis at 12-15ms, and database CPU drops from 100% to roughly 1% for occasional refreshes. Throughput moves from ~150 req/sec (the PostgreSQL bottleneck) to 10,000+ req/sec (limited by network and application code, not Redis).
-
-The gap widens as the dataset grows. At 50,000 restaurants a PostgreSQL query would run 1.5-2 seconds; Redis stays at 12-15ms because the pre-computed indexes are far less sensitive to dataset size.
-
-## Cache invalidation strategies
-
-The cache is fast, but restaurant data changes. You have three options depending on your freshness needs.
-
-### Time-based expiration
-
-Set a TTL and refresh from PostgreSQL when a cached entry is older than a threshold:
-
-```python
-async def get_with_ttl(restaurant_id: int, max_age: int = 3600):
-    """Refresh cache if older than 1 hour"""
-
-    cached = await RestaurantCache.find_one(db_id=restaurant_id)
-
-    if cached and not cached.is_stale(max_age):
-        return cached  # Cache fresh
-
-    # Refresh from Postgres
-    db_restaurant = db.query(RestaurantDB).get(restaurant_id)
-
-    # Update cache
-    if cached:
-        cached.cached_at = datetime.now()
-        # Update other fields...
-        await cached.save()
-    else:
-        # Create new cache entry
-        pass
-
-    return cached
-```
-
-This suits data that rarely changes. Restaurant info changes rarely, locations never move, and ratings might update hourly, so slight staleness is acceptable.
-
-### Write-through
-
-For fresher data, update PostgreSQL and Redis together on every change:
-
-```python
-async def update_restaurant(restaurant_id: int, updates: dict):
-    """Update both Postgres and Redis atomically"""
-
-    # Update Postgres (source of truth)
-    db_restaurant = db.query(RestaurantDB).get(restaurant_id)
-    for key, value in updates.items():
-        setattr(db_restaurant, key, value)
-    db.commit()
-
-    # Update cache immediately
-    cached = await RestaurantCache.find_one(db_id=restaurant_id)
-    if cached:
-        for key, value in updates.items():
-            setattr(cached, key, value)
-        cached.cached_at = datetime.now()
-        await cached.save()
-        print(f"Cache updated for restaurant {restaurant_id}")
-```
-
-Writes get slightly slower (you touch two systems), but reads stay fast and you never serve stale data.
-
-### Invalidate on write
-
-Sometimes you just delete the cache entry and let it rebuild on the next read:
-
-```python
-async def delete_restaurant(restaurant_id: int):
-    """Delete from both Postgres and Redis"""
-
-    # Delete from Postgres
-    db.query(RestaurantDB).filter_by(id=restaurant_id).delete()
-    db.commit()
-
-    # Invalidate cache
-    cached = await RestaurantCache.find_one(db_id=restaurant_id)
-    if cached:
-        await cached.delete()
-        print(f"Cache invalidated for restaurant {restaurant_id}")
-```
-
-Simple and safe. The next read is a cache miss, then the cache rebuilds itself. Good for deletions or when you are unsure what changed.
-
-**Which to use?** For restaurant data, start with time-based expiration (hourly refresh) and add write-through only if users report staleness. Invalidate-on-write is fine for deletions and rare updates.
-
-## End-to-end example
-
-A user near the Colosseum in Rome searches for Italian restaurants within 3km:
+## Run the full example
 
 ```bash
-GET /restaurants/nearby?lat=41.8902&lon=12.4922&radius=3&cuisine=italian&min_rating=4.5
-```
-
-### Warm cache (about 99% of requests)
-
-The app hits Redis first. Beanis runs:
-
-1. `GEORADIUS` to find all restaurants within 3km (~4ms)
-2. Filter by cuisine using the sorted set (~1ms)
-3. Filter by rating using another sorted set (~1ms)
-4. Fetch the full documents for the matches (~2ms)
-
-Total: 8ms. With API overhead (JSON serialization, HTTP) the user sees ~12-15ms. The database does nothing.
-
-```json
-{
-  "total": 12,
-  "restaurants": [
-    {
-      "id": 4521,
-      "name": "La Carbonara",
-      "cuisine": "italian",
-      "rating": 4.8,
-      "distance_m": 145
-    },
-    ...
-  ]
-}
-```
-
-### Cold cache (about 1% of requests)
-
-Redis has no data for this area yet:
-
-1. Redis miss (~4ms to check)
-2. Fall back to PostgreSQL (~750ms for the geo query)
-3. Cache the results in Redis (~120ms to write)
-4. Return the data
-
-Total: ~870ms, once per geographic area. Every subsequent query for that area hits the cache at 12ms.
-
-## Monitoring cache performance
-
-Track cache effectiveness with metrics:
-
-```python
-from prometheus_client import Counter, Histogram
-
-cache_hits = Counter('cache_hits_total', 'Number of cache hits')
-cache_misses = Counter('cache_misses_total', 'Number of cache misses')
-response_time = Histogram('response_time_seconds', 'Response time')
-
-async def find_nearby_with_metrics(...):
-    start = time.time()
-
-    results = await RestaurantCache.find_near(**query_params).to_list()
-
-    if results:
-        cache_hits.inc()
-    else:
-        cache_misses.inc()
-
-    response_time.observe(time.time() - start)
-
-    return results
-```
-
-What to track:
-
-- Cache hit rate (should be > 95%)
-- Average response time (cache: < 10ms, db: 50-100ms)
-- Cache memory usage
-- Stale entry count
-
-For production, consider [Redis monitoring and memory optimization](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/memory-optimization/) and alert on hit rate and memory usage.
-
-## Summary
-
-Using Beanis as a Redis cache over PostgreSQL turns a 750ms geo query into a 12ms lookup: the difference between an app that feels sluggish and one that feels instant.
-
-PostgreSQL stays the source of truth (writes, integrity, cache rebuilds). Redis is the speed layer (99% of reads, high concurrency, idle database). The pattern works because restaurant data changes little: locations never move and ratings update occasionally, so slightly stale cache data (refreshed hourly or on writes) buys a 62x speedup.
-
-Treat Redis as a cache, not a database. If it crashes, PostgreSQL rebuilds it. Beanis handles the Redis commands: you define a model with `GeoPoint`, call `find_by_geo_radius`, and skip the manual `GEOADD`/`GEORADIUS` and serialization work.
-
-## Quick start
-
-```bash
-# Clone the repo
 git clone https://github.com/andreim14/beanis-examples.git
 cd beanis-examples/restaurant-finder
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Start databases with Docker
-docker run -d --name restaurant-postgres -e POSTGRES_USER=restaurant_user -e POSTGRES_PASSWORD=restaurant_pass -e POSTGRES_DB=restaurant_db -p 5432:5432 postgis/postgis:15-3.3
+docker run -d --name restaurant-postgres \
+  -e POSTGRES_USER=restaurant_user \
+  -e POSTGRES_PASSWORD=restaurant_pass \
+  -e POSTGRES_DB=restaurant_db \
+  -p 5432:5432 postgis/postgis:15-3.3
 docker run -d --name restaurant-redis -p 6379:6379 redis:7-alpine
 
-# Start the API
-python main.py
-
-# Import sample data (Paris)
-curl -X POST "http://localhost:8000/import/area?lat=48.8584&lon=2.2945&radius_km=5"
-
-# Run the interactive demo
+python main.py   # FastAPI on :8000, leave it running
+# in a second terminal: import Rome from OpenStreetMap, then run the demo
+curl -X POST "http://localhost:8000/import/area?lat=41.8902&lon=12.4922&radius_km=5"
 python demo.py
 ```
 
-The demo includes a FastAPI REST API with geo-spatial queries, OpenStreetMap import, the Redis cache via Beanis, an interactive CLI showing cache performance, and the benchmarks above.
+## Questions people ask
 
-## FAQ
+**Does Redis geo search need Redis Stack?**
+No. `GEOADD` and `GEORADIUS` are core Redis commands, and Beanis's geo index uses only those.
 
-### What is a geo-spatial cache?
+**Are the results sorted by distance?**
+Not in Beanis 0.2.0. Both radius functions call `GEORADIUS` without a sort option, so sort the `(id, distance)` list yourself.
 
-It is a cache layer (here, Redis) that stores pre-computed location indexes so radius and nearest-neighbor queries return in milliseconds, instead of recomputing spherical distances in the database on every request.
+**Can I query by bounding box or polygon?**
+Beanis exposes radius queries only. For polygons keep using PostGIS.
 
-### Why not just query PostGIS directly?
+**Why use Redis if PostGIS already does radius queries?**
+To move repeated read traffic off the primary database. PostGIS stays the source of truth and Redis holds a disposable copy you can rebuild from it.
 
-PostGIS is accurate and reliable, but each `ST_Distance`/`ST_DWithin` query recomputes distances from scratch. Under high concurrency (hundreds of geo queries per second) it saturates CPU. Redis serves the same answers from pre-built geohash indexes at roughly 62x lower latency.
+**What happens if Redis loses the data?**
+Nothing permanent. Every request becomes a miss until the cache is warm again from PostgreSQL.
 
-### What is Beanis?
+## Links
 
-Beanis is a Redis object-document mapper for Python. Its `GeoPoint` type and `Indexed` fields generate the underlying `GEOADD`, `GEORADIUS`, and sorted-set commands, so you work with Python models instead of raw Redis commands.
-
-### Does Redis replace PostgreSQL here?
-
-No. PostgreSQL remains the source of truth for writes and integrity, and can rebuild the cache at any time. Redis is a read cache that serves about 99% of queries and can be discarded safely.
-
-### How do I keep the cache fresh?
-
-Choose based on freshness needs: time-based expiration (hourly TTL) for data that changes rarely, write-through to update both stores on every change, or invalidate-on-write to drop entries and rebuild them on the next read.
-
-### How much faster is Redis in these benchmarks?
-
-On a 2,600+ restaurant Paris dataset, a warm-cache query drops from 750ms (PostgreSQL) to 12ms (Redis), about 62x. Under 100 concurrent users running 1,000 total queries, total time falls from 75s to 1.2s.
-
-### Where does the restaurant data come from?
-
-From [OpenStreetMap](https://www.openstreetmap.org/). The example imports an area once into PostgreSQL, then syncs it into the Redis cache.
-
-## Resources
-
-- **Example code:** [github.com/andreim14/beanis-examples/tree/main/restaurant-finder](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
-- **Beanis docs:** [andreim14.github.io/beanis](https://andreim14.github.io/beanis)
-- **Redis geo-spatial commands:** [redis.io geospatial docs](https://redis.io/docs/latest/develop/data-types/geospatial/)
-- **PostGIS:** [postgis.net](https://postgis.net/)
-- **OpenStreetMap:** [openstreetmap.org](https://www.openstreetmap.org/)
-  </content>
+- PyPI: [pypi.org/project/beanis](https://pypi.org/project/beanis/)
+- GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
+- Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis/)
+- Example: [beanis-examples/restaurant-finder](https://github.com/andreim14/beanis-examples/tree/main/restaurant-finder)
+- Redis geospatial commands: [redis.io](https://redis.io/docs/latest/develop/data-types/geospatial/)

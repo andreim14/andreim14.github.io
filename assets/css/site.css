@@ -460,3 +460,29 @@ main { position: relative; }
   .topbar, .grain, .footer, .cmdk, .toast, .ground-lines { display: none !important; }
   .js .reveal { opacity: 1; transform: none; }
 }
+
+/* figures in posts: charts validated for colour-vision deficiency (blue/yellow pair), flow diagrams */
+:root { --c-a: #2a78d6; --c-b: #eda100; }
+:root[data-theme="dark"] { --c-a: #3987e5; --c-b: #c98500; }
+.chart { margin: 2em 0; }
+.chart svg { display: block; font-family: var(--mono); overflow: visible; }
+.chart text { fill: var(--ink-2); font-size: 12px; }
+.chart .ch-label { fill: var(--ink); font-family: var(--sans); font-size: 13.5px; }
+.chart .ch-val { font-size: 11.5px; fill: var(--ink-2); }
+.chart .ch-tick { fill: var(--muted); font-size: 11px; }
+.chart .ch-grid { stroke: var(--rule); stroke-width: 1; }
+.chart .ch-stem { stroke: var(--muted); stroke-width: 2; opacity: 0.55; }
+.chart .ch-a { fill: var(--c-a); stroke: var(--paper); stroke-width: 2; }
+.chart .ch-b { fill: var(--c-b); stroke: var(--paper); stroke-width: 2; }
+.chart .ch-hit { fill: transparent; }
+.chart .ch-row:hover .ch-hit { fill: var(--mark-soft); opacity: 0.35; }
+.chart figcaption, .flow figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; }
+.flow { margin: 2em 0; }
+.flow ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: step; }
+.flow li { position: relative; padding: 14px 14px 16px; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); margin: 0 !important; }
+.flow li::before { counter-increment: step; content: "step " counter(step); display: block; font: 500 11px var(--mono); color: var(--muted); margin-bottom: 6px; }
+.flow li:not(:last-child)::after { content: "→"; position: absolute; right: -11px; top: 50%; transform: translateY(-50%); font: 600 14px var(--mono); color: var(--muted); background: var(--paper); padding: 0 1px; z-index: 1; }
+.flow b { display: block; font: 800 26px/1.05 var(--disp); color: var(--ink); letter-spacing: -0.02em; }
+.flow span { display: block; font-size: 13.5px; line-height: 1.4; color: var(--ink-2); margin-top: 6px; }
+.flow li:last-child { border-color: var(--ink); }
+@media (max-width: 640px) { .flow ol { grid-template-columns: 1fr 1fr; } .flow li:nth-child(2)::after { content: none; } }

@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://andreim14.github.io/sitemap.xml
+Sitemap: https://andreim14.github.io/sitemap-pages.xml

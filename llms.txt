@@ -1,0 +1,29 @@
+---
+layout: null
+sitemap: false
+---
+# Andrei Stefan Bejgu
+
+> Senior AI Applied Scientist at Syllotips (Rome, Italy). Ph.D. in Artificial Intelligence, Sapienza University of Rome (National PhD Programme in AI, XXXVII cycle, defended January 2025, advisor Roberto Navigli). Works on AI agents that stay grounded in their sources: planning, tool use, citations, evaluation, self-hosted LLM serving. Previously 2017 to 2025 at Babelscape (software engineer, NLP engineer, NLP researcher).
+
+Contact: stefan.bejgu@gmail.com · GitHub: https://github.com/andreim14 · Google Scholar: https://scholar.google.com/citations?user=N_eHzKAAAAAJ · LinkedIn: https://www.linkedin.com/in/andrei-stefan-bejgu/ · CV: {{ '/assets/pdf/cv.pdf' | absolute_url }}
+
+## Papers
+
+- [Truth or Mirage? Towards End-to-End Factuality Evaluation with LLM-Oasis]({{ '/blog/2025/llm-oasis-factuality-evaluation/' | absolute_url }}): Computational Linguistics 52(1), 2026, co-first author. A large-scale resource for end-to-end factuality evaluation built by extracting and falsifying facts from Wikipedia. Code: https://github.com/Babelscape/LLM-Oasis
+- [Word Sense Linking: Disambiguating Outside the Sandbox]({{ '/blog/2025/word-sense-linking-acl-2024/' | absolute_url }}): Findings of ACL 2024, first author. Word sense disambiguation on raw text: finds the spans, retrieves WordNet candidates and links each span in one pass. 75.9 F1 vs 71.5 for ConSeC. Model: https://huggingface.co/Babelscape/wsl-base
+- [Concept-pedia: a Wide-coverage Semantically-annotated Multimodal Dataset]({{ '/blog/2025/concept-pedia-emnlp-2025/' | absolute_url }}): EMNLP 2025. 165K-concept dataset from Wikipedia and BabelNet; Concept-10k benchmark of 9,837 concepts in 28 categories. SigLIP-SO400M: 83.2% ImageNet-1k vs 40.3% Concept-10k. Benchmark: https://huggingface.co/datasets/sapienzanlp/Concept-10k
+- Optimizing LLMs for Italian: Reducing Token Fertility and Enhancing Efficiency Through Vocabulary Adaptation: Findings of NAACL 2025. https://aclanthology.org/2025.findings-naacl.371/
+- What We Learned from Continually Training Minerva: A Case Study on Italian: CLiC-it 2025.
+- CroCoAlign: A Cross-Lingual, Context-Aware and Fully-Neural Sentence Alignment System for Long Texts: EACL 2024. https://github.com/Babelscape/CroCoAlign
+- XL-WA: a Gold Evaluation Benchmark for Word Alignment in 14 Language Pairs: CLiC-it 2023.
+- Full list with BibTeX links: {{ '/publications/' | absolute_url }}
+
+## Software
+
+- [Beanis](https://github.com/andreim14/beanis): async Redis ODM for Python built on Pydantic v2. PyPI: https://pypi.org/project/beanis/
+
+## Writing
+{% for post in site.posts %}
+- [{{ post.title }}]({{ post.url | absolute_url }}): {{ post.description | strip_html | strip_newlines }}
+{%- endfor %}
