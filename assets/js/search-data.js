@@ -16,66 +16,77 @@ ninja.data = [{
           handler: () => {
             window.location.href = "/repositories/";
           },
-        },{id: "post-stateful-ai-agents-with-langgraph-and-beanis-rag-with-persistent-memory-on-redis",
+        },{id: "post-how-to-build-a-langgraph-rag-agent-with-persistent-memory-in-redis-beanis",
       
-        title: "Stateful AI Agents with LangGraph and Beanis: RAG with Persistent Memory on Redis...",
+        title: "How to build a LangGraph RAG agent with persistent memory in Redis (Beanis)...",
       
-      description: "A tutorial on building a stateful RAG agent with LangGraph for orchestration and Beanis for persistent memory and vector search, all backed by Redis, in about 200 lines of Python.",
+      description: "A LangGraph agent that retrieves passages with Beanis vector search, keeps conversation history in Redis, and answers with an OpenAI model. Models, graph, nodes and entry point in complete Python.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/build-ai-agents-langgraph-beanis/";
         
       },
-    },{id: "post-concept-pedia-a-multimodal-concept-dataset-and-benchmark-beyond-imagenet-emnlp-2025",
+    },{id: "post-llm-oasis-a-large-scale-dataset-and-benchmark-for-end-to-end-factuality-evaluation-of-llm-text-computational-linguistics-2026",
       
-        title: "Concept-pedia: A Multimodal Concept Dataset and Benchmark Beyond ImageNet (EMNLP 2025)",
+        title: "LLM-Oasis: a large-scale dataset and benchmark for end-to-end factuality evaluation of LLM text...",
       
-      description: "Concept-pedia is a wide-coverage, semantically-annotated multimodal dataset of 165K+ visual concepts built on BabelNet, with the Concept-10k benchmark and SigLIP models on Hugging Face for evaluating vision-language models beyond ImageNet.",
+      description: "LLM-Oasis is built from 81,275 Wikipedia pages: 681,201 extracted claims and 81k pairs of factual and unfactual texts that differ by one subtle falsified claim. On its human-validated gold benchmark GPT-4o reaches 60.8% balanced accuracy zero-shot and 68.0% with retrieval; a 1B fine-tuned pipeline reaches 69.24%.",
+      section: "Posts",
+      handler: () => {
+        
+          window.location.href = "/blog/2025/llm-oasis-factuality-evaluation/";
+        
+      },
+    },{id: "post-concept-pedia-and-concept-10k-test-your-vision-language-model-beyond-imagenet-emnlp-2025",
+      
+        title: "Concept-pedia and Concept-10k: test your vision-language model beyond ImageNet (EMNLP 2025)",
+      
+      description: "Concept-10k is a human-validated benchmark of 9,837 visual concepts in 28 semantic categories. SigLIP-SO400M scores 83.2% on ImageNet-1k and 40.3% on Concept-10k. How the dataset was built from Wikipedia and BabelNet, how to evaluate your own model on it in a few lines, and how to cite it.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/concept-pedia-emnlp-2025/";
         
       },
-    },{id: "post-redis-geo-spatial-cache-build-a-restaurant-finder-with-beanis-and-postgresql",
+    },{id: "post-how-to-find-nearby-places-in-redis-with-python-a-restaurant-finder-with-beanis-geopoint",
       
-        title: "Redis Geo-Spatial Cache: Build a Restaurant Finder with Beanis and PostgreSQL",
+        title: "How to find nearby places in Redis with Python: a restaurant finder with...",
       
-      description: "How to use Redis (via the Beanis ODM) as a geo-spatial cache in front of PostgreSQL/PostGIS, with OpenStreetMap data, to serve nearby-restaurant queries in about 12ms.",
+      description: "Store restaurants with a GeoPoint in Redis using Beanis, query them by radius with GEORADIUS, and use Redis as a geo cache in front of PostgreSQL/PostGIS. Complete async Python code.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/building-restaurant-finder-redis-geopoints/";
         
       },
-    },{id: "post-word-sense-linking-word-sense-disambiguation-on-real-text-acl-2024",
+    },{id: "post-word-sense-linking-disambiguate-word-senses-in-raw-text-no-pre-marked-spans-findings-of-acl-2024",
       
-        title: "Word Sense Linking: Word Sense Disambiguation on Real Text (ACL 2024)",
+        title: "Word Sense Linking: disambiguate word senses in raw text, no pre-marked spans (Findings...",
       
-      description: "Word Sense Linking (WSL) is a model that finds the ambiguous words in raw text and links each to its correct WordNet sense, no pre-marked spans or candidate lists required. Published at ACL 2024 (Findings) by Babelscape and Sapienza. Includes the model, results, and Python usage.",
+      description: "Word Sense Linking (WSL) finds which words in a raw text need disambiguating and links each to its WordNet sense, in one forward pass. 75.9 F1 on the fully annotated benchmark against 71.5 for the best WSD system adapted to the task. How it works, how to run it, and how to cite it.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/word-sense-linking-acl-2024/";
         
       },
-    },{id: "post-rag-with-redis-and-beanis-build-vector-search-in-50-lines-no-separate-vector-db",
+    },{id: "post-how-to-build-rag-retrieval-on-redis-with-beanis-vector-search",
       
-        title: "RAG with Redis and Beanis: Build Vector Search in ~50 Lines (No Separate...",
+        title: "How to build RAG retrieval on Redis with Beanis vector search",
       
-      description: "Build a RAG pipeline in about 50 lines of Python using Redis vector search and the Beanis ODM, without adding a separate vector database like Pinecone.",
+      description: "Store text and embeddings in Redis Stack with the Beanis ODM, let it create the HNSW index, and retrieve the top-k passages for a RAG prompt. Complete async Python code.",
       section: "Posts",
       handler: () => {
         
           window.location.href = "/blog/2025/build-rag-50-lines-beanis-redis/";
         
       },
-    },{id: "post-beanis-a-typed-redis-odm-for-python-with-pydantic-v2",
+    },{id: "post-beanis-an-async-redis-odm-for-python-with-pydantic-models",
       
-        title: "Beanis: A Typed Redis ODM for Python with Pydantic v2",
+        title: "Beanis: an async Redis ODM for Python with Pydantic models",
       
-      description: "Beanis is an async, Pydantic v2 object-document mapper for vanilla Redis. It cuts serialization boilerplate by about 70% and stays within roughly 8% of raw redis-py performance.",
+      description: "Beanis maps Pydantic models to Redis hashes, keeps secondary indexes for you and gives you a Beanie-style async API. Install, define a model, insert, query by index, set TTLs.",
       section: "Posts",
       handler: () => {
         

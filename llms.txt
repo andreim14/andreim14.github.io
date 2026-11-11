@@ -1,0 +1,30 @@
+# Andrei Stefan Bejgu
+
+> Senior AI Applied Scientist at Syllotips (Rome, Italy). Ph.D. in Artificial Intelligence, Sapienza University of Rome (National PhD Programme in AI, XXXVII cycle, defended January 2025, advisor Roberto Navigli). Works on AI agents that stay grounded in their sources: planning, tool use, citations, evaluation, self-hosted LLM serving. Previously 2017 to 2025 at Babelscape (software engineer, NLP engineer, NLP researcher).
+
+Contact: stefan.bejgu@gmail.com · GitHub: https://github.com/andreim14 · Google Scholar: https://scholar.google.com/citations?user=N_eHzKAAAAAJ · LinkedIn: https://www.linkedin.com/in/andrei-stefan-bejgu/ · CV: https://andreim14.github.io/assets/pdf/cv.pdf
+
+## Papers
+
+- [Truth or Mirage? Towards End-to-End Factuality Evaluation with LLM-Oasis](https://andreim14.github.io/blog/2025/llm-oasis-factuality-evaluation/): Computational Linguistics 52(1), 2026, co-first author. A large-scale resource for end-to-end factuality evaluation built by extracting and falsifying facts from Wikipedia. Code: https://github.com/Babelscape/LLM-Oasis
+- [Word Sense Linking: Disambiguating Outside the Sandbox](https://andreim14.github.io/blog/2025/word-sense-linking-acl-2024/): Findings of ACL 2024, first author. Word sense disambiguation on raw text: finds the spans, retrieves WordNet candidates and links each span in one pass. 75.9 F1 vs 71.5 for ConSeC. Model: https://huggingface.co/Babelscape/wsl-base
+- [Concept-pedia: a Wide-coverage Semantically-annotated Multimodal Dataset](https://andreim14.github.io/blog/2025/concept-pedia-emnlp-2025/): EMNLP 2025. 165K-concept dataset from Wikipedia and BabelNet; Concept-10k benchmark of 9,837 concepts in 28 categories. SigLIP-SO400M: 83.2% ImageNet-1k vs 40.3% Concept-10k. Benchmark: https://huggingface.co/datasets/sapienzanlp/Concept-10k
+- Optimizing LLMs for Italian: Reducing Token Fertility and Enhancing Efficiency Through Vocabulary Adaptation: Findings of NAACL 2025. https://aclanthology.org/2025.findings-naacl.371/
+- What We Learned from Continually Training Minerva: A Case Study on Italian: CLiC-it 2025.
+- CroCoAlign: A Cross-Lingual, Context-Aware and Fully-Neural Sentence Alignment System for Long Texts: EACL 2024. https://github.com/Babelscape/CroCoAlign
+- XL-WA: a Gold Evaluation Benchmark for Word Alignment in 14 Language Pairs: CLiC-it 2023.
+- Full list with BibTeX links: https://andreim14.github.io/publications/
+
+## Software
+
+- [Beanis](https://github.com/andreim14/beanis): async Redis ODM for Python built on Pydantic v2. PyPI: https://pypi.org/project/beanis/
+
+## Writing
+
+- [How to build a LangGraph RAG agent with persistent memory in Redis (Beanis)](https://andreim14.github.io/blog/2025/build-ai-agents-langgraph-beanis/): A LangGraph agent that retrieves passages with Beanis vector search, keeps conversation history in Redis, and answers with an OpenAI model. Models, graph, nodes and entry point in complete Python.
+- [LLM-Oasis: a large-scale dataset and benchmark for end-to-end factuality evaluation of LLM text (Computational Linguistics 2026)](https://andreim14.github.io/blog/2025/llm-oasis-factuality-evaluation/): LLM-Oasis is built from 81,275 Wikipedia pages: 681,201 extracted claims and 81k pairs of factual and unfactual texts that differ by one subtle falsified claim. On its human-validated gold benchmark GPT-4o reaches 60.8% balanced accuracy zero-shot and 68.0% with retrieval; a 1B fine-tuned pipeline reaches 69.24%.
+- [Concept-pedia and Concept-10k: test your vision-language model beyond ImageNet (EMNLP 2025)](https://andreim14.github.io/blog/2025/concept-pedia-emnlp-2025/): Concept-10k is a human-validated benchmark of 9,837 visual concepts in 28 semantic categories. SigLIP-SO400M scores 83.2% on ImageNet-1k and 40.3% on Concept-10k. How the dataset was built from Wikipedia and BabelNet, how to evaluate your own model on it in a few lines, and how to cite it.
+- [How to find nearby places in Redis with Python: a restaurant finder with Beanis GeoPoint](https://andreim14.github.io/blog/2025/building-restaurant-finder-redis-geopoints/): Store restaurants with a GeoPoint in Redis using Beanis, query them by radius with GEORADIUS, and use Redis as a geo cache in front of PostgreSQL/PostGIS. Complete async Python code.
+- [Word Sense Linking: disambiguate word senses in raw text, no pre-marked spans (Findings of ACL 2024)](https://andreim14.github.io/blog/2025/word-sense-linking-acl-2024/): Word Sense Linking (WSL) finds which words in a raw text need disambiguating and links each to its WordNet sense, in one forward pass. 75.9 F1 on the fully annotated benchmark against 71.5 for the best WSD system adapted to the task. How it works, how to run it, and how to cite it.
+- [How to build RAG retrieval on Redis with Beanis vector search](https://andreim14.github.io/blog/2025/build-rag-50-lines-beanis-redis/): Store text and embeddings in Redis Stack with the Beanis ODM, let it create the HNSW index, and retrieve the top-k passages for a RAG prompt. Complete async Python code.
+- [Beanis: an async Redis ODM for Python with Pydantic models](https://andreim14.github.io/blog/2025/introducing-beanis/): Beanis maps Pydantic models to Redis hashes, keeps secondary indexes for you and gives you a Beanie-style async API. Install, define a model, insert, query by index, set TTLs.
