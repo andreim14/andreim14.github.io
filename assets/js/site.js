@@ -161,7 +161,7 @@
       requestAnimationFrame(function () { hero.classList.add("loaded"); });
 
       var t0 = 450, per = Math.min(32, 1500 / Math.max(words.length, 1));
-      words.forEach(function (w, i) { setTimeout(function () { w.classList.add("in"); }, t0 + i * per); });
+      words.forEach(function (w, i) { setTimeout(function () { w.classList.add("in"); var sp = w.closest(".sense"); if (sp) sp.classList.add("in"); }, t0 + i * per); });
       var tVerify = t0 + words.length * per + 300, STEP = 1250;
       var ticks = $$(".ticks i", hero);
       setTimeout(function () { if (verdict) verdict.textContent = "fact-checking against sources…"; }, tVerify - 200);
@@ -191,7 +191,7 @@
       setTimeout(function () {
         linesOn = true;
         if (verdictBox) verdictBox.classList.remove("pending");
-        if (verdict) verdict.textContent = claims.length + " of " + claims.length + " claims supported · hover one to see why";
+        if (verdict) verdict.textContent = claims.length + " of " + claims.length + " claims supported · " + (window.matchMedia("(hover: none)").matches ? "tap" : "hover") + " one to see why";
       }, tVerify + claims.length * STEP + 200);
     }
     drawLines();

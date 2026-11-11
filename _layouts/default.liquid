@@ -3,13 +3,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%- assign t = page.title -%}
+    {%- if page.inline -%}{%- assign t = 'News' -%}{%- endif -%}
+    {%- if page.type == 'year' -%}{%- assign t = page.date | date: '%Y' | prepend: 'Writing in ' -%}{%- elsif page.type == 'tag' -%}{%- assign t = page.title | prepend: 'Posts tagged ' -%}{%- elsif page.type == 'category' -%}{%- assign t = page.title | prepend: 'Posts in ' -%}{%- endif -%}
     {%- if page.url == '/' -%}
       {%- assign doc_title = 'Andrei Stefan Bejgu · Senior AI Applied Scientist' -%}
     {%- else -%}
-      {%- assign doc_title = page.title | append: ' · Andrei Stefan Bejgu' -%}
+      {%- assign doc_title = t | default: 'Andrei Stefan Bejgu' | append: ' · Andrei Stefan Bejgu' -%}
     {%- endif -%}
     {%- assign doc_desc = page.description | default: site.description | strip_html | strip_newlines | truncate: 200 -%}
-    {%- assign doc_img = page.thumbnail | default: '/assets/img/og-card.png' | absolute_url -%}
+    {%- assign doc_img = '/assets/img/og-card.png' -%}
+    {%- if page.thumbnail -%}
+      {%- assign thumb_path = page.thumbnail | prepend: '/' | replace: '//', '/' -%}
+      {%- assign thumb_hit = site.static_files | where: 'path', thumb_path | first -%}
+      {%- if thumb_hit -%}{%- assign doc_img = thumb_path -%}{%- endif -%}
+    {%- endif -%}
+    {%- assign doc_img = doc_img | absolute_url -%}
     <title>{{ doc_title }}</title>
     <meta name="description" content="{{ doc_desc }}">
     <meta name="author" content="Andrei Stefan Bejgu">
@@ -35,7 +44,8 @@
       (function () {
         var d = document.documentElement;
         d.classList.add('js');
-        try { var t = localStorage.getItem('theme'); if (t) d.dataset.theme = t; } catch (e) {}
+        var t = null; try { t = localStorage.getItem('theme'); } catch (e) {}
+        d.dataset.theme = t || 'light';
       })();
     </script>
     {%- if site.enable_google_analytics and site.google_analytics %}

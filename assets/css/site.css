@@ -202,6 +202,9 @@ main { position: relative; }
 /* JS-driven intro states (only when JS runs and motion is allowed) */
 .js .animate .answer-text .w { opacity: 0; filter: blur(4px); transition: opacity 0.35s, filter 0.35s; }
 .js .animate .answer-text .w.in { opacity: 1; filter: none; }
+.js .animate .answer-text .sense:not(.in) { background-image: none; }
+.js .animate .answer-text .sense:not(.in)::after { opacity: 0; }
+.sense::after { transition: opacity 0.3s; }
 .js .animate .cite { opacity: 0; transform: scale(0.4); }
 .js .animate .cite.on { opacity: 1; transform: none; }
 .js .animate .sources li { opacity: 0; transform: translateX(14px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
