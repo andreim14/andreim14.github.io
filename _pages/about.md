@@ -38,8 +38,8 @@ sitemap:
     </figure>
     <ol class="sources">
       <li id="src-1" data-src="1"><a href="#work"><span class="n">1</span><span class="sb"><b>Syllotips</b> Senior AI Applied Scientist, 2025 to now<span class="ev">CV: deep-research agent, MCP layer, self-hosted model serving, Oct 2025 to present.</span></span><span class="stamp">supported</span></a></li>
-      <li id="src-2" data-src="2"><a href="#trace"><span class="n">2</span><span class="sb"><b>Babelscape</b> Software engineer to NLP researcher<span class="ev">CV: Jul 2017 to Sep 2025. Software Engineer, then NLP Engineer, then NLP Researcher.</span></span><span class="stamp">supported</span></a></li>
-      <li id="src-3" data-src="3"><a href="#trace"><span class="n">3</span><span class="sb"><b>Sapienza</b> Ph.D. in Artificial Intelligence<span class="ev">CV: Jan 2025, joint industrial Ph.D., advisor Prof. Roberto Navigli.</span></span><span class="stamp">supported</span></a></li>
+      <li id="src-2" data-src="2"><a href="https://babelscape.com"><span class="n">2</span><span class="sb"><b>Babelscape</b> Software engineer to NLP researcher<span class="ev">CV: Jul 2017 to Sep 2025. Software Engineer, then NLP Engineer, then NLP Researcher.</span></span><span class="stamp">supported</span></a></li>
+      <li id="src-3" data-src="3"><a href="https://phd.uniroma1.it/phd-ai/"><span class="n">3</span><span class="sb"><b>Sapienza</b> Ph.D. in Artificial Intelligence<span class="ev">CV: Jan 2025, joint industrial Ph.D., advisor Prof. Roberto Navigli.</span></span><span class="stamp">supported</span></a></li>
       <li id="src-4" data-src="4"><a href="https://direct.mit.edu/coli/article/52/1/1/133509/Truth-or-Mirage-Towards-End-To-End-Factuality"><span class="n">4</span><span class="sb"><b>Computational Linguistics</b> Truth or Mirage? LLM-Oasis<span class="ev">Vol. 52, No. 1, 2026. Co-first author.</span></span><span class="stamp">supported</span></a></li>
     </ol>
   </aside>
@@ -116,7 +116,7 @@ sitemap:
   <header class="block-head reveal">
     <p class="eyebrow"><span class="idx">03</span> research</p>
     <h2 id="research-h">Do models mean what they say?</h2>
-    <p class="lede">Factuality, word senses, and multilingual and multimodal meaning. Published at ACL, EMNLP, NAACL, EACL and in Computational Linguistics. Reviewer for ACL, EMNLP, EACL and ICLR.</p>
+    <p class="lede">Factuality, word senses, and multilingual and multimodal meaning, mostly with the <a href="https://nlp.uniroma1.it/">Sapienza NLP</a> group. Published at ACL, EMNLP, NAACL, EACL and in Computational Linguistics. Reviewer for ACL, EMNLP, EACL and ICLR.</p>
   </header>
 
   <ol class="papers">

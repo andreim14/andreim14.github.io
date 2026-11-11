@@ -15,47 +15,47 @@ entries:
     at: "2015-10"
     when: "2015 · 2019"
     lane: study
-    who: "Sapienza · BSc in Computer Science, 107/110"
+    who: '<a href="https://www.uniroma1.it/en">Sapienza</a> · BSc in Computer Science, 107/110'
     text: "Thesis on knowledge-based Word Sense Disambiguation with synset embeddings."
   - id: cini
     at: "2016-12"
     when: "Dec 2016"
     lane: work
-    who: "CINI · Software Developer"
+    who: '<a href="https://www.consorzio-cini.it">CINI</a> · Software Developer'
     text: "First job: a tool for lexicon-semantic stylometric analysis of large text collections."
   - id: bs-se
     at: "2017-07"
     when: "Jul 2017"
     lane: work
-    who: "Babelscape · Software Engineer"
+    who: '<a href="https://babelscape.com">Babelscape</a> · Software Engineer'
     text: "Built <b>myKnowledgeGraph</b> for knowledge graph extraction, the company's Java NLP pipeline, and concept extraction for trademark names."
   - id: msc
     at: "2019-10"
     when: "2019 · 2021"
     lane: study
-    who: "Sapienza · MSc in Computer Science, 110/110 with honors"
-    text: "Thesis on language-agnostic latent spaces for sentences, supervised by Roberto Navigli."
+    who: '<a href="https://www.uniroma1.it/en">Sapienza</a> · MSc in Computer Science, 110/110 with honors'
+    text: 'Thesis on language-agnostic latent spaces for sentences, supervised by <a href="https://www.diag.uniroma1.it/navigli/">Roberto Navigli</a> in the <a href="https://nlp.uniroma1.it/">Sapienza NLP</a> group.'
   - id: bs-ne
     at: "2020-06"
     when: "Jun 2020"
     lane: work
-    who: "Babelscape · NLP Engineer"
+    who: '<a href="https://babelscape.com">Babelscape</a> · NLP Engineer'
     text: "Built <b>Semantic Paths</b>, multilingual semantic search for scientific papers, and Word Sense Disambiguation models for large-scale multilingual text. Best Employee Award in 2021."
   - id: bs-nr
     at: "2021-10"
     when: "Oct 2021"
     lane: work
-    who: "Babelscape · NLP Researcher"
+    who: '<a href="https://babelscape.com">Babelscape</a> · NLP Researcher'
     text: "Led <b>Vera</b>, a multilingual fact-checking product on LLMs and RAG. Fine-tuned open LLMs on Slurm clusters for text-to-SQL and claim verification. Worked on <b>Minerva</b>, the first Italian LLM. Mentored interns from prototype to deployment."
   - id: phd
     at: "2021-11"
     when: "2021 · 2025"
     lane: study
-    who: "Sapienza · Ph.D. in Artificial Intelligence"
-    text: "Joint industrial Ph.D. with Babelscape, advised by Roberto Navigli: lexical semantics for multilingual NLP, and word and sentence representations for RAG and LLMs. Defended in Jan 2025."
+    who: '<a href="https://www.uniroma1.it/en">Sapienza</a> · Ph.D. in Artificial Intelligence'
+    text: 'XXXVII cycle of the <a href="https://phd.uniroma1.it/phd-ai/">National PhD Programme in Artificial Intelligence</a>, as a joint industrial Ph.D. with <a href="https://babelscape.com">Babelscape</a>, advised by <a href="https://www.diag.uniroma1.it/navigli/">Roberto Navigli</a> at <a href="https://nlp.uniroma1.it/">Sapienza NLP</a>: lexical semantics for multilingual NLP, and word and sentence representations for RAG and LLMs. Defended in Jan 2025.'
   - id: syl
     at: "2025-10"
     when: "Oct 2025 · now"
     lane: work
-    who: "Syllotips · Senior AI Applied Scientist"
+    who: '<a href="https://www.syllotips.com">Syllotips</a> · Senior AI Applied Scientist'
     text: "Agents for customer, sales and field support that improve as experts correct them. See <a href=\"#work\">above</a>."

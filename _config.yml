@@ -167,6 +167,8 @@ kramdown:
 include: ["_pages", "_scripts", "robots.txt"]
 exclude:
   - bin/
+  - examples.txt
+  - .serena/
   - CONTRIBUTING.md
   - CUSTOMIZE.md
   - Dockerfile
