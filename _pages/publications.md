@@ -1,20 +1,11 @@
 ---
 layout: page
+title: papers
 permalink: /publications/
-title: publications
-description: Peer-reviewed work on factuality, meaning, and multilingual NLP. Most recent first.
-nav: true
-nav_order: 2
+eyebrow: research
+description: Factuality evaluation, word senses, multilingual LLMs and multimodal concepts. * marks equal contribution.
 ---
 
-<!-- _pages/publications.md -->
-
-<!-- Bibsearch Feature -->
-
-{% include bib_search.liquid %}
-
-<div class="publications">
-
+<div class="pubs">
 {% bibliography %}
-
 </div>

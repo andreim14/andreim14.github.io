@@ -1,7 +1,8 @@
 ---
 layout: page
+eyebrow: open source
 permalink: /repositories/
-title: open source
+title: code
 description: "Code I maintain in the open: a typed Redis ODM, and the research systems behind my papers."
 nav: true
 nav_order: 4
