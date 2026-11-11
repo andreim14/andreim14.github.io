@@ -70,6 +70,41 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") hideSense(); });
   window.addEventListener("scroll", function () { if (openSense && !openSense.matches(":hover")) hideSense(); }, { passive: true });
 
+  /* ---- portrait: sampled out of noise while the answer streams, like a diffusion model ---- */
+  function diffuse(fig, ms) {
+    var img = fig && $("img", fig), c = document.createElement("canvas"), x = c.getContext && c.getContext("2d", { willReadFrequently: true });
+    if (!img || !x) return;
+    var W = 150, H = 200, STEPS = 50, tag = document.createElement("span");
+    c.width = W; c.height = H; c.setAttribute("aria-hidden", "true");
+    tag.className = "step"; tag.setAttribute("aria-hidden", "true");
+    fig.classList.add("sampling"); fig.appendChild(c); fig.appendChild(tag);
+    function finish() {
+      fig.classList.remove("sampling"); fig.classList.add("sampled");
+      setTimeout(function () { c.remove(); tag.remove(); }, 900);
+    }
+    (img.decode ? img.decode() : Promise.resolve()).then(function () {
+      x.drawImage(img, 0, 0, W, H);
+      var src = x.getImageData(0, 0, W, H).data, out = x.createImageData(W, H), d = out.data, start = performance.now(), last = -1;
+      function frame() {
+        var now = performance.now(), k = Math.min(STEPS, Math.floor((now - start) / ms * STEPS) + 1);
+        if (k !== last) {
+          last = k;
+          // x_t = cos(t)·x0 + sin(t)·ε, with the image also coarse early on (structure first, detail last)
+          var t = 1 - k / STEPS, sa = Math.cos(t * Math.PI / 2), sn = Math.sin(t * Math.PI / 2), b = 1 + Math.round(11 * t * t);
+          for (var py = 0; py < H; py++) for (var px = 0; px < W; px++) {
+            var s = ((py - py % b) * W + (px - px % b)) * 4, l = 0.3 * src[s] + 0.59 * src[s + 1] + 0.11 * src[s + 2];
+            var v = 128 + sa * (l - 128) + sn * (Math.random() + Math.random() + Math.random() - 1.5) * 150, i = (py * W + px) * 4;
+            d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255;
+          }
+          x.putImageData(out, 0, 0);
+          tag.textContent = k < STEPS ? "denoising · step " + k + "/" + STEPS : "sampled · " + STEPS + " steps";
+        }
+        if (k < STEPS) setTimeout(frame, 30); else setTimeout(finish, 250);
+      }
+      frame();
+    }).catch(finish);
+  }
+
   /* ---- hero: the bio grounds itself ---- */
   var hero = $(".hero"), svg = $(".ground-lines"), NS = "http://www.w3.org/2000/svg";
   var linesOn = false;
@@ -157,6 +192,7 @@
       })(text);
 
       hero.classList.add("animate");
+      diffuse($(".portrait", hero), 2100);
       if (verdictBox) { verdictBox.classList.add("pending"); verdict.textContent = "generating answer…"; }
       requestAnimationFrame(function () { hero.classList.add("loaded"); });
 
