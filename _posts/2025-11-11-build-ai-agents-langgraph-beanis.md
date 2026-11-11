@@ -8,7 +8,7 @@ tags: python langgraph beanis redis rag vector-search
 categories: tutorials
 giscus_comments: true
 related_posts: true
-keywords: LangGraph RAG agent, LangGraph Redis memory, conversation history Redis Python, Beanis VectorField, stateful agent Python, LangGraph StateGraph example, Redis Stack vector search
+keywords: LangGraph RAG agent, LangGraph Redis memory, conversation history Redis Python, Beanis VectorField, stateful agent Python, LangGraph StateGraph example, Redis 8 vector sets
 author: Andrei Stefan Bejgu
 ---
 
@@ -16,14 +16,14 @@ This tutorial builds a four-node LangGraph agent: it retrieves passages from Red
 
 | | |
 | --- | --- |
-| Package | [`pip install beanis`](https://pypi.org/project/beanis/) (0.2.0), `langgraph`, `langchain-openai`, `datasets` |
-| Code | [beanis](https://github.com/andreim14/beanis) · [langgraph-agent example](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent) |
+| Package | [`pip install beanis`](https://pypi.org/project/beanis/) (0.3+), `langgraph`, `langchain-openai`, `datasets` |
+| Code | [beanis](https://github.com/andreim14/beanis) |
 | Docs | [Beanis](https://andreim14.github.io/beanis/) · [LangGraph](https://langchain-ai.github.io/langgraph/) |
-| Requirements | Python 3.9+, Redis Stack (RediSearch for the vector index), an OpenAI API key |
+| Requirements | Python 3.9+, Redis 8.0+ (vector sets are built in, no Redis Stack), an OpenAI API key |
 
 <figure class="flow" aria-label="The agent graph in four nodes">
 <ol>
-<li><b>retrieve</b><span>embed the question, KNN search in Redis, load top 3 passages</span></li>
+<li><b>retrieve</b><span>embed the question, one VSIM call on the Redis 8 vector set, top 3 passages</span></li>
 <li><b>load_history</b><span>last turns for this session_id from Redis</span></li>
 <li><b>generate</b><span>LLM call with passages, history and question</span></li>
 <li><b>save</b><span>insert the user and assistant turns into Redis</span></li>
@@ -34,8 +34,8 @@ This tutorial builds a four-node LangGraph agent: it retrieves passages from Red
 ## Setup
 
 ```bash
-docker run -d -p 6379:6379 redis/redis-stack:latest
-pip install beanis langgraph langchain-openai datasets
+docker run -d -p 6379:6379 redis:8
+pip install "beanis>=0.3" langgraph langchain-openai datasets
 export OPENAI_API_KEY=...
 ```
 
@@ -114,7 +114,6 @@ from langgraph.graph import END, StateGraph
 from redis.asyncio import Redis
 
 from beanis import init_beanis
-from beanis.odm.indexes import IndexManager
 from models import ConversationTurn, KnowledgeDocument
 
 
@@ -149,15 +148,8 @@ class RAGAgent:
 
     async def retrieve(self, state: AgentState) -> AgentState:
         vector = await self.embeddings.aembed_query(state["query"])
-        results = await IndexManager.find_by_vector_similarity(
-            redis_client=self.redis,
-            document_class=KnowledgeDocument,
-            field_name="embedding",
-            query_vector=vector,
-            k=3,
-        )
-        docs = [await KnowledgeDocument.get(doc_id) for doc_id, _ in results]
-        docs = [d for d in docs if d is not None]
+        hits = await KnowledgeDocument.vector_search(vector, k=3)
+        docs = [doc for doc, _score in hits]
         return {
             "retrieved_docs": [d.id for d in docs],
             "context": "\n\n".join(d.context for d in docs),
@@ -234,7 +226,7 @@ await ConversationTurn.delete_many([t.id for t in turns])
 
 ## Performance
 
-The [example's README](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent) reports, for 100 documents on an M1 Mac, 10 to 20 ms for the Redis vector search and 500 to 800 ms per full query. Most of the time is the LLM call.
+Per question the agent makes one embedding call, one `VSIM` round trip to Redis, one history lookup and one LLM call. The LLM call dominates; with a few hundred passages the Redis steps are a small fraction of it.
 
 ## Questions people ask
 
@@ -248,12 +240,11 @@ No. LangGraph has its own checkpointers. This post stores chat turns as Beanis d
 Yes. Change `VectorField(dimensions=...)` to the model's output size, re-ingest, and embed queries with the same model.
 
 **Do I need Redis Stack or is plain Redis enough?**
-The vector index uses RediSearch, so this agent needs Redis Stack. Conversation history alone would work on plain Redis.
+Plain Redis 8.0 or newer is enough. Beanis 0.3 stores embeddings in a native vector set (`VADD`/`VSIM`), so there is no RediSearch index to create. On Redis 7 or Valkey, `init_beanis` raises an error at startup instead of returning empty results.
 
 ## Links
 
 - PyPI: [pypi.org/project/beanis](https://pypi.org/project/beanis/)
 - GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
 - Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis/)
-- Example: [beanis-examples/langgraph-agent](https://github.com/andreim14/beanis-examples/tree/main/langgraph-agent)
 - Related: [RAG retrieval with Beanis]({% post_url 2025-10-24-build-rag-50-lines-beanis-redis %}) · [Geo search with Beanis]({% post_url 2025-10-30-building-restaurant-finder-redis-geopoints %})

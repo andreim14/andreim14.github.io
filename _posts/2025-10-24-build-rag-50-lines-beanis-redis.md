@@ -1,201 +1,198 @@
 ---
 layout: post
-title: "How to build RAG retrieval on Redis with Beanis vector search"
+title: "Agentic RAG in 65 lines: LangGraph 1.2, Claude and Redis 8 vector sets"
 date: 2025-10-24 08:00:00 +0000
-last_modified_at: 2026-11-11 12:00:00
-description: "Store text and embeddings in Redis Stack with the Beanis ODM, let it create the HNSW index, and retrieve the top-k passages for a RAG prompt. Complete async Python code."
-tags: python redis RAG vector-search semantic-search beanis embeddings
+last_modified_at: 2026-11-11 15:00:00
+description: "A docs assistant that searches, cites its sources and remembers the user, in one 65-line Python file: LangGraph 1.2 create_agent, Claude Opus 5.5, Beanis 0.3 on Redis 8 vector sets (no Redis Stack) and local fastembed embeddings."
+tags: python redis RAG vector-search semantic-search langgraph agents beanis embeddings
 categories: tutorials
-giscus_comments: true
-related_posts: true
-keywords: Redis vector search Python, RAG with Redis, Beanis VectorField, RediSearch HNSW Python, find_by_vector_similarity, Redis Stack embeddings, jina-embeddings-v4
+keywords: agentic RAG Python, LangGraph create_agent, LangGraph 1.2 RAG, Redis 8 vector sets, VSIM VADD, Redis vector search without RediSearch, Beanis vector_search, agent memory Redis, fastembed, Claude Opus 5.5 LangChain
 author: Andrei Stefan Bejgu
 ---
 
-This tutorial builds the retrieval half of a RAG pipeline on Redis: a Beanis model with a `VectorField`, an ingest step that stores text plus embeddings, and a search function that returns the closest passages. At the end you have one Python file that you can point at your own documents and plug into any LLM prompt.
+At the end of this post you have one Python file, 65 lines of code, that turns any Markdown document into a chat assistant. It searches the document before answering, cites the passages it used as `[n]`, and remembers what you tell it about yourself across turns. The model plans the searches; Redis holds the passages, the vectors and the memory.
 
 | | |
 | --- | --- |
-| Package | [`pip install beanis`](https://pypi.org/project/beanis/) (0.2.0) |
-| Code | [beanis](https://github.com/andreim14/beanis) · [simple-rag example](https://github.com/andreim14/beanis-examples/tree/main/simple-rag) |
-| Docs | [andreim14.github.io/beanis](https://andreim14.github.io/beanis/) |
-| Requirements | Python 3.9+, Redis Stack (needs the RediSearch module for vector indexes), `transformers>=4.52` and `torch>=2.6` for the embedding model |
+| Agent | LangGraph 1.2 via `langchain.agents.create_agent` (LangChain 1.4) |
+| Model | Claude Opus 5.5 (`anthropic:claude-opus-5-5`), any tool-calling chat model works |
+| Storage | [Beanis 0.3](https://github.com/andreim14/beanis) on **Redis 8**: documents in hashes, embeddings in a native vector set |
+| Embeddings | [fastembed](https://github.com/qdrant/fastembed) `BAAI/bge-small-en-v1.5`, 384 dimensions, local CPU, no API key |
+| Requirements | Python 3.10+, Redis 8.0+ (`docker run -p 6379:6379 redis:8` or `brew install redis`), `ANTHROPIC_API_KEY` |
 
-<figure class="flow" aria-label="RAG retrieval with Beanis in four steps">
-<ol>
-<li><b>Embed</b><span>turn each passage into a 1024-dim vector</span></li>
-<li><b>Insert</b><span>Beanis writes the text and vector to a Redis hash</span></li>
-<li><b>Search</b><span>KNN query on the HNSW index Beanis created at init</span></li>
-<li><b>Fetch</b><span>load the matching documents and pass their text to the LLM</span></li>
-</ol>
-<figcaption>Beanis owns storage and the index. The embedding model and the LLM are yours to choose.</figcaption>
-</figure>
+Redis 8 ships **vector sets** (`VADD`, `VSIM`) in the core server. That is what makes this setup small: no Redis Stack, no RediSearch index to create, no separate vector database. Beanis stores each document as a hash and puts its embedding in a vector set, together with the document's short fields so you can filter a search.
 
-## Minimal example
-
-Start Redis Stack:
+## The whole program
 
 ```bash
-docker run -d -p 6379:6379 redis/redis-stack:latest
-pip install beanis "transformers>=4.52" "torch>=2.6" peft torchvision pillow
+pip install "beanis>=0.3" "langchain>=1.4" langchain-anthropic fastembed
 ```
 
-Then save this as `rag.py` and run `python rag.py`:
-
 ```python
+# rag.py
 import asyncio
+import re
+import urllib.request
 from typing import List
 
+from fastembed import TextEmbedding
+from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+from langchain_core.tools import tool
+from langgraph.checkpoint.memory import InMemorySaver
 from redis.asyncio import Redis
-from transformers import AutoModel
 from typing_extensions import Annotated
 
-from beanis import Document, VectorField, init_beanis
-from beanis.odm.indexes import IndexManager
+from beanis import Document, IndexedField, Memory, VectorField, init_beanis
 
-DIM = 1024
-
-model = AutoModel.from_pretrained("jinaai/jina-embeddings-v4", trust_remote_code=True)
+DOCS = "https://raw.githubusercontent.com/andreim14/beanis/main/README.md"
+embedder = TextEmbedding("BAAI/bge-small-en-v1.5")  # 384 dims, runs on CPU
 
 
-def embed(text: str, kind: str) -> List[float]:
-    """kind is "passage" when indexing and "query" when searching."""
-    vec = model.encode_text(
-        texts=[text], task="retrieval", prompt_name=kind, truncate_dim=DIM
-    )[0]
-    return vec.tolist()
+def embed(text: str) -> List[float]:
+    return next(iter(embedder.embed([text]))).tolist()
 
 
-class KnowledgeBase(Document):
+class Chunk(Document):
     text: str
-    embedding: Annotated[List[float], VectorField(dimensions=DIM)]
+    source: Annotated[str, IndexedField()]
+    embedding: Annotated[List[float], VectorField(dimensions=384)]
 
 
-async def search(redis_client, query: str, k: int = 3):
-    results = await IndexManager.find_by_vector_similarity(
-        redis_client=redis_client,
-        document_class=KnowledgeBase,
-        field_name="embedding",
-        query_vector=embed(query, "query"),
-        k=k,
+def split(markdown: str, source: str):
+    for section in re.split(r"\n(?=#{1,3} )", markdown):
+        if len(section.strip()) > 80:
+            text = section.strip()[:2000]
+            yield Chunk(text=text, source=source, embedding=embed(text))
+
+
+@tool
+async def search_docs(query: str) -> str:
+    """Search the documentation. Returns numbered passages; cite them as [n]."""
+    hits = await Chunk.vector_search(embed(query), k=4)
+    return "\n\n".join(f"[{i}] {c.text}" for i, (c, _) in enumerate(hits, 1))
+
+
+async def build_agent(model, redis):
+    await init_beanis(database=redis, document_models=[Chunk])
+    await Chunk.delete_all()
+    readme = urllib.request.urlopen(DOCS).read().decode()
+    await Chunk.insert_many(split(readme, "beanis/README.md"))
+    memory = Memory(redis, embed=embed, namespace="docs-bot")
+
+    @tool
+    async def remember(fact: str) -> str:
+        """Save a lasting fact or preference about the user."""
+        await memory.remember(fact, user_id="me")
+        return "saved"
+
+    @tool
+    async def recall(query: str) -> str:
+        """Look up what you know about the user."""
+        return "\n".join(m.text for m, _ in await memory.recall(query, user_id="me"))
+
+    return create_agent(
+        model,
+        tools=[search_docs, remember, recall],
+        system_prompt="Answer questions about Beanis using search_docs and cite "
+        "passages as [n]. Say so when the docs do not cover something. Use "
+        "recall for the user's preferences and remember for new ones.",
+        checkpointer=InMemorySaver(),  # keeps the conversation per thread_id
     )
-    hits = []
-    for doc_id, score in results:
-        doc = await KnowledgeBase.get(doc_id)
-        if doc is not None:
-            hits.append((score, doc.text))
-    return hits
 
 
 async def main():
-    redis_client = Redis(decode_responses=True)
-    # Creates the HNSW index idx:KnowledgeBase:vector if it does not exist
-    await init_beanis(database=redis_client, document_models=[KnowledgeBase])
-
-    for text in [
-        "Redis keeps its whole dataset in memory.",
-        "Beanis maps Pydantic models to Redis hashes.",
-        "HNSW is a graph index for approximate nearest neighbour search.",
-    ]:
-        await KnowledgeBase(text=text, embedding=embed(text, "passage")).insert()
-
-    for score, text in await search(redis_client, "How does approximate vector search work?"):
-        print(f"{score:.3f}  {text}")
-
-    await redis_client.close()
+    agent = await build_agent(
+        init_chat_model("anthropic:claude-opus-5-5"), Redis(decode_responses=True)
+    )
+    config = {"configurable": {"thread_id": "cli"}}
+    while question := input("\nyou> ").strip():
+        result = await agent.ainvoke(
+            {"messages": [{"role": "user", "content": question}]}, config
+        )
+        print("bot>", result["messages"][-1].content)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-The `score` is the distance RediSearch returns for the KNN query. With the default `COSINE` metric, lower means closer.
+Run it with `python rag.py` and ask about the document. Point `DOCS` at your own Markdown to make it your assistant.
 
-## How to define a vector field
+## How it works
+
+<figure class="flow" aria-label="Agentic RAG with LangGraph and Redis 8 in four steps">
+<ol>
+<li><b>Index</b><span>split the Markdown by heading, embed each section, store it as a Beanis document</span></li>
+<li><b>Plan</b><span>the LangGraph agent decides whether to search, recall, remember or answer</span></li>
+<li><b>Retrieve</b><span>one <code>VSIM</code> call on the Redis 8 vector set returns the closest sections</span></li>
+<li><b>Answer</b><span>Claude answers from the numbered passages and cites them as [n]</span></li>
+</ol>
+<figcaption>The model chooses when and what to search; the tools stay simple.</figcaption>
+</figure>
+
+**Agentic, not a fixed pipeline.** Classic RAG always retrieves once, then answers. Here retrieval is a tool. The model can search twice with different wording, skip searching for small talk, or look up your preferences first. `create_agent` builds the LangGraph loop for you (model, then tools, then model, until it answers), and `InMemorySaver` keeps each conversation by `thread_id`. Swap it for a persistent checkpointer when you deploy.
+
+**Storage in one class.** `Chunk` is a Pydantic model. `IndexedField` puts `source` in a Redis set for exact lookups. `VectorField(dimensions=384)` stores the embedding in a Redis 8 vector set (HNSW, cosine, int8 quantization by default). `Chunk.vector_search(vector, k=4)` returns `(chunk, score)` pairs, best first, with the score between 0 and 1.
+
+**Filters for free.** Every short field of a document travels with its vector, so with several sources you can narrow the search inside the same call:
 
 ```python
-embedding: Annotated[List[float], VectorField(dimensions=1024)]
+await Chunk.vector_search(embed(query), k=4, filter='.source == "beanis/README.md"')
 ```
 
-`VectorField` takes these parameters, all with defaults except `dimensions`:
+**Memory that survives the session.** `Memory` keeps what the user said in Redis, scoped by namespace and user, and merges near-duplicates instead of piling up copies. The checkpointer remembers the current conversation; `Memory` remembers the user across conversations.
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `dimensions` | required | must equal the length of your embeddings |
-| `algorithm` | `"HNSW"` | or `"FLAT"` for exact search on small sets |
-| `distance_metric` | `"COSINE"` | or `"L2"`, `"IP"` |
-| `m` | `16` | HNSW links per node |
-| `ef_construction` | `200` | HNSW build-time candidate list size |
+## What a run looks like
 
-At `init_beanis()` Beanis runs `FT.CREATE idx:<ClassName>:vector` over hashes with the `<ClassName>:` prefix, using a `FLOAT32` vector field. If RediSearch is not available it prints a warning and continues, so check the output if search returns nothing.
+I tested the file with a scripted stand-in model that makes the same tool calls Claude would, so the indexing, retrieval and memory run for real against Redis 8.10:
 
-## How to search and tune recall
+```text
+chunks indexed: 44
 
-```python
-results = await IndexManager.find_by_vector_similarity(
-    redis_client, KnowledgeBase, "embedding", query_vector, k=5, ef_runtime=100
-)
+you> I deploy on Redis 8 in Docker
+[remember] -> saved
+
+you> How do I deploy?
+[recall] -> I deploy on Redis 8 in Docker
 ```
 
-It returns a list of `(document_id, score)` tuples. `ef_runtime` is passed to the HNSW query: larger values search more of the graph, which raises recall and costs time. If the search itself fails (for example, the index does not exist), the function logs a warning and returns `[]`.
+The README splits into 44 sections; `remember` and `recall` round-trip through the vector set. With a real model, the final answer is written from those tool results.
 
-## How to use the results in a RAG prompt
+## Same memory, as an MCP server
 
-Retrieval gives you passages. Build the prompt with any LLM client:
+If your agent is Claude Code, Claude Desktop or any MCP client, you do not need the memory code at all. Beanis ships it as an MCP server. In Claude Code, install the plugin (it needs [uv](https://docs.astral.sh/uv/) and a Redis 8):
 
-```python
-hits = await search(redis_client, question, k=3)
-context = "\n\n".join(text for _, text in hits)
-prompt = f"Answer using only this context:\n\n{context}\n\nQuestion: {question}"
+```bash
+claude plugin marketplace add andreim14/beanis
+claude plugin install beanis@beanis
 ```
 
-For a full agent with conversation memory, see [the LangGraph tutorial]({% post_url 2025-11-11-build-ai-agents-langgraph-beanis %}).
+Or register the server by hand, for any client:
 
-## How to filter by metadata
-
-Beanis does not combine a vector query and a field filter in one Redis command. Add an indexed field and intersect in Python:
-
-```python
-from beanis import Indexed
-
-class KnowledgeBase(Document):
-    text: str
-    language: Indexed(str)
-    embedding: Annotated[List[float], VectorField(dimensions=1024)]
-
-results = await IndexManager.find_by_vector_similarity(
-    redis_client, KnowledgeBase, "embedding", query_vector, k=50
-)
-docs = [await KnowledgeBase.get(doc_id) for doc_id, _ in results]
-english = [d for d in docs if d is not None and d.language == "en"][:5]
+```bash
+pip install "beanis[mcp]"
+claude mcp add beanis-memory --env REDIS_URL=redis://localhost:6379/0 -- beanis-mcp
 ```
 
-Ask for a larger `k` than you need, since some hits will be filtered out. For a large filtered subset, `await KnowledgeBase.find(language="en")` gives you the matching documents directly.
+The client gets four tools: `remember`, `recall`, `forget` and `recent`, with local embeddings and no API key. The same memory is on the command line, with JSON output, for scripts and agents that prefer a shell:
 
-## Choosing an embedding model
-
-The example uses [jina-embeddings-v4](https://huggingface.co/jinaai/jina-embeddings-v4), as the [simple-rag example](https://github.com/andreim14/beanis-examples/tree/main/simple-rag) does. Its vectors are 2048-dimensional by default; `truncate_dim=1024` keeps them at 1024. It is built on Qwen2.5-VL-3B, so a GPU helps, and its license is the Qwen Research License, so check it before commercial use. Any other model works: set `dimensions` to its output size and embed queries and documents with the same model.
+```bash
+beanis doctor                                  # is this Redis ready?
+beanis memory remember "We deploy on Tuesdays" --kind decision
+beanis memory recall "when do we deploy?"
+```
 
 ## Questions people ask
 
-**Do I need Redis Stack for vector search?**
-Yes. The vector index is a RediSearch index (`FT.CREATE`), so you need Redis Stack or another Redis build with RediSearch. Beanis's other features run on plain Redis.
+**Do I need Redis Stack or RediSearch for vector search?** Not any more. Redis 8.0+ has vector sets built in, and Beanis 0.3 uses them. Redis 7 and Valkey do not have them; Beanis tells you at startup instead of returning empty results.
 
-**Can I use OpenAI embeddings instead of Jina?**
-Yes. Set `VectorField(dimensions=1536)` for `text-embedding-3-small`, and use the same model for documents and queries.
+**Why fastembed instead of an embedding API?** It runs locally on the CPU with a small ONNX model (bge-small, about 130 MB), so indexing costs nothing and works offline. Any function that turns text into a list of floats works: pass it as `embed`.
 
-**When is the vector index created?**
-During `init_beanis()`, not on the first insert. Beanis skips creation if the index already exists.
+**Can I use a model other than Claude?** Yes. `init_chat_model` takes any provider LangChain supports, for example `"openai:..."` or `"ollama:..."`, as long as the model supports tool calling.
 
-**How do I delete a document from the index?**
-Call `await doc.delete_self()` or `await KnowledgeBase.delete(doc_id)`. RediSearch drops a hash from its index when the hash is deleted.
+**How many documents can this handle?** Vector sets use HNSW, so search stays fast as the set grows. The limits you will hit first are memory (with the default int8 quantization a 384-dimension vector is 384 bytes plus the HNSW graph links, and the text sits in the hash) and ingest speed, which is bound by the embedding model.
 
-**Why does search return nothing?**
-Check that the first `init_beanis()` run printed `Created vector index` (later runs find the index and print nothing), that `dimensions` matches your embedding length, and that queries use the same model as the documents.
+**How do I keep the index fresh?** Re-run the ingest with stable ids (for example `Chunk(id=f"{source}#{n}", ...)`). Saving a document with an existing id replaces it and updates its vector.
 
-## Links
-
-- PyPI: [pypi.org/project/beanis](https://pypi.org/project/beanis/)
-- GitHub: [github.com/andreim14/beanis](https://github.com/andreim14/beanis)
-- Docs: [andreim14.github.io/beanis](https://andreim14.github.io/beanis/)
-- Example: [beanis-examples/simple-rag](https://github.com/andreim14/beanis-examples/tree/main/simple-rag)
-- Redis vector search: [redis.io docs](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/)
+Links: [Beanis on GitHub](https://github.com/andreim14/beanis) · [PyPI](https://pypi.org/project/beanis/) · [LangChain agents](https://docs.langchain.com/oss/python/langchain/agents) · [Redis vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/)
