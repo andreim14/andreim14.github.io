@@ -1,0 +1,61 @@
+# Career and study as two parallel lanes. Dates are YYYY-MM; "now" = build date.
+# Study ranges from LinkedIn; months for BSc/MSc starts are the Italian academic-year start (October).
+axis_start: "2015-09"
+bars:
+  - { id: cini,  lane: work,  start: "2016-12", end: "2017-01", label: "CINI · Software Developer" }
+  - { id: bs-se, lane: work,  start: "2017-07", end: "2020-06", label: "Babelscape · Software Engineer" }
+  - { id: bs-ne, lane: work,  start: "2020-06", end: "2021-10", label: "Babelscape · NLP Engineer" }
+  - { id: bs-nr, lane: work,  start: "2021-10", end: "2025-09", label: "Babelscape · NLP Researcher" }
+  - { id: syl,   lane: work,  start: "2025-10", end: "now",     label: "Syllotips · Senior AI Applied Scientist" }
+  - { id: bsc,   lane: study, start: "2015-10", end: "2019-06", label: "Sapienza · BSc in Computer Science" }
+  - { id: msc,   lane: study, start: "2019-10", end: "2021-11", label: "Sapienza · MSc in Computer Science" }
+  - { id: phd,   lane: study, start: "2021-11", end: "2025-01", label: "Sapienza · Ph.D. in Artificial Intelligence" }
+entries:
+  - id: bsc
+    at: "2015-10"
+    when: "2015 · 2019"
+    lane: study
+    who: "Sapienza · BSc in Computer Science, 107/110"
+    text: "Thesis on knowledge-based Word Sense Disambiguation with synset embeddings. Most of it written while already working."
+  - id: cini
+    at: "2016-12"
+    when: "Dec 2016"
+    lane: work
+    who: "CINI · Software Developer"
+    text: "First job: a tool for lexicon-semantic stylometric analysis of large text collections."
+  - id: bs-se
+    at: "2017-07"
+    when: "Jul 2017"
+    lane: work
+    who: "Babelscape · Software Engineer"
+    text: "Built <b>myKnowledgeGraph</b> for knowledge graph extraction, the company's Java NLP pipeline, and concept extraction for trademark names."
+  - id: msc
+    at: "2019-10"
+    when: "2019 · 2021"
+    lane: study
+    who: "Sapienza · MSc in Computer Science, 110/110 with honors"
+    text: "Thesis on language-agnostic latent spaces for sentences, supervised by Roberto Navigli."
+  - id: bs-ne
+    at: "2020-06"
+    when: "Jun 2020"
+    lane: work
+    who: "Babelscape · NLP Engineer"
+    text: "Built <b>Semantic Paths</b>, multilingual semantic search for scientific papers, and Word Sense Disambiguation models for large-scale multilingual text. Best Employee Award in 2021."
+  - id: bs-nr
+    at: "2021-10"
+    when: "Oct 2021"
+    lane: work
+    who: "Babelscape · NLP Researcher"
+    text: "Led <b>Vera</b>, a multilingual fact-checking product on LLMs and RAG. Fine-tuned open LLMs on Slurm clusters for text-to-SQL and claim verification. Worked on <b>Minerva</b>, the first Italian LLM. Mentored interns from prototype to deployment."
+  - id: phd
+    at: "2021-11"
+    when: "2021 · 2025"
+    lane: study
+    who: "Sapienza · Ph.D. in Artificial Intelligence"
+    text: "Joint industrial Ph.D. with Babelscape, advised by Roberto Navigli: lexical semantics for multilingual NLP, and word and sentence representations for RAG and LLMs. Defended in Jan 2025."
+  - id: syl
+    at: "2025-10"
+    when: "Oct 2025 · now"
+    lane: work
+    who: "Syllotips · Senior AI Applied Scientist"
+    text: "Agents for customer, sales and field support that improve as experts correct them. See <a href=\"#work\">above</a>."

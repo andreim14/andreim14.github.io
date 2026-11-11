@@ -253,14 +253,9 @@
   });
 
   /* ---- trace line and reading progress follow the scroll ---- */
-  var trace = $("[data-trace]"), prog = $(".read-progress"), post = $(".post .doc-body");
+  var prog = $(".read-progress"), post = $(".post .doc-body");
   function onScrollProgress() {
     var vh = window.innerHeight;
-    if (trace) {
-      var r = trace.getBoundingClientRect();
-      var p = Math.min(1, Math.max(0, (vh * 0.7 - r.top) / r.height));
-      trace.style.setProperty("--p", p.toFixed(3));
-    }
     if (prog && post) {
       var pr = post.getBoundingClientRect();
       var q = Math.min(1, Math.max(0, -pr.top / Math.max(1, pr.height - vh)));
@@ -268,6 +263,58 @@
     }
   }
   window.addEventListener("scroll", onScrollProgress, { passive: true }); onScrollProgress();
+
+
+  /* ---- career strip: the step nearest the middle of the screen drives the playhead ---- */
+  var ribbon = $("[data-ribbon]"), entryList = $$("[data-entry]");
+  if (ribbon && entryList.length) {
+    var a0 = +ribbon.getAttribute("data-a0"), span = +ribbon.getAttribute("data-span");
+    var bars = $$(".rb-bar", ribbon), head = $("[data-head]", ribbon), headDate = $("[data-head-date]", ribbon);
+    var roWork = $("[data-ro-work]", ribbon), roStudy = $("[data-ro-study]", ribbon), activeId = null;
+    bars.forEach(function (b, i) { b.style.setProperty("--k", i); });
+    function laneAt(lane, t) {
+      var hit = null;
+      bars.forEach(function (b) { if (b.closest(".rb-" + lane) && +b.dataset.s <= t && t < +b.dataset.e) hit = b; });
+      return hit;
+    }
+    function setActive(li) {
+      var id = li.getAttribute("data-entry"); if (id === activeId) return; activeId = id;
+      var t = +li.getAttribute("data-at");
+      entryList.forEach(function (e) { e.classList.toggle("active", e === li); });
+      var w = laneAt("work", t), st = laneAt("study", t);
+      bars.forEach(function (b) {
+        b.classList.toggle("active", b.dataset.bar === id);
+        b.classList.toggle("lit", b === w || b === st || b.dataset.bar === id);
+      });
+      ribbon.classList.add("has-active", "drawn");
+      head.style.setProperty("--px", Math.max(0, Math.min(100, (t - a0) * 100 / span)) + "%");
+      headDate.textContent = li.getAttribute("data-when");
+      roWork.textContent = w ? w.dataset.label : "not working yet";
+      roStudy.textContent = st ? st.dataset.label : "done studying";
+      roWork.classList.toggle("idle", !w); roStudy.classList.toggle("idle", !st);
+    }
+    function pick() {
+      var mid = window.innerHeight * 0.55, best = null, bd = Infinity;
+      entryList.forEach(function (e) {
+        var r = e.getBoundingClientRect(), d = Math.abs(r.top + Math.min(r.height, 80) / 2 - mid);
+        if (d < bd) { bd = d; best = e; }
+      });
+      var lr = entryList[0].parentNode.getBoundingClientRect();
+      if (best && lr.top < window.innerHeight && lr.bottom > 0) setActive(best);
+    }
+    window.addEventListener("scroll", pick, { passive: true }); window.addEventListener("resize", pick); pick();
+    if (!activeId) setActive(entryList[0]);
+    if ("IntersectionObserver" in window && !reduce) {
+      var ro = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { ribbon.classList.add("drawn"); ro.disconnect(); } }, { threshold: 0.4 });
+      ro.observe(ribbon);
+    } else { ribbon.classList.add("drawn"); }
+    bars.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var target = document.getElementById("t-" + b.dataset.bar);
+        if (target) target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+      });
+    });
+  }
 
   /* ---- command menu ---- */
   var dlg = $("[data-cmdk]"), dataEl = $("#cmdk-data");

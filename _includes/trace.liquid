@@ -1,0 +1,49 @@
+{%- comment -%} Months since year 0 so dates map linearly onto the ribbon. {%- endcomment -%}
+{%- assign tr = site.data.trace -%}
+{%- assign a0 = tr.axis_start | slice: 0, 4 | times: 12 | plus: 0 -%}
+{%- assign a0m = tr.axis_start | slice: 5, 2 | plus: 0 -%}
+{%- assign a0 = a0 | plus: a0m -%}
+{%- assign ny = site.time | date: '%Y' | plus: 0 -%}
+{%- assign nm = site.time | date: '%m' | plus: 0 -%}
+{%- assign a1 = ny | times: 12 | plus: nm | plus: 1 -%}
+{%- assign span = a1 | minus: a0 -%}
+
+<div class="ribbon" data-ribbon data-a0="{{ a0 }}" data-span="{{ span }}" aria-hidden="true">
+  <div class="rb-grid">
+    <span class="rb-name rb-name-axis"></span>
+    <div class="rb-axis">
+      {%- for y in (2016..ny) -%}
+      {%- assign ym = y | times: 12 | plus: 1 | minus: a0 | times: 100.0 | divided_by: span -%}
+      <span class="rb-tick" style="--x:{{ ym }}%">{{ y }}</span>
+      {%- endfor -%}
+    </div>
+    {%- assign lanes = "work,study" | split: "," -%}
+    {%- for lane in lanes -%}
+    <span class="rb-name rb-{{ lane }}">{{ lane }}</span>
+    <div class="rb-track rb-{{ lane }}">
+      {%- for b in tr.bars -%}{%- if b.lane == lane -%}
+      {%- assign sm = b.start | slice: 0, 4 | times: 12 -%}{%- assign smm = b.start | slice: 5, 2 | plus: 0 -%}{%- assign sm = sm | plus: smm -%}
+      {%- if b.end == "now" -%}{%- assign em = a1 -%}{%- else -%}{%- assign em = b.end | slice: 0, 4 | times: 12 -%}{%- assign emm = b.end | slice: 5, 2 | plus: 0 -%}{%- assign em = em | plus: emm -%}{%- endif -%}
+      {%- assign x = sm | minus: a0 | times: 100.0 | divided_by: span -%}
+      {%- assign w = em | minus: sm | times: 100.0 | divided_by: span -%}
+      <button type="button" tabindex="-1" class="rb-bar{% if b.open %} open{% endif %}{% if b.end == 'now' %} now{% endif %}" data-bar="{{ b.id }}" data-s="{{ sm }}" data-e="{{ em }}" data-label="{{ b.label }}" style="--x:{{ x }}%;--w:{{ w }}%"></button>
+      {%- endif -%}{%- endfor -%}
+    </div>
+    {%- endfor -%}
+    <div class="rb-play"><span class="rb-head" data-head><span class="rb-date" data-head-date></span></span></div>
+  </div>
+  <p class="rb-readout"><span class="ro-work" data-ro-work></span><span class="ro-study" data-ro-study></span></p>
+</div>
+
+<ol class="entries" data-trace>
+  {%- for e in tr.entries -%}
+  {%- assign am = e.at | slice: 0, 4 | times: 12 -%}{%- assign amm = e.at | slice: 5, 2 | plus: 0 -%}{%- assign am = am | plus: amm -%}
+  <li class="entry on-{{ e.lane }}{% if forloop.last %} current{% endif %}" id="t-{{ e.id }}" data-entry="{{ e.id }}" data-at="{{ am }}" data-when="{{ e.when }}">
+    <time>{{ e.when }}</time>
+    <div>
+      <p class="entry-who"><span class="lane-tag">{{ e.lane }}</span>{{ e.who }}{% if forloop.last %} <span class="running">running</span>{% endif %}</p>
+      <p>{{ e.text }}</p>
+    </div>
+  </li>
+  {%- endfor -%}
+</ol>

@@ -106,46 +106,10 @@ sitemap:
   <header class="block-head reveal">
     <p class="eyebrow"><span class="idx">02</span> career</p>
     <h2 id="trace-h">Nine years, as an agent <button type="button" class="sense" data-sense="trace|n. · sense 4|The step-by-step log an agent leaves behind, so you can see what it did and why. Also: a career.">trace</button></h2>
-    <p class="lede">Every step below happened. Most of them are in production somewhere.</p>
+    <p class="lede">Work and study ran in parallel for most of it, like two branches of the same run. Scroll the steps; the strip shows where each one sits in time.</p>
   </header>
 
-  <ol class="trace" data-trace>
-    <li class="step reveal">
-      <time>Oct 2025 · now</time>
-      <div><p class="step-who"><a href="https://www.syllotips.com">Syllotips</a> · Senior AI Applied Scientist <span class="running">running</span></p>
-      <p>Agents for customer, sales and field support that improve as experts correct them. See <a href="#work">above</a>.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>Jan 2025</time>
-      <div><p class="step-who">Sapienza · Ph.D. in Artificial Intelligence</p>
-      <p>Lexical semantics for multilingual NLP, and word and sentence representations for RAG and LLMs. Joint industrial Ph.D. with Babelscape, advised by Roberto Navigli.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>2021 · 2025</time>
-      <div><p class="step-who"><a href="https://babelscape.com">Babelscape</a> · NLP Researcher</p>
-      <p>Led <b>Vera</b>, a multilingual fact-checking product on LLMs and RAG: real-time retrieval over web and proprietary data, claim extraction and verification. Fine-tuned open LLMs on Slurm clusters for text-to-SQL and claim verification. Worked on <b>Minerva</b>, the first Italian LLM. Mentored interns from prototype to deployment.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>Nov 2021</time>
-      <div><p class="step-who">Sapienza · MSc in Computer Science, 110/110 with honors</p>
-      <p>Thesis on language-agnostic latent spaces for sentences. Same year: Best Employee Award at Babelscape.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>2020 · 2021</time>
-      <div><p class="step-who">Babelscape · NLP Engineer</p>
-      <p>Built <b>Semantic Paths</b>, multilingual semantic search for scientific papers, and Word Sense Disambiguation models for large-scale multilingual text.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>2017 · 2020</time>
-      <div><p class="step-who">Babelscape · Software Engineer</p>
-      <p>Built <b>myKnowledgeGraph</b> for knowledge graph extraction, the company's Java NLP pipeline, and concept extraction for trademark names. BSc in Computer Science at Sapienza along the way.</p></div>
-    </li>
-    <li class="step reveal">
-      <time>Dec 2016</time>
-      <div><p class="step-who">CINI · Software Developer</p>
-      <p>First job: a tool for lexicon-semantic stylometric analysis of large text collections.</p></div>
-    </li>
-  </ol>
+  {% include trace.liquid %}
 </section>
 
 <section id="research" class="block" aria-labelledby="research-h">
