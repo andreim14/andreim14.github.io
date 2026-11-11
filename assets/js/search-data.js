@@ -9,22 +9,8 @@ ninja.data = [{
     handler: () => {
       window.location.href = "/";
     },
-  },{id: "nav-blog",
-          title: "blog",
-          description: "Thoughts on AI, NLP, and building practical ML systems",
-          section: "Navigation",
-          handler: () => {
-            window.location.href = "/blog/";
-          },
-        },{id: "nav-publications",
-          title: "publications",
-          description: "Peer-reviewed work on factuality, meaning, and multilingual NLP. Most recent first.",
-          section: "Navigation",
-          handler: () => {
-            window.location.href = "/publications/";
-          },
-        },{id: "nav-open-source",
-          title: "open source",
+  },{id: "nav-code",
+          title: "code",
           description: "Code I maintain in the open: a typed Redis ODM, and the research systems behind my papers.",
           section: "Navigation",
           handler: () => {
