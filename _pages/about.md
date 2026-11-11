@@ -18,12 +18,12 @@ sitemap:
     <div class="answer" data-answer>
       <p class="prompt"><span class="caret">&gt;</span> who is andrei?</p>
       <p class="answer-text">
-        <span class="claim">I build AI agents that stay <button type="button" class="sense" data-sense="grounded|adj. · sense 3 of 7|Supported by evidence, not by confidence. The other six senses involve electricity, aircraft and teenagers.">grounded</button> in production</span><a class="cite" href="#src-1" data-cite="1">1</a>.
-        <span class="claim">Before that I spent eight years at Babelscape, growing from software engineer to NLP researcher</span><a class="cite" href="#src-2" data-cite="2">2</a>,
-        <span class="claim">earned a Ph.D. in AI at Sapienza</span><a class="cite" href="#src-3" data-cite="3">3</a>,
-        and <span class="claim">co-first-authored LLM-Oasis, a benchmark for telling true answers from fluent ones</span><a class="cite" href="#src-4" data-cite="4">4</a>.
+        <span class="claim" data-claim="1">I build AI agents that stay <button type="button" class="sense" data-sense="grounded|adj. · sense 3 of 7|Supported by evidence, not by confidence. The other six senses involve electricity, aircraft and teenagers.">grounded</button> in production</span><a class="cite" href="#src-1" data-cite="1">1</a>.
+        Before that: <span class="claim" data-claim="2">eight years at Babelscape</span><a class="cite" href="#src-2" data-cite="2">2</a>,
+        <span class="claim" data-claim="3">a Ph.D. in AI at Sapienza</span><a class="cite" href="#src-3" data-cite="3">3</a>,
+        and <span class="claim" data-claim="4">LLM-Oasis, a benchmark that tells true answers from fluent ones</span><a class="cite" href="#src-4" data-cite="4">4</a>.
       </p>
-      <p class="verdict" aria-live="polite"><span class="dot"></span><span data-verdict>4 of 4 claims supported</span></p>
+      <p class="verdict" aria-live="polite"><span class="dot"></span><span class="ticks" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-verdict>4 of 4 claims supported</span></p>
     </div>
 
     <div class="cta">
@@ -37,10 +37,10 @@ sitemap:
       <img src="{{ '/assets/img/prof_pic.png' | relative_url }}" alt="Andrei Stefan Bejgu" width="360" height="480" fetchpriority="high">
     </figure>
     <ol class="sources">
-      <li id="src-1" data-src="1"><a href="#work"><span class="n">1</span><span><b>Syllotips</b> Senior AI Applied Scientist, 2025 to now</span></a></li>
-      <li id="src-2" data-src="2"><a href="#trace"><span class="n">2</span><span><b>Babelscape</b> Software engineer to NLP researcher, 2017 to 2025</span></a></li>
-      <li id="src-3" data-src="3"><a href="#trace"><span class="n">3</span><span><b>Sapienza</b> Ph.D. in AI with Roberto Navigli, 2025</span></a></li>
-      <li id="src-4" data-src="4"><a href="https://direct.mit.edu/coli/article/52/1/1/133509/Truth-or-Mirage-Towards-End-To-End-Factuality"><span class="n">4</span><span><b>Computational Linguistics</b> Truth or Mirage? LLM-Oasis, 2026</span></a></li>
+      <li id="src-1" data-src="1"><a href="#work"><span class="n">1</span><span class="sb"><b>Syllotips</b> Senior AI Applied Scientist, 2025 to now<span class="ev">CV: deep-research agent, MCP layer, self-hosted model serving, Oct 2025 to present.</span></span><span class="stamp">supported</span></a></li>
+      <li id="src-2" data-src="2"><a href="#trace"><span class="n">2</span><span class="sb"><b>Babelscape</b> Software engineer to NLP researcher<span class="ev">CV: Jul 2017 to Sep 2025. Software Engineer, then NLP Engineer, then NLP Researcher.</span></span><span class="stamp">supported</span></a></li>
+      <li id="src-3" data-src="3"><a href="#trace"><span class="n">3</span><span class="sb"><b>Sapienza</b> Ph.D. in Artificial Intelligence<span class="ev">CV: Jan 2025, joint industrial Ph.D., advisor Prof. Roberto Navigli.</span></span><span class="stamp">supported</span></a></li>
+      <li id="src-4" data-src="4"><a href="https://direct.mit.edu/coli/article/52/1/1/133509/Truth-or-Mirage-Towards-End-To-End-Factuality"><span class="n">4</span><span class="sb"><b>Computational Linguistics</b> Truth or Mirage? LLM-Oasis<span class="ev">Vol. 52, No. 1, 2026. Co-first author.</span></span><span class="stamp">supported</span></a></li>
     </ol>
   </aside>
   <svg class="ground-lines" aria-hidden="true"></svg>

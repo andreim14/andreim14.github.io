@@ -88,26 +88,40 @@
       var p = document.createElementNS(NS, "path");
       p.setAttribute("d", "M" + x1 + "," + y1 + " C" + (x1 + dx) + "," + y1 + " " + (x2 - dx) + "," + y2 + " " + x2 + "," + y2);
       p.setAttribute("data-line", n);
+      p.style.transition = "none";
       svg.appendChild(p);
       var len = p.getTotalLength(); p.style.setProperty("--len", len);
+      p.getBoundingClientRect(); p.style.transition = "";
       var dot = document.createElementNS(NS, "circle");
       dot.setAttribute("cx", x2); dot.setAttribute("cy", y2); dot.setAttribute("r", 3.5); dot.setAttribute("data-line", n);
       svg.appendChild(dot);
       if (linesOn || c.classList.contains("on") || !hero.classList.contains("animate")) { p.classList.add("drawn"); dot.classList.add("drawn"); }
+      var li = $('.sources [data-src="' + n + '"]', hero);
+      if (linesOn || (li && li.classList.contains("stamped"))) { p.classList.add("gone"); dot.classList.add("gone"); }
     });
   }
   function setHot(n, on) {
     $$('[data-line="' + n + '"]', svg || document).forEach(function (el) { el.classList.toggle("hot", on); });
     var s = hero && $('.sources [data-src="' + n + '"]', hero); if (s) s.classList.toggle("hot", on);
     var c = hero && $('.cite[data-cite="' + n + '"]', hero); if (c) c.classList.toggle("hot", on);
+    var cl = hero && $('.claim[data-claim="' + n + '"]', hero); if (cl) cl.classList.toggle("hot", on);
   }
   if (hero) {
-    $$(".cite, .sources [data-src]", hero).forEach(function (el) {
-      var n = el.getAttribute("data-cite") || el.getAttribute("data-src");
+    $$(".cite, .claim, .sources [data-src]", hero).forEach(function (el) {
+      var n = el.getAttribute("data-cite") || el.getAttribute("data-claim") || el.getAttribute("data-src");
       el.addEventListener("mouseenter", function () { setHot(n, true); });
       el.addEventListener("mouseleave", function () { setHot(n, false); });
       el.addEventListener("focusin", function () { setHot(n, true); });
       el.addEventListener("focusout", function () { setHot(n, false); });
+    });
+    // touch screens have no hover: a tap on a claim shows its evidence
+    $$(".claim", hero).forEach(function (cl) {
+      cl.addEventListener("click", function (e) {
+        if (e.target.closest(".sense")) return;
+        var n = cl.getAttribute("data-claim"), was = cl.classList.contains("hot");
+        $$(".claim.hot", hero).forEach(function (o) { setHot(o.getAttribute("data-claim"), false); });
+        if (!was) setHot(n, true);
+      });
     });
     $$(".cite", hero).forEach(function (c) {
       c.addEventListener("click", function (e) {
@@ -122,6 +136,7 @@
 
     if (reduce) {
       doc.classList.add("ready"); hero.classList.add("loaded"); linesOn = true;
+      $$(".sources li", hero).forEach(function (li) { li.classList.add("stamped"); });
     } else {
       // Split words so the answer can stream in like a model response.
       var words = [];
@@ -147,22 +162,37 @@
 
       var t0 = 450, per = Math.min(32, 1500 / Math.max(words.length, 1));
       words.forEach(function (w, i) { setTimeout(function () { w.classList.add("in"); }, t0 + i * per); });
-      var tVerify = t0 + words.length * per + 350;
-      setTimeout(function () { if (verdict) verdict.textContent = "checking claims against sources…"; }, tVerify - 150);
+      var tVerify = t0 + words.length * per + 300, STEP = 1250;
+      var ticks = $$(".ticks i", hero);
+      setTimeout(function () { if (verdict) verdict.textContent = "fact-checking against sources…"; }, tVerify - 200);
       claims.forEach(function (cl, i) {
+        var n = i + 1, at = tVerify + i * STEP, li = srcs[i];
         setTimeout(function () {
-          cl.classList.add("on");
+          if (ticks[i]) ticks[i].classList.add("active");
+          if (verdict) verdict.textContent = "checking claim " + n + " of " + claims.length + "…";
+          cl.classList.add("scan");
           if (cites[i]) cites[i].classList.add("on");
-          if (srcs[i]) srcs[i].classList.add("on");
-          $$('[data-line="' + (i + 1) + '"]', svg || document).forEach(function (el) { el.classList.add("drawn"); });
-          if (verdict) verdict.textContent = "claim " + (i + 1) + " of " + claims.length + " · supported";
-        }, tVerify + i * 520);
+        }, at);
+        setTimeout(function () {
+          $$('[data-line="' + n + '"]', svg || document).forEach(function (el) { el.classList.add("drawn"); });
+          if (li) li.classList.add("on", "checking");
+        }, at + 300);
+        setTimeout(function () {
+          if (li) li.classList.add("stamped");
+          if (ticks[i]) { ticks[i].classList.remove("active"); ticks[i].classList.add("on"); }
+          if (verdict) verdict.textContent = "claim " + n + " supported";
+          cl.classList.remove("scan");
+        }, at + 850);
+        setTimeout(function () {
+          if (li) li.classList.remove("checking");
+          $$('[data-line="' + n + '"]', svg || document).forEach(function (el) { el.classList.add("gone"); });
+        }, at + STEP + 150);
       });
       setTimeout(function () {
         linesOn = true;
         if (verdictBox) verdictBox.classList.remove("pending");
-        if (verdict) verdict.textContent = claims.length + " of " + claims.length + " claims supported";
-      }, tVerify + claims.length * 520 + 200);
+        if (verdict) verdict.textContent = claims.length + " of " + claims.length + " claims supported · hover one to see why";
+      }, tVerify + claims.length * STEP + 200);
     }
     drawLines();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawLines);
