@@ -217,6 +217,8 @@ main { position: relative; }
 .js .animate .hero-name span { opacity: 0; transform: translateY(0.25em); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
 .js .animate .hero-name span:last-child { transition-delay: 0.12s; }
 .js .animate.loaded .hero-name span { opacity: 1; transform: none; }
+.js .animate .cta { opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), visibility 0s 0.6s; }
+.js .animate .cta.on { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }

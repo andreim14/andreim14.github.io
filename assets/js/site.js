@@ -204,6 +204,7 @@
       words.forEach(function (w, i) { setTimeout(function () { w.classList.add("in"); var sp = w.closest(".sense"); if (sp) sp.classList.add("in"); }, t0 + i * per); });
       var tVerify = t0 + words.length * per + 300, STEP = 1250;
       var ticks = $$(".ticks i", hero);
+      setTimeout(function () { var cta = $(".cta", hero); if (cta) cta.classList.add("on"); }, tVerify - 200);
       setTimeout(function () { if (verdict) verdict.textContent = "fact-checking against sources…"; }, tVerify - 200);
       claims.forEach(function (cl, i) {
         var n = i + 1, at = tVerify + i * STEP, li = srcs[i];
