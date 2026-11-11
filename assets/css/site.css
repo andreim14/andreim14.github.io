@@ -361,6 +361,7 @@ main { position: relative; }
 .doc { max-width: 760px; margin: 0 auto; padding: clamp(40px, 8vh, 90px) var(--gut) 40px; }
 .doc-head { margin-bottom: 40px; }
 .doc-title { font: 800 clamp(40px, 6.6vw, 76px)/0.95 var(--disp); letter-spacing: -0.04em; margin: 0 0 18px; }
+.post .doc-title { font-size: clamp(32px, 4.4vw, 54px); line-height: 1.02; letter-spacing: -0.03em; }
 .doc-lede { font-size: clamp(18px, 1.7vw, 21px); color: var(--ink-2); margin: 0; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px 12px; font: 500 12.5px var(--mono); margin: 18px 0 0; }
 .tags a { color: var(--muted); text-decoration: none; }
