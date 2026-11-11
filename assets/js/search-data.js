@@ -93,11 +93,11 @@ ninja.data = [{
           window.location.href = "/blog/2025/word-sense-linking-acl-2024/";
         
       },
-    },{id: "post-how-to-build-rag-retrieval-on-redis-with-beanis-vector-search",
+    },{id: "post-agentic-rag-in-65-lines-langgraph-1-2-claude-and-redis-8-vector-sets",
       
-        title: "How to build RAG retrieval on Redis with Beanis vector search",
+        title: "Agentic RAG in 65 lines: LangGraph 1.2, Claude and Redis 8 vector sets...",
       
-      description: "Store text and embeddings in Redis Stack with the Beanis ODM, let it create the HNSW index, and retrieve the top-k passages for a RAG prompt. Complete async Python code.",
+      description: "A docs assistant that searches, cites its sources and remembers the user, in one 65-line Python file: LangGraph 1.2 create_agent, Claude Opus 5.5, Beanis 0.3 on Redis 8 vector sets (no Redis Stack) and local fastembed embeddings.",
       section: "Posts",
       handler: () => {
         
