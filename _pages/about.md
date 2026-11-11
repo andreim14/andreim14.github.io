@@ -140,8 +140,15 @@ sitemap:
     </li>
     <li class="paper reveal">
       <p class="venue">Findings of NAACL · 2025</p>
-      <h3><a href="https://aclanthology.org/2025.findings-naacl.371/">Vocabulary adaptation for Italian LLMs</a></h3>
+      <h3><a href="{{ '/blog/2025/vocabulary-adaptation-italian-llm-sava/' | relative_url }}">Vocabulary adaptation for Italian LLMs</a></h3>
       <p>Part of the Minerva work: adapting the vocabulary cuts token fertility, so the same model reads more Italian per token.</p>
+      <p class="links"><a href="https://aclanthology.org/2025.findings-naacl.371/">paper</a><a href="https://github.com/SapienzaNLP/sava">code</a></p>
+    </li>
+    <li class="paper reveal">
+      <p class="venue">CLiC-it · 2025</p>
+      <h3><a href="{{ '/blog/2025/continual-training-minerva-italian-llm/' | relative_url }}">Continually training Minerva</a></h3>
+      <p>What worked when continually pretraining an Italian LLM: data recipes, context extension from 4K to 16K tokens, and instruction tuning.</p>
+      <p class="links"><a href="https://aclanthology.org/2025.clicit-1.72/">paper</a></p>
     </li>
   </ol>
   <p class="more reveal"><a href="{{ '/publications/' | relative_url }}">All papers →</a></p>
