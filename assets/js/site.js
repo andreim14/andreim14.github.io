@@ -71,15 +71,16 @@
   window.addEventListener("scroll", function () { if (openSense && !openSense.matches(":hover")) hideSense(); }, { passive: true });
 
   /* ---- portrait: sampled out of noise while the answer streams, like a diffusion model ---- */
-  function diffuse(fig, ms) {
+  function diffuse(fig, ms, done) {
     var img = fig && $("img", fig), c = document.createElement("canvas"), x = c.getContext && c.getContext("2d", { willReadFrequently: true });
-    if (!img || !x) return;
+    var called = false, next = function () { if (!called) { called = true; if (done) done(); } };
+    if (!img || !x) return next();
     var W = 150, H = 200, STEPS = 50, tag = document.createElement("span");
     c.width = W; c.height = H; c.setAttribute("aria-hidden", "true");
     tag.className = "step"; tag.setAttribute("aria-hidden", "true");
     fig.classList.add("sampling"); fig.appendChild(c); fig.appendChild(tag);
     function finish() {
-      fig.classList.remove("sampling"); fig.classList.add("sampled");
+      fig.classList.remove("sampling"); fig.classList.add("sampled"); next();
       setTimeout(function () { c.remove(); tag.remove(); }, 900);
     }
     (img.decode ? img.decode() : Promise.resolve()).then(function () {
@@ -192,11 +193,14 @@
       })(text);
 
       hero.classList.add("animate");
-      diffuse($(".portrait", hero), 2100);
-      if (verdictBox) { verdictBox.classList.add("pending"); verdict.textContent = "generating answer…"; }
+      if (verdictBox) { verdictBox.classList.add("pending"); verdict.textContent = "sampling portrait…"; }
       requestAnimationFrame(function () { hero.classList.add("loaded"); });
-
-      var t0 = 450, per = Math.min(32, 1500 / Math.max(words.length, 1));
+      // one act at a time: the portrait is generated, then the answer streams, then it gets fact-checked
+      diffuse($(".portrait", hero), 1200, stream);
+    }
+    function stream() {
+      if (verdict) verdict.textContent = "generating answer…";
+      var t0 = 150, per = Math.min(32, 1500 / Math.max(words.length, 1));
       words.forEach(function (w, i) { setTimeout(function () { w.classList.add("in"); var sp = w.closest(".sense"); if (sp) sp.classList.add("in"); }, t0 + i * per); });
       var tVerify = t0 + words.length * per + 300, STEP = 1250;
       var ticks = $$(".ticks i", hero);
