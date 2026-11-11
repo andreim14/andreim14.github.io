@@ -23,6 +23,9 @@
     <meta name="description" content="{{ doc_desc }}">
     <meta name="author" content="Andrei Stefan Bejgu">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
+    {%- if page.inline or page.type == 'year' or page.type == 'tag' or page.type == 'category' %}
+    <meta name="robots" content="noindex, follow">
+    {%- endif %}
     <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
     <meta property="og:title" content="{{ doc_title }}">
     <meta property="og:description" content="{{ doc_desc }}">
@@ -57,7 +60,15 @@
       gtag('config', '{{ site.google_analytics }}');
     </script>
     {%- endif %}
+    {%- if page.layout == 'post' and page.inline != true %}
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"BlogPosting","headline":{{ page.title | jsonify }},"description":{{ doc_desc | jsonify }},"datePublished":"{{ page.date | date_to_xmlschema }}","dateModified":"{{ page.last_modified_at | default: page.date | date_to_xmlschema }}","url":"{{ page.url | absolute_url }}","image":"{{ doc_img }}","mainEntityOfPage":"{{ page.url | absolute_url }}","author":{"@type":"Person","name":"Andrei Stefan Bejgu","url":"{{ site.url }}"},"keywords":{{ page.tags | join: ', ' | jsonify }}}
+    </script>
+    {%- endif %}
     {%- if page.url == '/' %}
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebSite","name":"Andrei Stefan Bejgu","url":"{{ site.url }}"}
+    </script>
     <script type="application/ld+json">
       {"@context":"https://schema.org","@type":"Person","name":"Andrei Stefan Bejgu","jobTitle":"Senior AI Applied Scientist","worksFor":{"@type":"Organization","name":"Syllotips"},"alumniOf":"Sapienza University of Rome","url":"{{ site.url }}","sameAs":["https://github.com/andreim14","https://www.linkedin.com/in/andrei-stefan-bejgu/","https://scholar.google.com/citations?user=N_eHzKAAAAAJ"]}
     </script>
