@@ -1,6 +1,6 @@
 /* andreim14.github.io · hand-built.
    Idea: the page grounds itself. Claims get highlighted, cited and wired to their sources,
-   the way the research and the agents work. Paper and ink, one amber highlighter. */
+   the way the research and the agents work. Paper and ink, one blue highlighter. */
 
 :root {
   --paper: #f4f0e6;
@@ -9,8 +9,8 @@
   --ink-2: #3b352b;
   --muted: #6e6656;
   --rule: #d9d1bf;
-  --mark: #ffcb3d;
-  --mark-soft: rgba(255, 203, 61, 0.55);
+  --mark: #6aa8ff;
+  --mark-soft: rgba(106, 168, 255, 0.55);
   --mark-ink: #16130e;
   --card: #f9f6ef;
   --shadow: 0 1px 0 rgba(22, 19, 14, 0.06), 0 12px 30px -18px rgba(22, 19, 14, 0.35);
@@ -28,14 +28,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #12100c; --paper-2: #1b1812; --ink: #efe9dc; --ink-2: #cfc6b4; --muted: #998f7c;
-    --rule: #2e2920; --card: #18150f; --mark-soft: rgba(255, 203, 61, 0.32);
+    --rule: #2e2920; --card: #18150f; --mark-soft: rgba(106, 168, 255, 0.32);
     --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 14px 34px -20px rgba(0, 0, 0, 0.9);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #12100c; --paper-2: #1b1812; --ink: #efe9dc; --ink-2: #cfc6b4; --muted: #998f7c;
-  --rule: #2e2920; --card: #18150f; --mark-soft: rgba(255, 203, 61, 0.32);
+  --rule: #2e2920; --card: #18150f; --mark-soft: rgba(106, 168, 255, 0.32);
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 14px 34px -20px rgba(0, 0, 0, 0.9);
   color-scheme: dark;
 }
@@ -409,7 +409,7 @@ main { position: relative; }
 .fig { margin: 1.6em 0; }
 .fig figcaption { font-size: 14px; color: var(--muted); text-align: center; margin-top: 8px; }
 .highlight .c, .highlight .c1, .highlight .cm { color: #8a8170; font-style: italic; }
-.highlight .k, .highlight .kd, .highlight .kn, .highlight .kc, .highlight .ow { color: #ffcb3d; }
+.highlight .k, .highlight .kd, .highlight .kn, .highlight .kc, .highlight .ow { color: #6aa8ff; }
 .highlight .s, .highlight .s1, .highlight .s2, .highlight .sd { color: #a8d49a; }
 .highlight .nf, .highlight .nc { color: #8ec3ff; }
 .highlight .mi, .highlight .mf, .highlight .m { color: #f59f72; }
