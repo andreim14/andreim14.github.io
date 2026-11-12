@@ -186,8 +186,8 @@ main { position: relative; }
 .sources a { position: relative; grid-template-columns: 26px 1fr auto; }
 .sources .ev { display: block; max-height: 0; overflow: hidden; opacity: 0; font: 400 12px/1.45 var(--mono); color: var(--ink-2); transition: max-height 0.4s var(--ease), opacity 0.3s, margin 0.3s; }
 .sources li.hot .ev, .sources li.checking .ev { max-height: 140px; opacity: 1; margin-top: 6px; color: var(--mark); }
-:root[data-theme="light"] .sources li.hot .ev, :root[data-theme="light"] .sources li.checking .ev { color: #8a5a00; }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .sources li.hot .ev, :root:not([data-theme="dark"]) .sources li.checking .ev { color: #8a5a00; } }
+:root[data-theme="light"] .sources li.hot .ev, :root[data-theme="light"] .sources li.checking .ev { color: #1d4f9e; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .sources li.hot .ev, :root:not([data-theme="dark"]) .sources li.checking .ev { color: #1d4f9e; } }
 .stamp { align-self: start; font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: #2f8a55; border: 1.5px solid currentColor; border-radius: 3px; padding: 2px 5px; opacity: 0; transform: rotate(-8deg) scale(1.6); transition: opacity 0.25s, transform 0.35s cubic-bezier(.2,1.6,.4,1); }
 .sources li.hot .stamp, .sources li.checking.stamped .stamp { opacity: 1; transform: rotate(-8deg) scale(1); }
 .sources li.checking a { border-color: var(--mark); }
@@ -275,8 +275,8 @@ main { position: relative; }
 .rb-name { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .rb-name.rb-work { color: var(--ink); }
 .rb-name.rb-study { color: var(--mark); }
-:root[data-theme="light"] .rb-name.rb-study { color: #8a5a00; }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .rb-name.rb-study { color: #8a5a00; } }
+:root[data-theme="light"] .rb-name.rb-study { color: #1d4f9e; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .rb-name.rb-study { color: #1d4f9e; } }
 .rb-axis { position: relative; height: 16px; }
 .rb-tick { position: absolute; left: var(--x); top: 0; font: 500 10.5px var(--mono); color: var(--muted); transform: translateX(-50%); }
 .rb-track { position: relative; height: 22px; border-radius: 6px; background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 100%); background-color: color-mix(in srgb, var(--rule) 35%, transparent); }

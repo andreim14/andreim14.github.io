@@ -109,10 +109,10 @@
   /* ---- hero: the bio grounds itself ---- */
   var hero = $(".hero"), svg = $(".ground-lines"), NS = "http://www.w3.org/2000/svg";
   var linesOn = false;
+  // Paths are updated in place so redraws (resize, cards growing) keep their drawn/hot state.
   function drawLines() {
     if (!hero || !svg) return;
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-    if (window.innerWidth <= 900) return;
+    if (window.innerWidth <= 900) { while (svg.firstChild) svg.removeChild(svg.firstChild); return; }
     var hb = hero.getBoundingClientRect();
     $$(".cite", hero).forEach(function (c) {
       var n = c.getAttribute("data-cite"), src = $('.sources [data-src="' + n + '"] .n', hero);
@@ -121,16 +121,16 @@
       var x1 = a.right - hb.left + 2, y1 = a.top + a.height / 2 - hb.top;
       var x2 = b.left - hb.left - 6, y2 = b.top + b.height / 2 - hb.top;
       var dx = Math.max(60, (x2 - x1) * 0.55);
-      var p = document.createElementNS(NS, "path");
+      var p = $('path[data-line="' + n + '"]', svg), dot = $('circle[data-line="' + n + '"]', svg), fresh = !p;
+      if (fresh) {
+        p = document.createElementNS(NS, "path"); p.setAttribute("data-line", n); p.style.transition = "none"; svg.appendChild(p);
+        dot = document.createElementNS(NS, "circle"); dot.setAttribute("r", 3.5); dot.setAttribute("data-line", n); svg.appendChild(dot);
+      }
       p.setAttribute("d", "M" + x1 + "," + y1 + " C" + (x1 + dx) + "," + y1 + " " + (x2 - dx) + "," + y2 + " " + x2 + "," + y2);
-      p.setAttribute("data-line", n);
-      p.style.transition = "none";
-      svg.appendChild(p);
-      var len = p.getTotalLength(); p.style.setProperty("--len", len);
+      p.style.setProperty("--len", p.getTotalLength());
+      dot.setAttribute("cx", x2); dot.setAttribute("cy", y2);
+      if (!fresh) return;
       p.getBoundingClientRect(); p.style.transition = "";
-      var dot = document.createElementNS(NS, "circle");
-      dot.setAttribute("cx", x2); dot.setAttribute("cy", y2); dot.setAttribute("r", 3.5); dot.setAttribute("data-line", n);
-      svg.appendChild(dot);
       if (linesOn || c.classList.contains("on") || !hero.classList.contains("animate")) { p.classList.add("drawn"); dot.classList.add("drawn"); }
       var li = $('.sources [data-src="' + n + '"]', hero);
       if (linesOn || (li && li.classList.contains("stamped"))) { p.classList.add("gone"); dot.classList.add("gone"); }
@@ -239,6 +239,8 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawLines);
     var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(drawLines, 120); });
     window.addEventListener("load", drawLines);
+    // source cards change height (checking, hover); keep line ends on their badges
+    if (window.ResizeObserver) { var rq; new ResizeObserver(function () { cancelAnimationFrame(rq); rq = requestAnimationFrame(drawLines); }).observe($(".sources", hero) || hero); }
   }
 
   /* ---- reveal on scroll ---- */
